@@ -22,10 +22,18 @@ interface StudioState {
   selectedModelId: string | null;
   isBatchMode: boolean;
   batchModelIds: string[];
+  glassesUrl: string | null;
+  studioMode: "kiyafet" | "eyewear" | "video";
+  videoImageUrls: string[];
+  videoMode: "image_to_video" | "reference_to_video";
   setGarmentUrl: (url: string | null) => void;
   setSelectedModelId: (id: string | null) => void;
   setIsBatchMode: (batch: boolean) => void;
   toggleBatchModel: (id: string) => void;
+  setGlassesUrl: (url: string | null) => void;
+  setStudioMode: (mode: "kiyafet" | "eyewear" | "video") => void;
+  setVideoImageUrls: (urls: string[]) => void;
+  setVideoMode: (mode: "image_to_video" | "reference_to_video") => void;
   reset: () => void;
 }
 
@@ -34,6 +42,10 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   selectedModelId: null,
   isBatchMode: false,
   batchModelIds: [],
+  glassesUrl: null,
+  studioMode: "kiyafet",
+  videoImageUrls: [],
+  videoMode: "image_to_video",
   setGarmentUrl: (url) => set({ garmentUrl: url }),
   setSelectedModelId: (id) => set({ selectedModelId: id }),
   setIsBatchMode: (isBatchMode) => set({ isBatchMode, batchModelIds: [] }),
@@ -45,11 +57,19 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
       set({ batchModelIds: [...current, id] });
     }
   },
+  setGlassesUrl: (url) => set({ glassesUrl: url }),
+  setStudioMode: (mode) => set({ studioMode: mode }),
+  setVideoImageUrls: (urls) => set({ videoImageUrls: urls }),
+  setVideoMode: (mode) => set({ videoMode: mode }),
   reset: () =>
     set({
       garmentUrl: null,
       selectedModelId: null,
       isBatchMode: false,
       batchModelIds: [],
+      glassesUrl: null,
+      studioMode: "kiyafet",
+      videoImageUrls: [],
+      videoMode: "image_to_video",
     }),
 }));

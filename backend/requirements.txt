@@ -20,3 +20,6 @@ psycopg2-binary==2.9.10
 anthropic>=0.40.0
 fal-client>=0.10.0
 aiosmtplib>=3.0.0
+opencv-python-headless>=4.8.0
+mediapipe==0.10.14
+rembg==2.0.57

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
+import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
 
 function ResetPasswordForm() {
@@ -107,6 +108,7 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
+            <Image src="/logo.png" alt="IMA AI Studio" width={44} height={44} className="rounded-full" />
             <span className="text-2xl font-semibold tracking-tight text-[#1a1a1a]">İMA Tryon</span>
           </Link>
           <p className="text-sm text-[#737373] mt-2">Yeni şifre belirle</p>

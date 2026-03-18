@@ -60,6 +60,13 @@ export interface PaginatedResponse<T> {
   page_size: number;
 }
 
+export interface VideoGeneration {
+  generation_id: string;
+  status: "processing" | "completed" | "failed";
+  output_url?: string;
+  error_message?: string;
+}
+
 export interface AdminStats {
   total_users: number;
   total_generations: number;

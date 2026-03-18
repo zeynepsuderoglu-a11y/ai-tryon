@@ -11,6 +11,7 @@ from app.models.user import User
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse,
     RefreshRequest, UserOut, ForgotPasswordRequest, ResetPasswordRequest,
+    ChangePasswordRequest,
 )
 from app.api.deps import get_current_user
 from app.core.config import settings
@@ -29,7 +30,7 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
         email=data.email,
         password_hash=get_password_hash(data.password),
         full_name=data.full_name,
-        credits_remaining=settings.INITIAL_CREDITS,
+        credits_remaining=5,
     )
     db.add(user)
     await db.flush()
@@ -97,6 +98,19 @@ async def forgot_password(data: ForgotPasswordRequest, request: Request, db: Asy
     await send_password_reset_email(user.email, reset_url)
 
     return {"message": "Eğer bu e-posta kayıtlıysa sıfırlama linki gönderildi."}
+
+
+@router.post("/change-password", status_code=200)
+async def change_password(
+    data: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(data.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Mevcut şifre hatalı.")
+    current_user.password_hash = get_password_hash(data.new_password)
+    await db.flush()
+    return {"message": "Şifreniz başarıyla güncellendi."}
 
 
 @router.post("/reset-password", status_code=200)

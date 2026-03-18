@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import Cookies from "js-cookie";
 import type {
   User, TokenResponse, ModelAsset, Generation, BatchJob,
-  PaginatedResponse, AdminStats
+  PaginatedResponse, AdminStats, VideoGeneration
 } from "@/types";
 
 // Browser'dan Next.js proxy üzerinden gider (CORS sorunu olmaz)
@@ -72,6 +72,9 @@ export const authApi = {
 
   resetPassword: (token: string, new_password: string) =>
     api.post<{ message: string }>("/auth/reset-password", { token, new_password }).then((r) => r.data),
+
+  changePassword: (data: { current_password: string; new_password: string }) =>
+    api.post<{ message: string }>("/auth/change-password", data).then((r) => r.data),
 };
 
 // Try-On
@@ -150,6 +153,47 @@ export const generationsApi = {
   delete: (id: string) => api.delete(`/generations/${id}`),
 };
 
+// Eyewear
+export const eyewearApi = {
+  run: (data: { glasses_url: string; model_asset_id: string }) => {
+    const form = new FormData();
+    form.append("glasses_url", data.glasses_url);
+    form.append("model_asset_id", data.model_asset_id);
+    return api.post<{ generation_id: string; status: string }>("/eyewear/run", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
+
+  getStatus: (id: string) =>
+    api.get<Generation>(`/eyewear/${id}/status`).then((r) => r.data),
+};
+
+// Video
+export const videoApi = {
+  run: (data: { image_urls: string[]; prompt?: string; mode?: string }) =>
+    api.post<{ generation_id: string; status: string }>("/video/run", data).then((r) => r.data),
+
+  getStatus: (id: string) =>
+    api.get<VideoGeneration>(`/video/${id}/status`).then((r) => r.data),
+};
+
+// Payments
+export const paymentsApi = {
+  packages: () =>
+    api.get<Record<string, { id: string; credits: number; price: number; name: string; description: string }>>("/payments/packages").then((r) => r.data),
+
+  createCheckout: (package_id: string) =>
+    api.post<{ paymentPageUrl: string; token: string; package: { credits: number; price: number; name: string; description: string } }>(
+      "/payments/create-checkout",
+      { package_id }
+    ).then((r) => r.data),
+
+  history: () =>
+    api.get<Array<{ id: string; package_name: string; credits: number; amount_tl: number; status: string; created_at: string }>>(
+      "/payments/history"
+    ).then((r) => r.data),
+};
+
 // Admin
 export const adminApi = {
   stats: () => api.get<AdminStats>("/admin/stats").then((r) => r.data),
@@ -157,8 +201,8 @@ export const adminApi = {
   users: (params?: { page?: number; page_size?: number }) =>
     api.get("/admin/users", { params }).then((r) => r.data),
 
-  adjustCredits: (userId: string, amount: number, description?: string) =>
-    api.post(`/admin/users/${userId}/credits`, { amount, description }).then((r) => r.data),
+  adjustCredits: (userId: string, amount: number, description?: string, credit_type?: string) =>
+    api.post(`/admin/users/${userId}/credits`, { amount, description, credit_type: credit_type || "clothing" }).then((r) => r.data),
 
   toggleUserStatus: (userId: string, isActive: boolean) =>
     api.put(`/admin/users/${userId}/status`, null, { params: { is_active: isActive } }).then((r) => r.data),

@@ -607,7 +607,7 @@ async def run_tryon(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    credits_cost = 1
+    credits_cost = 2
     if not await credit_service.check_credits(current_user, credits_cost):
         raise HTTPException(status_code=402, detail="Insufficient credits")
 

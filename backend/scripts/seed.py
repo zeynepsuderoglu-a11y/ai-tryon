@@ -79,7 +79,8 @@ async def seed():
                 password_hash=get_password_hash("admin123456"),
                 full_name="Admin",
                 role=UserRole.admin,
-                credits_remaining=9999,
+                clothing_credits=9999,
+                eyewear_credits=9999,
             )
             db.add(admin)
             print("✓ Admin user created: admin@tryon.ai / admin123456")
@@ -93,7 +94,8 @@ async def seed():
                 email="demo@tryon.ai",
                 password_hash=get_password_hash("demo123456"),
                 full_name="Demo User",
-                credits_remaining=10,
+                clothing_credits=10,
+                eyewear_credits=10,
             )
             db.add(demo_user)
             print("✓ Demo user created: demo@tryon.ai / demo123456")

@@ -1,8 +1,8 @@
 FROM node:22-alpine AS builder
 
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json* ./
+RUN npm ci --ignore-scripts
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -15,6 +15,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+
+# Root yerine az yetkili kullanıcı ile çalıştır
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+USER nextjs
 
 EXPOSE 3000
 CMD ["node", "server.js"]

@@ -12,6 +12,7 @@ class AdminStatsResponse(BaseModel):
 
 class AdminCreditAdjust(BaseModel):
     amount: int
+    credit_type: str = "unified"
     description: str = ""
 
 

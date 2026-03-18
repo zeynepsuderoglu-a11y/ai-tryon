@@ -32,6 +32,8 @@ async def get_db() -> AsyncSession:
 
 
 async def create_tables():
+    # Tüm modellerin import edildiğinden emin ol
+    from app.models import user, generation, batch_job, credit_transaction, model_asset, payment, video_generation  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -42,6 +44,13 @@ async def apply_migrations():
         "ALTER TABLE generations ADD COLUMN IF NOT EXISTS quality_score FLOAT",
         "ALTER TABLE generations ADD COLUMN IF NOT EXISTS retry_count INTEGER NOT NULL DEFAULT 0",
         "ALTER TABLE generations ADD COLUMN IF NOT EXISTS generation_metadata JSONB",
+        "ALTER TYPE garmentcategory ADD VALUE IF NOT EXISTS 'eyewear'",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS clothing_credits INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS eyewear_credits INTEGER NOT NULL DEFAULT 0",
+        "UPDATE users SET clothing_credits = credits_remaining WHERE clothing_credits = 0 AND credits_remaining > 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS video_credits INTEGER NOT NULL DEFAULT 0",
+        # Tek havuz migrasyonu: tüm ayrı kredileri credits_remaining'e topla
+        "UPDATE users SET credits_remaining = clothing_credits + eyewear_credits + video_credits WHERE clothing_credits + eyewear_credits + video_credits > credits_remaining",
     ]
     async with engine.begin() as conn:
         for sql in migrations:

@@ -7,13 +7,16 @@ import { isAuthenticated } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
 import { authApi } from "@/lib/api";
 import { clearTokens } from "@/lib/auth";
-import { Wand2, LayoutDashboard, Clock, LogOut, Coins, User } from "lucide-react";
+import Image from "next/image";
+import { Wand2, LayoutDashboard, Clock, LogOut, Coins, User, ShoppingCart, Instagram, Facebook, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/studio",    label: "Stüdyo",  icon: Wand2 },
-  { href: "/dashboard", label: "Panel",   icon: LayoutDashboard },
-  { href: "/history",   label: "Geçmiş",  icon: Clock },
+  { href: "/studio",    label: "Stüdyo",        icon: Wand2 },
+  { href: "/dashboard", label: "Panel",          icon: LayoutDashboard },
+  { href: "/history",   label: "Geçmiş",         icon: Clock },
+  { href: "/credits",   label: "Paket Satın Al", icon: ShoppingCart },
+  { href: "/settings",  label: "Ayarlar",        icon: Settings },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -38,56 +41,87 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex">
+    <div className="min-h-screen bg-[#f8f8f8] flex">
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-56 border-r border-[#e5e5e5] bg-white flex-col fixed h-full z-10">
-        <div className="px-6 py-5 border-b border-[#e5e5e5]">
-          <Link href="/" className="block">
-            <span className="text-base font-semibold tracking-tight text-[#1a1a1a]">İMA Tryon</span>
-            <span className="block text-[10px] text-[#c9a96e] font-medium tracking-widest uppercase mt-0.5">AI Studio</span>
+      <aside className="hidden md:flex w-60 bg-[#0f0f0f] flex-col fixed h-full z-10">
+        {/* Logo */}
+        <div className="px-6 py-6 border-b border-white/10">
+          <Link href="/" className="flex items-center gap-3">
+            <Image src="/logo.png" alt="IMA AI Studio" width={38} height={38} className="rounded-full ring-1 ring-white/20" />
+            <div>
+              <span className="text-white text-base font-semibold tracking-tight block">İMA Tryon</span>
+              <span className="text-[10px] text-[#c9a96e] font-medium tracking-[0.2em] uppercase">AI Studio</span>
+            </div>
           </Link>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-5 space-y-1">
           {navItems.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all",
                 pathname === href
-                  ? "bg-[#1a1a1a] text-white font-medium"
-                  : "text-[#737373] hover:text-[#1a1a1a] hover:bg-[#f5f5f5]"
+                  ? "bg-white/10 text-white font-medium"
+                  : "text-white/40 hover:text-white/80 hover:bg-white/5"
               )}
             >
-              <Icon className="w-4 h-4" /> {label}
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              {label}
             </Link>
           ))}
         </nav>
 
-        <div className="px-4 py-4 border-t border-[#e5e5e5] space-y-3">
+        {/* User + Credits */}
+        <div className="px-4 py-5 border-t border-white/10 space-y-4">
+          {/* Credits */}
           {user && (
-            <div className="flex items-center gap-2 px-2">
-              <Coins className="w-4 h-4 text-[#c9a96e] flex-shrink-0" />
-              <span className="text-sm font-medium text-[#1a1a1a]">{user.credits_remaining}</span>
-              <span className="text-xs text-[#737373]">kredi</span>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-white/5">
+                <Coins className="w-3.5 h-3.5 text-[#c9a96e] flex-shrink-0" />
+                <span className="text-sm font-semibold text-white">{user.credits_remaining}</span>
+                <span className="text-xs text-white/40">üretim</span>
+              </div>
             </div>
           )}
-          <div className="px-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#f0ede8] flex items-center justify-center flex-shrink-0">
-                <User className="w-3.5 h-3.5 text-[#737373]" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-[#1a1a1a] truncate">{user?.full_name}</p>
-                <p className="text-[11px] text-[#737373] truncate">{user?.email}</p>
-              </div>
+          {/* User info */}
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+              <User className="w-3.5 h-3.5 text-white/60" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-white truncate">{user?.full_name}</p>
+              <p className="text-[11px] text-white/40 truncate">{user?.email}</p>
             </div>
           </div>
+          {/* Sosyal Medya */}
+          <div className="flex gap-1">
+            <a
+              href="https://www.instagram.com/imaaistudio"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Instagram"
+              className="flex items-center gap-2 flex-1 px-2 py-2 text-xs text-white/40 hover:text-[#c9a96e] rounded-xl hover:bg-white/5 transition-all"
+            >
+              <Instagram className="w-3.5 h-3.5" /> Instagram
+            </a>
+            <a
+              href="https://www.facebook.com/imaaistudio/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Facebook"
+              className="flex items-center gap-2 flex-1 px-2 py-2 text-xs text-white/40 hover:text-[#4267B2] rounded-xl hover:bg-white/5 transition-all"
+            >
+              <Facebook className="w-3.5 h-3.5" /> Facebook
+            </a>
+          </div>
+          {/* Logout */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-2 py-2 text-xs text-[#737373] hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+            className="flex items-center gap-2 w-full px-2 py-2 text-xs text-white/40 hover:text-red-400 rounded-xl hover:bg-white/5 transition-all"
           >
             <LogOut className="w-3.5 h-3.5" /> Çıkış Yap
           </button>
@@ -95,12 +129,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-56 pb-16 md:pb-0">
+      <main className="flex-1 md:ml-60 pb-16 md:pb-0">
         {children}
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e5e5] z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#0f0f0f] border-t border-white/10 z-50">
         <div className="flex">
           {navItems.map(({ href, label, icon: Icon }) => (
             <Link
@@ -109,8 +143,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className={cn(
                 "flex-1 flex flex-col items-center gap-1 py-3 text-[10px] font-medium transition-colors",
                 pathname === href
-                  ? "text-[#1a1a1a]"
-                  : "text-[#a3a3a3]"
+                  ? "text-white"
+                  : "text-white/35 hover:text-white/60"
               )}
             >
               <Icon className={cn("w-5 h-5", pathname === href && "stroke-[2.5]")} />
@@ -119,7 +153,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           ))}
           <button
             onClick={handleLogout}
-            className="flex-1 flex flex-col items-center gap-1 py-3 text-[10px] font-medium text-[#a3a3a3]"
+            className="flex-1 flex flex-col items-center gap-1 py-3 text-[10px] font-medium text-white/35"
           >
             <LogOut className="w-5 h-5" />
             Çıkış

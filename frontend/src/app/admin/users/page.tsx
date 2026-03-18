@@ -23,6 +23,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [creditModal, setCreditModal] = useState<{ userId: string; name: string } | null>(null);
   const [creditAmount, setCreditAmount] = useState("");
+  const [creditType, setCreditType] = useState("unified");
   const PAGE_SIZE = 20;
 
   const fetchUsers = () => {
@@ -47,10 +48,11 @@ export default function AdminUsersPage() {
     const amount = parseInt(creditAmount);
     if (isNaN(amount) || amount === 0) { toast.error("Enter a valid amount"); return; }
     try {
-      await adminApi.adjustCredits(creditModal.userId, amount);
-      toast.success(`${amount > 0 ? "Added" : "Removed"} ${Math.abs(amount)} credits`);
+      await adminApi.adjustCredits(creditModal.userId, amount, undefined, creditType);
+      toast.success(`${amount > 0 ? "Added" : "Removed"} ${Math.abs(amount)} ${creditType} credits`);
       setCreditModal(null);
       setCreditAmount("");
+      setCreditType("unified");
       fetchUsers();
     } catch { toast.error("Failed to adjust credits"); }
   };
@@ -71,7 +73,7 @@ export default function AdminUsersPage() {
               <tr className="border-b border-white/10 text-gray-400 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 text-left">User</th>
                 <th className="px-4 py-3 text-left">Role</th>
-                <th className="px-4 py-3 text-right">Credits</th>
+                <th className="px-4 py-3 text-right">Üretim</th>
                 <th className="px-4 py-3 text-right">Generations</th>
                 <th className="px-4 py-3 text-right">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -170,16 +172,17 @@ export default function AdminUsersPage() {
           <div className="glass rounded-2xl p-6 w-80">
             <h3 className="font-semibold mb-1">Adjust Credits</h3>
             <p className="text-gray-400 text-sm mb-4">{creditModal.name}</p>
+            <p className="text-xs text-gray-400 mb-3">Pozitif = ekle, Negatif = düş</p>
             <input
               type="number"
               value={creditAmount}
               onChange={(e) => setCreditAmount(e.target.value)}
               placeholder="Amount (use negative to deduct)"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm mb-4 focus:outline-none focus:border-primary-500"
+              className="w-full bg-[#f5f5f5] border border-[#e5e5e5] rounded-lg px-3 py-2 text-[#1a1a1a] text-sm mb-4 focus:outline-none focus:border-[#1a1a1a]"
             />
             <div className="flex gap-2">
               <button onClick={() => { setCreditModal(null); setCreditAmount(""); }}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2 rounded-lg text-sm">
+                className="flex-1 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-[#1a1a1a] py-2 rounded-lg text-sm">
                 Cancel
               </button>
               <button onClick={addCredits}

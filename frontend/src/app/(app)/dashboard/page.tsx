@@ -26,7 +26,7 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      label: "Kalan Kredi",
+      label: "Üretim Bakiyesi",
       value: user?.credits_remaining ?? 0,
       icon: <Coins className="w-5 h-5 text-yellow-400" />,
       color: "text-yellow-400",

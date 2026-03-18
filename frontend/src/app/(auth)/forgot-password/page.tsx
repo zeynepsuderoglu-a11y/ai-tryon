@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { authApi } from "@/lib/api";
+import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
@@ -30,6 +31,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
+            <Image src="/logo.png" alt="IMA AI Studio" width={44} height={44} className="rounded-full" />
             <span className="text-2xl font-semibold tracking-tight text-[#1a1a1a]">İMA Tryon</span>
           </Link>
           <p className="text-sm text-[#737373] mt-2">Şifre sıfırlama</p>

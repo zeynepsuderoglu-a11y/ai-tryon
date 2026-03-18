@@ -6,13 +6,15 @@ import Link from "next/link";
 import { isAuthenticated, clearTokens } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
 import { authApi } from "@/lib/api";
-import { BarChart3, Users, ImageIcon, LogOut } from "lucide-react";
+import Image from "next/image";
+import { BarChart3, Users, ImageIcon, LogOut, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/admin",        label: "Genel Bakış", icon: BarChart3  },
-  { href: "/admin/users",  label: "Kullanıcılar", icon: Users      },
-  { href: "/admin/models", label: "Modeller",     icon: ImageIcon  },
+  { href: "/admin",          label: "Genel Bakış",    icon: BarChart3  },
+  { href: "/admin/users",    label: "Kullanıcılar",   icon: Users      },
+  { href: "/admin/models",   label: "Modeller",       icon: ImageIcon  },
+  { href: "/admin/settings", label: "Şifre Değiştir", icon: KeyRound   },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -42,9 +44,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-[#fafafa] flex">
       <aside className="w-56 border-r border-[#e5e5e5] bg-white flex flex-col fixed h-full">
         <div className="px-6 py-5 border-b border-[#e5e5e5]">
-          <Link href="/" className="block">
-            <span className="text-base font-semibold tracking-tight text-[#1a1a1a]">İMA Tryon</span>
-            <span className="block text-[10px] text-[#c9a96e] font-medium tracking-widest uppercase mt-0.5">Admin Panel</span>
+          <Link href="/" className="flex items-center gap-3">
+            <Image src="/logo.png" alt="IMA AI Studio" width={36} height={36} className="rounded-full" />
+            <div>
+              <span className="text-base font-semibold tracking-tight text-[#1a1a1a] block">İMA Tryon</span>
+              <span className="text-[10px] text-[#c9a96e] font-medium tracking-widest uppercase">Admin Panel</span>
+            </div>
           </Link>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-0.5">

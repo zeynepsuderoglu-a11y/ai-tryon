@@ -10,7 +10,7 @@ import sys
 
 SERVER_IP = "81.17.103.222"
 SERVER_USER = "root"
-SERVER_PASS = "Studyoima/*2026"
+SERVER_PASS = "Studyoima*/2026"
 SERVER_PATH = "/root/ai-tryon"
 LOCAL_ROOT = os.path.dirname(os.path.abspath(__file__))
 

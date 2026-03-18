@@ -1,11 +1,9 @@
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from sqlalchemy.dialects.postgresql import insert
 from fastapi import HTTPException, status
 from app.models.user import User
 from app.models.credit_transaction import CreditTransaction, TransactionType
-from app.core.config import settings
 
 
 class CreditService:
@@ -30,7 +28,6 @@ class CreditService:
         result = await db.execute(stmt)
         user = result.scalar_one_or_none()
         if not user:
-            # Kullanıcı yok mu yoksa kredi yetersiz mi?
             exists = await db.execute(select(User.id).where(User.id == user_id))
             if not exists.scalar_one_or_none():
                 raise HTTPException(status_code=404, detail="User not found")
@@ -56,6 +53,8 @@ class CreditService:
         amount: int,
         transaction_type: TransactionType = TransactionType.admin,
         description: str = "Credit addition",
+        # legacy compat — ignored
+        credit_type: str = "clothing",
     ) -> User:
         result = await db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
@@ -72,12 +71,11 @@ class CreditService:
         await db.flush()
         return user
 
-    async def get_balance(self, db: AsyncSession, user_id: uuid.UUID) -> int:
+    async def get_balance(self, db: AsyncSession, user_id: uuid.UUID, credit_type: str = "clothing") -> int:
         result = await db.execute(
             select(User.credits_remaining).where(User.id == user_id)
         )
-        row = result.scalar_one_or_none()
-        return row or 0
+        return result.scalar_one_or_none() or 0
 
 
 credit_service = CreditService()

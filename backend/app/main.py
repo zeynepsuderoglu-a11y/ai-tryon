@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from app.core.database import create_tables, apply_migrations
 from app.core.config import settings
-from app.api.v1 import auth, tryon, models, generations, admin
+from app.api.v1 import auth, tryon, models, generations, admin, eyewear, payments, video
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,7 +31,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://frontend:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://frontend:3000",
+        "http://81.17.103.222",
+        "https://studyoima.com",
+        "https://www.studyoima.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,6 +53,9 @@ app.include_router(tryon.router, prefix="/api/v1")
 app.include_router(models.router, prefix="/api/v1")
 app.include_router(generations.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(eyewear.router, prefix="/api/v1")
+app.include_router(payments.router, prefix="/api/v1")
+app.include_router(video.router, prefix="/api/v1")
 
 
 @app.get("/health")

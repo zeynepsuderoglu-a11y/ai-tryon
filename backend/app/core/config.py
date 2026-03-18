@@ -43,8 +43,21 @@ class Settings(BaseSettings):
     EMAIL_FROM_NAME: str = "İMA Tryon"
 
     # Credits
-    CREDITS_PER_GENERATION: int = 1
+    CREDITS_PER_GENERATION: int = 2
     INITIAL_CREDITS: int = 3
+
+    # kie.ai (video generation)
+    KIE_API_KEY: str = ""
+    KIE_API_URL: str = "https://api.kie.ai/api/v1"
+
+    # iyzico
+    IYZICO_API_KEY: str = ""
+    IYZICO_SECRET_KEY: str = ""
+    IYZICO_BASE_URL: str = "https://sandbox-api.iyzipay.com"  # prod: https://api.iyzipay.com
+
+    # URLs (PayTR callback için tam URL gerekli)
+    FRONTEND_URL: str = "http://81.17.103.222"
+    BACKEND_URL: str = "http://81.17.103.222"
 
     # App
     APP_NAME: str = "AI TryOn Platform"

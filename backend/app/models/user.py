@@ -24,7 +24,10 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(
         SAEnum(UserRole), default=UserRole.user, nullable=False
     )
-    credits_remaining: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    credits_remaining: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
+    clothing_credits: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    eyewear_credits: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    video_credits: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)

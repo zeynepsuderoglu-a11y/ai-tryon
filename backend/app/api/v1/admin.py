@@ -95,10 +95,14 @@ async def adjust_user_credits(
 ):
     user = await credit_service.add_credits(
         db, user_id, data.amount,
+        credit_type=data.credit_type,
         transaction_type=TransactionType.admin,
         description=data.description or "Admin credit adjustment",
     )
-    return {"user_id": str(user_id), "credits_remaining": user.credits_remaining}
+    return {
+        "user_id": str(user_id),
+        "credits_remaining": user.credits_remaining,
+    }
 
 
 @router.put("/users/{user_id}/status")
