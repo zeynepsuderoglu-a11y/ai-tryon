@@ -417,7 +417,8 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                                    garment_url: str, category: str = "tops", pose: str = "front",
                                    body_type: str = "standard", provider: str = "fashn",
                                    background: str = "white_studio", quality: str = "high",
-                                   aesthetic: str = "auto", crop_type: str = "full_body"):
+                                   aesthetic: str = "auto", crop_type: str = "full_body",
+                                   tuck_style: str = "auto"):
     """FASHN.ai ile try-on işlemi yap, sonucu kaydet."""
     from app.core.database import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
@@ -490,6 +491,9 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 )
                 background_desc = BACKGROUND_PROMPTS.get(background, BACKGROUND_PROMPTS["white_studio"])
 
+                # Müşteri notu
+                customer_note_instruction = f"CUSTOMER NOTE — apply this styling request exactly: {tuck_style}. " if tuck_style and tuck_style.strip() else ""
+
                 base_prompt = (
                     f"GARMENT FIDELITY — reproduce the EXACT product image garment: {analysis.texture_prompt}. "
                     f"{verification_note} "
@@ -498,9 +502,11 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     f"if the product is warm grey-brown/taupe/greige, keep it strictly warm grey-brown with ZERO pink cast; "
                     f"if the product is camel/beige, keep it golden-warm beige with no pink; "
                     f"if the product is navy, keep it deep blue with no grey wash. "
-                    f"SHOULDER/ARMHOLE RULE: clean flat shoulder seam — absolutely NO pleats, NO gathers, NO puffs at armhole or shoulder seam. "
+                    f"BUTTON RULE: preserve the EXACT buttons from the product image — do NOT change button size, shape, color, material or count; reproduce every button detail faithfully. "
+                    f"SHOULDER RULE: do NOT add cutouts, slits, cold-shoulder openings, or ANY structural modification to the shoulder or armhole area unless explicitly visible in the product image; clean intact shoulder seam only. "
                     f"SLIT RULE: do NOT add side slits, leg splits, or vertical hem cuts to pants or skirts unless they are explicitly visible in the product image. "
                     f"BODY PROPORTIONS: preserve natural human body proportions — do NOT stretch, widen, or distort the model horizontally; realistic body width. "
+                    f"{customer_note_instruction}"
                     f"{trend_outfit}, "
                     f"model fully centered in frame, {background_desc}"
                 )
@@ -524,6 +530,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 final = await fashn_service.poll_until_complete(prediction_id)
                 raw_output = final.get("output", [])
                 output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
+                output_urls = output_urls[:1]  # Sadece 1 görsel — FASHN try-on modda num_images'ı dikkate almıyor
 
                 if not output_urls:
                     raise RuntimeError("FASHN product-to-model boş çıktı döndürdü")
@@ -604,6 +611,7 @@ async def run_tryon(
     provider: str = Form("fashn"),
     background: str = Form("white_studio"),
     aesthetic: str = Form("auto"),
+    tuck_style: str = Form("auto"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -642,7 +650,8 @@ async def run_tryon(
     background_tasks.add_task(
         process_tryon_background,
         generation.id, effective_model_image_url, garment_url, "tops", "front", body_type, provider,
-        background, "high", aesthetic, model.crop_type.value if model.crop_type else "full_body"
+        background, "high", aesthetic, model.crop_type.value if model.crop_type else "full_body",
+        tuck_style
     )
 
     return TryOnResponse(generation_id=generation.id, status=generation.status)

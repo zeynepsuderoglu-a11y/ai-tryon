@@ -93,7 +93,7 @@ export default function VideoResult({ generationId }: Props) {
       </div>
       <a
         href={outputUrl!}
-        download="ima-tryon-video.mp4"
+        download="studyoimaai-video.mp4"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-[#0f0f0f] text-white text-sm font-semibold hover:bg-[#2a2a2a] transition-colors"

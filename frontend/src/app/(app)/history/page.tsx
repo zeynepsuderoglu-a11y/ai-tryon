@@ -99,7 +99,7 @@ export default function HistoryPage() {
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                           <a
                             href={gen.output_urls[0]}
-                            download
+                            download={`studyoimaai-${gen.id}.jpg`}
                             target="_blank"
                             rel="noreferrer"
                             className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg"

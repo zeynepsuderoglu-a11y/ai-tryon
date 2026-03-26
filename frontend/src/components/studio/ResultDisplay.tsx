@@ -97,7 +97,7 @@ export default function ResultDisplay({ generationId, batchJobId, onComplete }: 
                   <Image src={url} alt="Result" fill className="object-contain object-center" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-end justify-center pb-3 opacity-0 group-hover:opacity-100">
                     <button
-                      onClick={() => downloadImage(url, `tryon-${result.id}-${i}.png`)}
+                      onClick={() => downloadImage(url, `studyoimaai-${result.id}-${i + 1}.jpg`)}
                       className="bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg"
                     >
                       <Download className="w-4 h-4" />
@@ -159,7 +159,7 @@ export default function ResultDisplay({ generationId, batchJobId, onComplete }: 
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors">
                 <div className="absolute bottom-4 inset-x-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => downloadImage(url, `tryon-result-${i + 1}.png`)}
+                    onClick={() => downloadImage(url, `studyoimaai-result-${i + 1}.jpg`)}
                     className="flex-1 flex items-center justify-center gap-1.5 bg-white/90 hover:bg-white backdrop-blur-sm text-[#1a1a1a] py-2.5 rounded-xl text-xs font-semibold shadow"
                   >
                     <Download className="w-3.5 h-3.5" /> İndir
