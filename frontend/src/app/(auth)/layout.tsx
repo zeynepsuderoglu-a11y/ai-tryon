@@ -3,7 +3,7 @@ import DecorativeBg from "@/components/DecorativeBg";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden">
       <DecorativeBg rings={false} />
       <div className="relative">
       {children}

@@ -1,8 +1,3 @@
-/**
- * Beyaz arka planlara hafif dekoratif doku ekler.
- * Nokta ızgarası + ince çember halkalar.
- * pointer-events:none, aria-hidden — tamamen görsel, erişilebilirliği etkilemez.
- */
 export default function DecorativeBg({ rings = true }: { rings?: boolean }) {
   return (
     <div
@@ -14,8 +9,8 @@ export default function DecorativeBg({ rings = true }: { rings?: boolean }) {
         className="absolute inset-0"
         style={{
           backgroundImage:
-            "radial-gradient(circle, rgba(15,15,15,0.055) 1px, transparent 1px)",
-          backgroundSize: "30px 30px",
+            "radial-gradient(circle, rgba(15,15,15,0.09) 1.5px, transparent 1.5px)",
+          backgroundSize: "28px 28px",
         }}
       />
 
@@ -23,24 +18,24 @@ export default function DecorativeBg({ rings = true }: { rings?: boolean }) {
         <>
           {/* Büyük halka — sağ üst */}
           <svg
-            className="absolute -top-36 -right-36 w-[560px] h-[560px]"
-            viewBox="0 0 560 560"
+            className="absolute -top-36 -right-36 w-[600px] h-[600px]"
+            viewBox="0 0 600 600"
             fill="none"
-            style={{ opacity: 0.042 }}
+            style={{ opacity: 0.1 }}
           >
-            <circle cx="280" cy="280" r="270" stroke="#0f0f0f" strokeWidth="1.5" />
-            <circle cx="280" cy="280" r="210" stroke="#0f0f0f" strokeWidth="0.75" />
+            <circle cx="300" cy="300" r="288" stroke="#0f0f0f" strokeWidth="2" />
+            <circle cx="300" cy="300" r="228" stroke="#0f0f0f" strokeWidth="1" />
           </svg>
 
           {/* Küçük halka — sol alt */}
           <svg
-            className="absolute -bottom-20 -left-20 w-60 h-60"
-            viewBox="0 0 240 240"
+            className="absolute -bottom-16 -left-16 w-72 h-72"
+            viewBox="0 0 288 288"
             fill="none"
-            style={{ opacity: 0.042 }}
+            style={{ opacity: 0.1 }}
           >
-            <circle cx="120" cy="120" r="110" stroke="#0f0f0f" strokeWidth="1.5" />
-            <circle cx="120" cy="120" r="70" stroke="#0f0f0f" strokeWidth="0.75" />
+            <circle cx="144" cy="144" r="132" stroke="#0f0f0f" strokeWidth="2" />
+            <circle cx="144" cy="144" r="88" stroke="#0f0f0f" strokeWidth="1" />
           </svg>
         </>
       )}

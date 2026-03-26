@@ -133,7 +133,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         className="flex-1 md:ml-60 pb-16 md:pb-0"
         style={{
           backgroundImage:
-            "radial-gradient(circle, rgba(15,15,15,0.04) 1px, transparent 1px)",
+            "radial-gradient(circle, rgba(15,15,15,0.07) 1.5px, transparent 1.5px)",
           backgroundSize: "28px 28px",
         }}
       >
