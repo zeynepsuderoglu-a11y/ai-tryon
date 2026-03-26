@@ -3,42 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Package, Glasses, Eye, Users, Zap, ShieldCheck, Instagram, Facebook, Video, Coins } from "lucide-react";
 
-const clothingFeatures = [
-  {
-    icon: <Package className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Ürün Fotoğrafından Manken Görseli",
-    desc: "Sadece ürün fotoğrafı yükleyin. Yapay zeka saniyeler içinde profesyonel manken üzerinde görselleştirir.",
-  },
-  {
-    icon: <Users className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Toplu İşlem",
-    desc: "Tek kıyafeti 10 farklı manken üzerinde aynı anda görün. Katalog hazırlama artık dakikalar içinde.",
-  },
-  {
-    icon: <Zap className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Stüdyo Fotoğraf Kalitesi",
-    desc: "10 yıllık stüdyo deneyimimizle eğitilmiş modeller. Gerçek çekim kalitesinde yapay zeka görseli.",
-  },
-];
-
-const eyewearFeatures = [
-  {
-    icon: <Eye className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Yüze Matematiksel Hizalama",
-    desc: "MediaPipe ile 468 yüz noktası tespit edilir. Gözlük tam göz eksenine, doğru açıda ve orantılı yerleştirilir.",
-  },
-  {
-    icon: <Glasses className="w-5 h-5 text-[#c9a96e]" />,
-    title: "AI Gerçekçilik Katmanı",
-    desc: "Matematiksel yerleştirme sonrası yapay zeka çerçeve kenarlarını, cam yansımalarını ve gölgeleri gerçekçi yapar.",
-  },
-  {
-    icon: <ShieldCheck className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Tüm Çerçeve Tipleri",
-    desc: "Güneş gözlüğü, optik çerçeve, spor gözlük — arka plan otomatik temizlenir, doğal görünümde yapıştırılır.",
-  },
-];
-
 const clothingSteps = [
   { num: "01", title: "Ürün Fotoğrafı Yükle", desc: "Kıyafetin herhangi bir açıdan fotoğrafını yükleyin." },
   { num: "02", title: "Manken Seç", desc: "Standart veya büyük beden, kadın veya erkek modellerimizden seçin." },
@@ -49,24 +13,6 @@ const eyewearSteps = [
   { num: "01", title: "Gözlük Fotoğrafı Yükle", desc: "Gözlüğün ürün fotoğrafını yükleyin, arka plan otomatik kaldırılır." },
   { num: "02", title: "Manken Seç", desc: "Gözlüğün takılacağı manken görselini seçin." },
   { num: "03", title: "AI Render", desc: "Gözlük yüze hizalanır, gerçekçilik katmanı uygulanır." },
-];
-
-const videoFeatures = [
-  {
-    icon: <Video className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Fotoğraftan Video Üretimi",
-    desc: "1-3 ürün veya manken fotoğrafı yükleyin, yapay zeka saniyeler içinde akıcı bir video üretir.",
-  },
-  {
-    icon: <Zap className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Veo 3.1 Fast Teknolojisi",
-    desc: "Google'ın en gelişmiş video üretim modeliyle güçlendirilmiş altyapı. Yüksek kaliteli, gerçekçi video çıktısı.",
-  },
-  {
-    icon: <Package className="w-5 h-5 text-[#c9a96e]" />,
-    title: "Hızlı ve Referanslı Mod",
-    desc: "Standart hızlı üretim veya referans görsellerle yönlendirilmiş üretim — ihtiyacınıza göre seçin.",
-  },
 ];
 
 const videoSteps = [
@@ -81,12 +27,6 @@ const plans = [
   { name: "Orta",      credits: 50,  price: 712,  unitPrice: 14.25, discount: 5  },
   { name: "Pro",       credits: 100, price: 1350, unitPrice: 13.50, discount: 10, popular: true },
   { name: "İşletme",  credits: 500, price: 6000, unitPrice: 12,    discount: 20 },
-];
-
-const creditUsage = [
-  { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük Try-On",  cost: "1 üretim" },
-  { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet Try-On", cost: "2 üretim" },
-  { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
 ];
 
 export const metadata: Metadata = {
@@ -106,6 +46,65 @@ export const metadata: Metadata = {
 };
 
 export default function LandingPage() {
+  const clothingFeatures = [
+    {
+      icon: <Package className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Ürün Fotoğrafından Manken Görseli",
+      desc: "Sadece ürün fotoğrafı yükleyin. Yapay zeka saniyeler içinde profesyonel manken üzerinde görselleştirir.",
+    },
+    {
+      icon: <Users className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Toplu İşlem",
+      desc: "Tek kıyafeti 10 farklı manken üzerinde aynı anda görün. Katalog hazırlama artık dakikalar içinde.",
+    },
+    {
+      icon: <Zap className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Stüdyo Fotoğraf Kalitesi",
+      desc: "10 yıllık stüdyo deneyimimizle eğitilmiş modeller. Gerçek çekim kalitesinde yapay zeka görseli.",
+    },
+  ];
+
+  const eyewearFeatures = [
+    {
+      icon: <Eye className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Yüze Matematiksel Hizalama",
+      desc: "MediaPipe ile 468 yüz noktası tespit edilir. Gözlük tam göz eksenine, doğru açıda ve orantılı yerleştirilir.",
+    },
+    {
+      icon: <Glasses className="w-5 h-5 text-[#c9a96e]" />,
+      title: "AI Gerçekçilik Katmanı",
+      desc: "Matematiksel yerleştirme sonrası yapay zeka çerçeve kenarlarını, cam yansımalarını ve gölgeleri gerçekçi yapar.",
+    },
+    {
+      icon: <ShieldCheck className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Tüm Çerçeve Tipleri",
+      desc: "Güneş gözlüğü, optik çerçeve, spor gözlük — arka plan otomatik temizlenir, doğal görünümde yapıştırılır.",
+    },
+  ];
+
+  const videoFeatures = [
+    {
+      icon: <Video className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Fotoğraftan Video Üretimi",
+      desc: "1-3 ürün veya manken fotoğrafı yükleyin, yapay zeka saniyeler içinde akıcı bir video üretir.",
+    },
+    {
+      icon: <Zap className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Veo 3.1 Fast Teknolojisi",
+      desc: "Google'ın en gelişmiş video üretim modeliyle güçlendirilmiş altyapı. Yüksek kaliteli, gerçekçi video çıktısı.",
+    },
+    {
+      icon: <Package className="w-5 h-5 text-[#c9a96e]" />,
+      title: "Hızlı ve Referanslı Mod",
+      desc: "Standart hızlı üretim veya referans görsellerle yönlendirilmiş üretim — ihtiyacınıza göre seçin.",
+    },
+  ];
+
+  const creditUsage = [
+    { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük Try-On",  cost: "1 üretim" },
+    { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet Try-On", cost: "2 üretim" },
+    { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
+  ];
 
   return (
     <div className="min-h-screen bg-white text-[#0f0f0f]">
