@@ -67,7 +67,6 @@ class FashnService:
             "resolution": resolution,
             "aspect_ratio": aspect_ratio,
             "num_images": num_images,
-            "num_samples": num_images,  # try-on modda FASHN bu parametreyi kullanıyor
         }
         if model_image_url:
             inputs["model_image"] = model_image_url  # try-on mode: 1 kredi (face_reference 4 krediydi)
