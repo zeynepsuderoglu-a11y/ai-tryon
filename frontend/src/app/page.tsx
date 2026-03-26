@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Package, Glasses, Eye, Users, Zap, ShieldCheck, Instagram, Facebook, Video, Coins } from "lucide-react";
+import DecorativeBg from "@/components/DecorativeBg";
 
 const clothingSteps = [
   { num: "01", title: "Ürün Fotoğrafı Yükle", desc: "Kıyafetin herhangi bir açıdan fotoğrafını yükleyin." },
@@ -131,8 +132,9 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="min-h-screen flex items-center pt-16">
-        <div className="max-w-7xl mx-auto px-8 w-full py-24">
+      <section className="min-h-screen flex items-center pt-16 relative overflow-hidden">
+        <DecorativeBg />
+        <div className="max-w-7xl mx-auto px-8 w-full py-24 relative">
           <div className="grid lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_500px] gap-16 items-center">
 
             {/* Sol: Metin */}
@@ -143,7 +145,7 @@ export default function LandingPage() {
               <h1 className="text-5xl sm:text-7xl xl:text-8xl font-bold tracking-[-0.03em] leading-[0.93] mb-10">
                 Yapay Zeka ile<br />
                 Kıyafet, Gözlük<br />
-                <span className="text-[#c9a96e]">&amp; Video Üretimi</span>
+                <span className="text-[#c9a96e] opacity-80">&amp; Video Üretimi</span>
               </h1>
               <p className="text-lg text-[#737373] mb-12 max-w-lg leading-relaxed">
                 Katalog çekimi olmadan saniyeler içinde profesyonel manken görseli ve video.
@@ -276,8 +278,9 @@ export default function LandingPage() {
       </section>
 
       {/* Nasıl Çalışır */}
-      <section className="py-32 px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-32 px-8 relative overflow-hidden">
+        <DecorativeBg rings={false} />
+        <div className="max-w-7xl mx-auto relative">
           <div className="text-center mb-20">
             <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-4">Nasıl Çalışır?</p>
             <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em]">3 adımda görsel & video</h2>
@@ -387,8 +390,9 @@ export default function LandingPage() {
       </section>
 
       {/* Fiyatlandırma */}
-      <section className="py-32 px-8 bg-white">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-32 px-8 bg-white relative overflow-hidden">
+        <DecorativeBg />
+        <div className="max-w-4xl mx-auto relative">
           <div className="text-center mb-10">
             <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-4">Fiyatlandırma</p>
             <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em]">Sade fiyatlandırma</h2>
