@@ -169,18 +169,16 @@ export default function LandingPage() {
             {/* Sağ: Demo Görseller */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
-                <div className="aspect-[3/4] rounded-3xl overflow-hidden bg-[#f5f5f5]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/product.jpg" alt="Yapay zeka kıyafet try-on — ürün fotoğrafı girdi" className="w-full h-full object-cover" />
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-[#f5f5f5]">
+                  <Image src="/demo/product.webp" alt="Yapay zeka kıyafet try-on — ürün fotoğrafı girdi" fill className="object-cover" priority sizes="(max-width: 768px) 40vw, 20vw" />
                 </div>
                 <div className="bg-[#f5f5f5] rounded-2xl px-4 py-3 text-center">
                   <p className="text-[10px] text-[#a3a3a3] uppercase tracking-widest">Ürün</p>
                 </div>
               </div>
               <div className="space-y-4 mt-10">
-                <div className="aspect-[3/4] rounded-3xl overflow-hidden bg-[#f5f5f5]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/model.jpg" alt="AI kıyafet try-on sonucu — manken üzerinde ürün görseli" className="w-full h-full object-cover" />
+                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-[#f5f5f5]">
+                  <Image src="/demo/model.webp" alt="AI kıyafet try-on sonucu — manken üzerinde ürün görseli" fill className="object-cover" priority sizes="(max-width: 768px) 40vw, 20vw" />
                 </div>
                 <div className="bg-[#c9a96e] rounded-2xl px-4 py-3 text-center">
                   <p className="text-[10px] text-white/80 uppercase tracking-widest">AI Çıktı</p>
@@ -363,7 +361,7 @@ export default function LandingPage() {
             <div className="text-center">
               <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/eyewear_model.jpg" alt="Gözlük try-on öncesi — orijinal manken görseli" className="w-full h-full object-cover object-top" />
+                <img src="/demo/eyewear_model.webp" alt="Gözlük try-on öncesi — orijinal manken görseli" className="w-full h-full object-cover object-top" loading="lazy" />
               </div>
               <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">Orijinal</p>
             </div>
@@ -372,14 +370,14 @@ export default function LandingPage() {
               <div className="text-center">
                 <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result1.jpg" alt="Yapay zeka gözlük try-on sonucu — manken üzerinde gözlük" className="w-full h-full object-cover object-top" />
+                  <img src="/demo/eyewear_result1.webp" alt="Yapay zeka gözlük try-on sonucu — manken üzerinde gözlük" className="w-full h-full object-cover object-top" loading="lazy" />
                 </div>
                 <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 1</p>
               </div>
               <div className="text-center">
                 <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result2.jpg" alt="AI gözlük görselleştirme — farklı çerçeve modeli" className="w-full h-full object-cover object-top" />
+                  <img src="/demo/eyewear_result2.webp" alt="AI gözlük görselleştirme — farklı çerçeve modeli" className="w-full h-full object-cover object-top" loading="lazy" />
                 </div>
                 <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 2</p>
               </div>
