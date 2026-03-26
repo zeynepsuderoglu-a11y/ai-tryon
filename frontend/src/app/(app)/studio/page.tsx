@@ -175,7 +175,11 @@ export default function StudioPage() {
           {isVideo && videoGenerationId ? (
             <VideoResult generationId={videoGenerationId} />
           ) : (
-            <ResultDisplay generationId={generationId || undefined} batchJobId={batchJobId || undefined} />
+            <ResultDisplay
+              generationId={generationId || undefined}
+              batchJobId={batchJobId || undefined}
+              mode={isEyewear ? "eyewear" : "garment"}
+            />
           )}
         </div>
       </div>

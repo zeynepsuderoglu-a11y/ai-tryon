@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { videoApi } from "@/lib/api";
-import { Download, RefreshCw, VideoIcon } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
+import GenerationWaiting from "./GenerationWaiting";
 
 interface Props {
   generationId: string;
@@ -48,21 +49,7 @@ export default function VideoResult({ generationId }: Props) {
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   if (status === "processing") {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-6">
-        <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-[#f5f5f5] flex items-center justify-center">
-            <VideoIcon className="w-8 h-8 text-[#c9a96e]" />
-          </div>
-          <div className="absolute inset-0 rounded-full border-2 border-[#c9a96e] border-t-transparent animate-spin" />
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-semibold text-[#0f0f0f] mb-1">Video üretiliyor...</p>
-          <p className="text-xs text-[#a3a3a3]">Veo 3.1 Fast ile işleniyor · {formatTime(elapsed)}</p>
-          <p className="text-xs text-[#c0c0c0] mt-1">Bu işlem yaklaşık 2-3 dakika sürebilir</p>
-        </div>
-      </div>
-    );
+    return <GenerationWaiting mode="video" estimatedSeconds={150} />;
   }
 
   if (status === "failed") {

@@ -4,16 +4,18 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { tryonApi } from "@/lib/api";
 import type { Generation, BatchJob } from "@/types";
-import { Download, Share2, RefreshCw, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Download, CheckCircle, XCircle, Clock } from "lucide-react";
+import GenerationWaiting from "./GenerationWaiting";
 import { cn } from "@/lib/utils";
 
 interface ResultDisplayProps {
   generationId?: string;
   batchJobId?: string;
+  mode?: "garment" | "eyewear";
   onComplete?: () => void;
 }
 
-export default function ResultDisplay({ generationId, batchJobId, onComplete }: ResultDisplayProps) {
+export default function ResultDisplay({ generationId, batchJobId, mode = "garment", onComplete }: ResultDisplayProps) {
   const [generation, setGeneration] = useState<Generation | null>(null);
   const [batchJob, setBatchJob] = useState<BatchJob | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,12 +122,7 @@ export default function ResultDisplay({ generationId, batchJobId, onComplete }: 
   }
 
   if (!generation) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-primary-400 border-t-transparent rounded-full animate-spin mb-3" />
-        <p className="text-sm text-gray-400">Üretim başlatılıyor...</p>
-      </div>
-    );
+    return <GenerationWaiting mode={mode} estimatedSeconds={mode === "eyewear" ? 60 : 90} />;
   }
 
   const statusIcon = {
@@ -171,11 +168,7 @@ export default function ResultDisplay({ generationId, batchJobId, onComplete }: 
         </div>
       ) : (
         generation.status === "processing" || generation.status === "pending" ? (
-          <div className="aspect-[3/4] max-w-sm mx-auto rounded-2xl bg-[#f5f5f5] border border-[#e5e5e5] flex flex-col items-center justify-center gap-3">
-            <div className="w-12 h-12 border-2 border-[#c9a96e] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-[#737373]">Görsel üretiliyor...</p>
-            <p className="text-xs text-[#a3a3a3]">Bu işlem genellikle 60-90 saniye sürer</p>
-          </div>
+          <GenerationWaiting mode={mode} estimatedSeconds={mode === "eyewear" ? 60 : 90} />
         ) : null
       )}
     </div>
