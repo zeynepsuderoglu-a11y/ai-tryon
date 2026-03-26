@@ -31,13 +31,8 @@ const BACKGROUNDS = [
 ];
 
 const AESTHETICS = [
-  { value: "auto",              label: "Otomatik",    emoji: "✨", desc: "Claude seçer"    },
-  { value: "quiet_luxury",      label: "Quiet Luxury",emoji: "🤍", desc: "The Row"         },
-  { value: "parisian_chic",     label: "Parisian",    emoji: "🥐", desc: "Fransız şıklığı" },
-  { value: "corporate_siren",   label: "Corporate",   emoji: "💼", desc: "Güç giyimi"      },
-  { value: "coastal_cool",      label: "Coastal",     emoji: "🌊", desc: "Resort, keten"   },
-  { value: "street_luxe",       label: "Street Luxe", emoji: "👟", desc: "High-low mix"    },
-  { value: "romantic_feminine", label: "Romantik",    emoji: "🌸", desc: "Ballet-core"     },
+  { value: "no_accessories",   label: "Aksesuarsız", emoji: "✨", desc: "Sade üretim"      },
+  { value: "with_accessories", label: "Aksesuarlı",  emoji: "👜", desc: "Çanta, gözlük"    },
 ];
 
 export default function StudioPage() {
@@ -51,7 +46,7 @@ export default function StudioPage() {
   const [bodyType, setBodyType]     = useState("standard");
   const [tuckStyle, setTuckStyle]   = useState("");
   const [background, setBackground] = useState("white_studio");
-  const [aesthetic, setAesthetic]   = useState("auto");
+  const [aesthetic, setAesthetic]   = useState("no_accessories");
   const [running, setRunning]       = useState(false);
   const [runningMessage, setRunningMessage] = useState("Başlatılıyor...");
   const [generationId, setGenerationId]     = useState<string | null>(null);
@@ -339,7 +334,7 @@ export default function StudioPage() {
                 <label className="flex items-center gap-1.5 text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">
                   <Sparkles className="w-3.5 h-3.5 text-[#c9a96e]" /> Trend Estetiği
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {AESTHETICS.map((a) => (
                     <button
                       key={a.value}

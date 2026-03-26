@@ -160,89 +160,38 @@ def _build_message_content(image_data: str, content_type: str) -> list:
 
 
 TREND_AESTHETICS: dict[str, dict] = {
-    "quiet_luxury": {
-        "name": "Quiet Luxury",
-        "desc": "Elevated minimalism — The Row, Loro Piana, Max Mara. Understated sophistication, premium fabrics, tonal dressing.",
-        "palette": "camel, ivory, oatmeal, warm beige, navy, slate grey, chocolate brown — no logos, no bold prints",
-        "pants": "tailored wide-leg wool trousers in complementary neutral tone",
-        "skirt": "A-line midi skirt in cashmere or crepe",
-        "default_bottom": "tailored wide-leg trousers in complementary neutral",
-        "footwear": "pointed-toe ballet flats or kitten-heel mules in nude or tan leather",
-        "accessories": "structured leather tote bag, minimal gold jewelry, no visible logo",
-        "styling": "clean tailored lines, monochrome or tonal, effortless quiet confidence",
+    "no_accessories": {
+        "name": "Aksesuarsız Üretim",
+        "desc": "Clean studio look — garment featured without any accessories or distractions.",
+        "palette": "neutral complementary tones — white, beige, black, grey — chosen to complement the featured garment",
+        "pants": "slim straight-leg trousers in neutral complementary tone",
+        "skirt": "clean A-line midi skirt in neutral tone",
+        "default_bottom": "slim straight-leg trousers in neutral complementary tone",
+        "footwear": "simple clean pointed-toe flats or minimalist shoes in neutral tone",
+        "accessories": "NO accessories whatsoever — absolutely no bag, no jewelry, no sunglasses, no scarves, no belts, no hats, nothing extra",
+        "styling": "clean, minimal, garment-focused — the featured garment is the sole focus with zero distractions",
     },
-    "parisian_chic": {
-        "name": "Parisian Chic",
-        "desc": "Effortless French elegance. Classic, timeless, slightly undone.",
-        "palette": "classic black, white, navy, ecru, beige, burgundy — simple and precise",
-        "pants": "straight-leg dark cigarette trousers or slim-fit dark jeans",
-        "skirt": "fitted A-line mini or midi pencil skirt",
-        "default_bottom": "straight-leg dark jeans or slim cigarette trousers",
-        "footwear": "pointed-toe leather loafers or simple ballet flats",
-        "accessories": "silk neck scarf, minimal gold hoops, small structured leather bag",
-        "styling": "effortless, slightly undone, confident and classic without trying too hard",
-    },
-    "corporate_siren": {
-        "name": "Corporate Siren",
-        "desc": "Power dressing 2026 — structured, commanding, polished.",
-        "palette": "monochrome black, dove grey, camel, ivory, cobalt blue, chocolate brown",
-        "pants": "wide-leg high-waisted tailored trousers",
-        "skirt": "fitted knee-length pencil skirt",
-        "default_bottom": "wide-leg high-waisted tailored trousers",
-        "footwear": "pointed-toe stiletto pumps or square-toe block heels",
-        "accessories": "structured top-handle handbag, minimal statement earrings, thin belt",
-        "styling": "polished, powerful, sharp tailoring, strong confident silhouette",
-    },
-    "coastal_cool": {
-        "name": "Coastal Cool",
-        "desc": "Relaxed resort-inspired elegance. Natural fabrics, breezy, easy.",
-        "palette": "sandy beige, ivory white, sky blue, terracotta, sage green, natural linen tones",
-        "pants": "wide-leg linen trousers in natural white or sand",
-        "skirt": "flowing midi skirt in linen or cotton",
-        "default_bottom": "wide-leg linen trousers in natural white or sand",
-        "footwear": "woven espadrille wedges or leather slide sandals",
-        "accessories": "woven straw tote, simple gold chain, tortoiseshell sunglasses",
-        "styling": "relaxed, natural, sun-kissed ease — effortless coastal elegance",
-    },
-    "street_luxe": {
-        "name": "Street Luxe",
-        "desc": "High-low mix — luxury pieces with streetwear energy.",
-        "palette": "neutral base (black, grey, white) with one bold accent or monochrome",
-        "pants": "straight-leg dark denim or wide-leg cargo trousers",
-        "skirt": "midi skirt paired with clean sneakers",
-        "default_bottom": "straight-leg dark denim or wide-leg cargo trousers",
-        "footwear": "chunky white leather sneakers or low-profile clean trainers",
-        "accessories": "minimal silver jewelry, crossbody bag",
-        "styling": "relaxed confidence, oversized energy meets luxe fabric, streetwear elevated",
-    },
-    "romantic_feminine": {
-        "name": "Romantik Feminen",
-        "desc": "Soft, dreamy, ballet-core inspired. Feminine without being fussy.",
-        "palette": "blush pink, ivory, lilac, sky blue, soft mint, warm cream — soft and delicate",
-        "pants": "flowy wide-leg satin or chiffon trousers",
-        "skirt": "layered tulle midi skirt or flowing chiffon skirt",
-        "default_bottom": "flowy wide-leg trousers in soft satin or silk-like fabric",
-        "footwear": "satin ballet flats or strappy kitten-heel sandals",
-        "accessories": "delicate pearl jewelry, small embellished bag, satin ribbon detail",
-        "styling": "soft, layered, ethereal, ballet-inspired grace — delicate and dreamy",
+    "with_accessories": {
+        "name": "Aksesuarlı Üretim",
+        "desc": "Naturally styled with small complementary accessories alongside the featured garment.",
+        "palette": "neutral complementary tones — white, beige, black, grey — chosen to complement the featured garment",
+        "pants": "slim straight-leg trousers in neutral complementary tone",
+        "skirt": "clean A-line midi skirt in neutral tone",
+        "default_bottom": "slim straight-leg trousers in neutral complementary tone",
+        "footwear": "simple pointed-toe flats or clean low-heeled shoes in neutral tone",
+        "accessories": "one small structured handbag and simple sunglasses or minimal delicate jewelry — small and complementary, never distracting",
+        "styling": "naturally styled with subtle accessories that complement the featured garment without overpowering it",
     },
 }
 
-TREND_SELECTION_PROMPT = """You are a 2026 fashion trend expert. Analyze this garment and select the single best matching trend aesthetic.
+TREND_SELECTION_PROMPT = """You are a fashion styling assistant. Select between two styling options for this garment.
 
-Aesthetics:
-- quiet_luxury: Elevated minimalism, The Row / Max Mara style, neutral tones, premium fabrics, no logos
-- parisian_chic: Effortless French elegance, classic black/navy/beige, timeless and slightly undone
-- corporate_siren: Power dressing, structured tailoring, wide-leg trousers, pumps, commanding
-- coastal_cool: Relaxed resort style, linen, natural tones, breezy and easy
-- street_luxe: High-low mix, luxury + streetwear energy, sneakers, relaxed denim
-- romantic_feminine: Ballet-core, soft pastels, satin, tulle, delicate and dreamy
-
-Consider: formality level, fabric weight, color palette, silhouette, and occasion.
-A wool coat → quiet_luxury or corporate_siren. A linen blazer → coastal_cool. A sequin dress → romantic_feminine or corporate_siren.
+Options:
+- no_accessories: Clean, minimal look — garment only, zero accessories
+- with_accessories: Styled look — garment with small bag and sunglasses or minimal jewelry
 
 Respond ONLY with raw JSON (no markdown):
-{"aesthetic": "one_of_the_six_keys", "reason": "one sentence"}"""
+{"aesthetic": "no_accessories_or_with_accessories", "reason": "one sentence"}"""
 
 
 async def analyze_trend_styling(garment_url: str, aesthetic_override: str | None = None) -> dict:
@@ -259,7 +208,7 @@ async def analyze_trend_styling(garment_url: str, aesthetic_override: str | None
         }
 
     if not settings.ANTHROPIC_API_KEY:
-        return {"aesthetic": "quiet_luxury", "data": TREND_AESTHETICS["quiet_luxury"], "reason": "Default"}
+        return {"aesthetic": "no_accessories", "data": TREND_AESTHETICS["no_accessories"], "reason": "Default"}
 
     try:
         async with httpx.AsyncClient(timeout=20.0) as http:
@@ -282,12 +231,12 @@ async def analyze_trend_styling(garment_url: str, aesthetic_override: str | None
             if text.startswith("json"):
                 text = text[4:]
         result = json.loads(text.strip())
-        key = result.get("aesthetic", "quiet_luxury")
+        key = result.get("aesthetic", "no_accessories")
         if key not in TREND_AESTHETICS:
-            key = "quiet_luxury"
+            key = "no_accessories"
         return {"aesthetic": key, "data": TREND_AESTHETICS[key], "reason": result.get("reason", "")}
     except Exception:
-        return {"aesthetic": "quiet_luxury", "data": TREND_AESTHETICS["quiet_luxury"], "reason": "Default"}
+        return {"aesthetic": "no_accessories", "data": TREND_AESTHETICS["no_accessories"], "reason": "Default"}
 
 
 def build_trend_outfit_prompt(analysis, trend: dict, is_closed_front: bool = False, crop_type: str = "full_body") -> str:
