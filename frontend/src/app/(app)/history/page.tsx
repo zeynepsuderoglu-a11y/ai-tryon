@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { generationsApi } from "@/lib/api";
 import type { Generation } from "@/types";
 import { formatDate } from "@/lib/utils";
-import { Download, Trash2, ChevronLeft, ChevronRight, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Download, Trash2, Clock, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const statusBadge = {
@@ -18,19 +18,16 @@ const statusBadge = {
 
 export default function HistoryPage() {
   const [generations, setGenerations] = useState<Generation[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const PAGE_SIZE = 12;
 
   const fetchHistory = () => {
     setLoading(true);
-    generationsApi.list({ page, page_size: PAGE_SIZE })
-      .then((res) => { setGenerations(res.items); setTotal(res.total); })
+    generationsApi.list({ page: 1, page_size: 10 })
+      .then((res) => { setGenerations(res.items); })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchHistory(); }, [page]);
+  useEffect(() => { fetchHistory(); }, []);
 
   const handleDelete = async (id: string) => {
     try {
@@ -42,15 +39,13 @@ export default function HistoryPage() {
     }
   };
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Geçmiş</h1>
-            <p className="text-gray-400 text-sm mt-1">{total} toplam üretim</p>
+            <p className="text-gray-400 text-sm mt-1">Son 10 üretim</p>
           </div>
         </div>
 
@@ -133,28 +128,6 @@ export default function HistoryPage() {
               })}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-3 mt-8">
-                <button
-                  disabled={page === 1}
-                  onClick={() => setPage((p) => p - 1)}
-                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="text-sm text-gray-400">
-                  Sayfa {page} / {totalPages}
-                </span>
-                <button
-                  disabled={page >= totalPages}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
           </>
         )}
       </div>
