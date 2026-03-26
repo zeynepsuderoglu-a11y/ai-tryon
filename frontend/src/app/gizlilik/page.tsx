@@ -4,8 +4,11 @@ import { ArrowLeft, Instagram, Facebook } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "KVKK — İMA Tryon",
-  description: "İMA Tryon KVKK aydınlatma metni ve kişisel verilerin korunması.",
+  title: "Gizlilik Politikası & KVKK",
+  description:
+    "StudyoİMA AI gizlilik politikası ve KVKK aydınlatma metni. Kişisel verilerinizin nasıl işlendiğini öğrenin.",
+  alternates: { canonical: "https://www.studyoima.com/gizlilik" },
+  robots: { index: false, follow: false },
 };
 
 export default function GizlilikPage() {
@@ -17,7 +20,7 @@ export default function GizlilikPage() {
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/logo.png" alt="IMA AI Studio" width={30} height={30} className="rounded-full" />
-            <span className="text-base font-semibold tracking-tight">İMA Tryon</span>
+            <span className="text-base font-semibold tracking-tight">StudyoİMA AI</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-[#737373] hover:text-[#1a1a1a] transition-colors">Giriş Yap</Link>
@@ -42,7 +45,7 @@ export default function GizlilikPage() {
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">1. Veri Sorumlusu</h2>
               <p>
                 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında veri sorumlusu
-                İMA Tryon'dur (bundan böyle "Şirket" olarak anılacaktır). Şirket, platformu aracılığıyla
+                StudyoİMA AI'dur (bundan böyle "Şirket" olarak anılacaktır). Şirket, platformu aracılığıyla
                 toplanan kişisel verileri bu Gizlilik İlkeleri çerçevesinde işlemektedir.
               </p>
             </section>
@@ -164,11 +167,11 @@ export default function GizlilikPage() {
       {/* Footer */}
       <footer className="border-t border-[#e5e5e5] py-8 px-6 bg-white">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-sm font-semibold text-[#1a1a1a]">İMA Tryon</span>
+          <span className="text-sm font-semibold text-[#1a1a1a]">StudyoİMA AI</span>
           <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-[#737373]">
             <Link href="/hakkimizda" className="hover:text-[#1a1a1a] transition-colors">Hakkımızda</Link>
             <Link href="/iletisim" className="hover:text-[#1a1a1a] transition-colors">İletişim</Link>
-            <Link href="/gizlilik" className="hover:text-[#1a1a1a] transition-colors">KVKK</Link>
+            <Link href="/gizlilik" className="hover:text-[#1a1a1a] transition-colors">Gizlilik Politikası</Link>
             <Link href="/satis-sozlesmesi" className="hover:text-[#1a1a1a] transition-colors">Satış Sözleşmesi</Link>
             <a href="https://www.instagram.com/imaaistudio" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
               <Instagram className="w-3.5 h-3.5" /> Instagram
@@ -177,7 +180,18 @@ export default function GizlilikPage() {
               <Facebook className="w-3.5 h-3.5" /> Facebook
             </a>
           </div>
-          <p className="text-xs text-[#a3a3a3]">© {new Date().getFullYear()} İMA Tryon</p>
+          <p className="text-xs text-[#a3a3a3]">© {new Date().getFullYear()} StudyoİMA AI</p>
+        </div>
+        <div className="max-w-5xl mx-auto mt-6 pt-5 border-t border-[#f0f0f0] flex flex-col sm:flex-row items-center justify-center gap-3">
+          <span className="text-[11px] text-[#b0b0b0] tracking-wide">GÜVENLİ ÖDEME</span>
+          <div className="flex items-center gap-2">
+            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
+              <Image src="/visa.svg" alt="Visa" width={46} height={15} className="object-contain" />
+            </div>
+            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
+              <Image src="/mastercard.svg" alt="Mastercard" width={38} height={24} className="object-contain" />
+            </div>
+          </div>
         </div>
       </footer>
     </div>

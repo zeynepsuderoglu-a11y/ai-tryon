@@ -4,8 +4,11 @@ import { ArrowLeft, Instagram, Facebook } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Satış Sözleşmesi — İMA Tryon",
-  description: "İMA Tryon mesafeli satış sözleşmesi ve kullanım koşulları.",
+  title: "Mesafeli Satış Sözleşmesi",
+  description:
+    "StudyoİMA AI mesafeli satış sözleşmesi ve kullanım koşulları.",
+  alternates: { canonical: "https://www.studyoima.com/satis-sozlesmesi" },
+  robots: { index: false, follow: false },
 };
 
 export default function SatisSozlesmesiPage() {
@@ -17,7 +20,7 @@ export default function SatisSozlesmesiPage() {
         <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-2.5">
             <Image src="/logo.png" alt="IMA AI Studio" width={30} height={30} className="rounded-full" />
-            <span className="text-base font-semibold tracking-tight">İMA Tryon</span>
+            <span className="text-base font-semibold tracking-tight">StudyoİMA AI</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-[#737373] hover:text-[#1a1a1a] transition-colors">Giriş Yap</Link>
@@ -43,7 +46,7 @@ export default function SatisSozlesmesiPage() {
               <div className="space-y-3">
                 <div className="p-4 bg-white border border-[#e5e5e5] rounded-xl">
                   <p className="font-medium text-[#1a1a1a] mb-1">Satıcı (Hizmet Sağlayıcı)</p>
-                  <p>Ünvan: İMA Tryon</p>
+                  <p>Ünvan: StudyoİMA AI</p>
                   <p>Web sitesi: www.studyoima.com</p>
                   <p>E-posta: ilgi@ilet.in</p>
                 </div>
@@ -57,7 +60,7 @@ export default function SatisSozlesmesiPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Madde 2 — Sözleşmenin Konusu</h2>
               <p>
-                Bu sözleşme, Alıcı'nın www.studyoima.com adresindeki İMA Tryon platformu aracılığıyla
+                Bu sözleşme, Alıcı'nın www.studyoima.com adresindeki StudyoİMA AI platformu aracılığıyla
                 satın aldığı dijital yapay zeka görsel üretim hizmetlerinin kullanım koşullarını düzenlemektedir.
                 Sözleşme, 6502 Sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler
                 Yönetmeliği kapsamında hazırlanmıştır.
@@ -186,10 +189,10 @@ export default function SatisSozlesmesiPage() {
               <p className="mb-3">
                 Platform aracılığıyla üretilen görsellerin mülkiyeti kullanıcıya aittir. Kullanıcı,
                 yüklediği görsellerin telif hakkı sahibi olduğunu veya gerekli lisanslara sahip olduğunu
-                beyan eder. İMA Tryon aşağıdaki haklarını saklı tutar:
+                beyan eder. StudyoİMA AI aşağıdaki haklarını saklı tutar:
               </p>
               <ul className="space-y-2 pl-4">
-                <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Platform ve yazılımın tüm fikri mülkiyet hakları İMA Tryon'a aittir.</span></li>
+                <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Platform ve yazılımın tüm fikri mülkiyet hakları StudyoİMA AI'a aittir.</span></li>
                 <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Üretilen görseller, onay alınmadan pazarlama materyali olarak kullanılamaz.</span></li>
               </ul>
             </section>
@@ -197,7 +200,7 @@ export default function SatisSozlesmesiPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Madde 9 — Sorumluluk Sınırlaması</h2>
               <p>
-                İMA Tryon, yapay zeka tarafından üretilen görsellerin belirli bir sonucu garanti etmediğini
+                StudyoİMA AI, yapay zeka tarafından üretilen görsellerin belirli bir sonucu garanti etmediğini
                 beyan eder. Platform kesintisiz hizmet taahhüdünde bulunmamakla birlikte, teknik aksaklık
                 nedeniyle tamamlanamayan işlemlerde üretim hakları otomatik olarak iade edilir.
               </p>
@@ -231,11 +234,11 @@ export default function SatisSozlesmesiPage() {
       {/* Footer */}
       <footer className="border-t border-[#e5e5e5] py-8 px-6 bg-white">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-sm font-semibold text-[#1a1a1a]">İMA Tryon</span>
+          <span className="text-sm font-semibold text-[#1a1a1a]">StudyoİMA AI</span>
           <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-[#737373]">
             <Link href="/hakkimizda" className="hover:text-[#1a1a1a] transition-colors">Hakkımızda</Link>
             <Link href="/iletisim" className="hover:text-[#1a1a1a] transition-colors">İletişim</Link>
-            <Link href="/gizlilik" className="hover:text-[#1a1a1a] transition-colors">KVKK</Link>
+            <Link href="/gizlilik" className="hover:text-[#1a1a1a] transition-colors">Gizlilik Politikası</Link>
             <Link href="/satis-sozlesmesi" className="hover:text-[#1a1a1a] transition-colors">Satış Sözleşmesi</Link>
             <a href="https://www.instagram.com/imaaistudio" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
               <Instagram className="w-3.5 h-3.5" /> Instagram
@@ -244,7 +247,18 @@ export default function SatisSozlesmesiPage() {
               <Facebook className="w-3.5 h-3.5" /> Facebook
             </a>
           </div>
-          <p className="text-xs text-[#a3a3a3]">© {new Date().getFullYear()} İMA Tryon</p>
+          <p className="text-xs text-[#a3a3a3]">© {new Date().getFullYear()} StudyoİMA AI</p>
+        </div>
+        <div className="max-w-5xl mx-auto mt-6 pt-5 border-t border-[#f0f0f0] flex flex-col sm:flex-row items-center justify-center gap-3">
+          <span className="text-[11px] text-[#b0b0b0] tracking-wide">GÜVENLİ ÖDEME</span>
+          <div className="flex items-center gap-2">
+            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
+              <Image src="/visa.svg" alt="Visa" width={46} height={15} className="object-contain" />
+            </div>
+            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
+              <Image src="/mastercard.svg" alt="Mastercard" width={38} height={24} className="object-contain" />
+            </div>
+          </div>
         </div>
       </footer>
     </div>

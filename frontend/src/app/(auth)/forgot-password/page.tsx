@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <Image src="/logo.png" alt="IMA AI Studio" width={44} height={44} className="rounded-full" />
-            <span className="text-2xl font-semibold tracking-tight text-[#1a1a1a]">İMA Tryon</span>
+            <span className="text-2xl font-semibold tracking-tight text-[#1a1a1a]">StudyoİMA AI</span>
           </Link>
           <p className="text-sm text-[#737373] mt-2">Şifre sıfırlama</p>
         </div>

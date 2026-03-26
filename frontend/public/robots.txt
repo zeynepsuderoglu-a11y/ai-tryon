@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Disallow: /studio/
+Disallow: /dashboard/
+Disallow: /credits/
+Disallow: /history/
+Disallow: /settings/
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://www.studyoima.com/sitemap.xml

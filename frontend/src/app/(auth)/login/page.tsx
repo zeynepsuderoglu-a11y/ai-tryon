@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col w-[440px] flex-shrink-0 bg-[#0f0f0f] p-12">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/logo.png" alt="IMA AI Studio" width={38} height={38} className="rounded-full ring-1 ring-white/20" />
-          <span className="text-white text-base font-semibold tracking-tight">İMA Tryon</span>
+          <span className="text-white text-base font-semibold tracking-tight">StudyoİMA AI</span>
         </Link>
         <div className="flex-1 flex flex-col justify-center">
           <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.2em] mb-6">
@@ -78,7 +78,7 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <p className="text-white/20 text-xs">© {new Date().getFullYear()} İMA Tryon</p>
+        <p className="text-white/20 text-xs">© {new Date().getFullYear()} StudyoİMA AI</p>
       </div>
 
       {/* Sağ — Form */}
@@ -89,7 +89,7 @@ export default function LoginPage() {
           <div className="lg:hidden text-center mb-10">
             <Link href="/" className="flex items-center gap-3 justify-center">
               <Image src="/logo.png" alt="IMA AI Studio" width={44} height={44} className="rounded-full" />
-              <span className="text-2xl font-bold tracking-tight text-[#0f0f0f]">İMA Tryon</span>
+              <span className="text-2xl font-bold tracking-tight text-[#0f0f0f]">StudyoİMA AI</span>
             </Link>
           </div>
 

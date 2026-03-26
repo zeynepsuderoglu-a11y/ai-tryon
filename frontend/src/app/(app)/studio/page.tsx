@@ -51,6 +51,7 @@ export default function StudioPage() {
 
   const [step, setStep] = useState(0);
   const [bodyType, setBodyType] = useState("standard");
+  const [tuckStyle, setTuckStyle] = useState("");
   const [background, setBackground] = useState("white_studio");
   const [aesthetic, setAesthetic] = useState("auto");
   const [running, setRunning] = useState(false);
@@ -157,6 +158,7 @@ export default function StudioPage() {
           provider: "fashn",
           background,
           aesthetic,
+          tuck_style: tuckStyle,
         });
         setGenerationId(result.generation_id);
         toast.success("Üretim başladı!");
@@ -668,6 +670,21 @@ export default function StudioPage() {
                       </button>
                     ))}
                   </div>
+                </div>
+
+                {/* Stilist Notu */}
+                <div>
+                  <label className="block text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">
+                    Stilist Notu <span className="normal-case font-normal text-[#b0b0b0]">(isteğe bağlı)</span>
+                  </label>
+                  <textarea
+                    value={tuckStyle}
+                    onChange={(e) => setTuckStyle(e.target.value)}
+                    placeholder="Örn: gömleği dışarıda bırak, düğmeleri kapat, kolları sıvayarak göster..."
+                    maxLength={200}
+                    rows={2}
+                    className="w-full px-4 py-3 rounded-2xl border border-[#e5e5e5] bg-white text-sm text-[#0f0f0f] placeholder-[#c0c0c0] resize-none focus:outline-none focus:border-[#0f0f0f] transition-colors"
+                  />
                 </div>
               </>
             )}

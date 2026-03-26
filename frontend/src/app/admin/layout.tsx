@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/" className="flex items-center gap-3">
             <Image src="/logo.png" alt="IMA AI Studio" width={36} height={36} className="rounded-full" />
             <div>
-              <span className="text-base font-semibold tracking-tight text-[#1a1a1a] block">İMA Tryon</span>
+              <span className="text-base font-semibold tracking-tight text-[#1a1a1a] block">StudyoİMA AI</span>
               <span className="text-[10px] text-[#c9a96e] font-medium tracking-widest uppercase">Admin Panel</span>
             </div>
           </Link>

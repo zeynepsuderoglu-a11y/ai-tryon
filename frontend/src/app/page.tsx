@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Package, Glasses, Eye, Users, Zap, ShieldCheck, Instagram, Facebook, Video, Coins } from "lucide-react";
@@ -90,6 +89,22 @@ const creditUsage = [
   { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
 ];
 
+export const metadata: Metadata = {
+  title: "StudyoİMA AI — Yapay Zeka Kıyafet, Gözlük & Video Üretimi",
+  description:
+    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli ve video. Yapay zeka kıyafet try-on, gözlük deneme ve AI video üretimi. E-ticaret kataloğunuzu hızlandırın.",
+  alternates: {
+    canonical: "https://www.studyoima.com",
+  },
+  openGraph: {
+    title: "StudyoİMA AI — Yapay Zeka Kıyafet, Gözlük & Video Üretimi",
+    description:
+      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli ve video. Yapay zeka kıyafet try-on, gözlük deneme ve AI video üretimi.",
+    url: "https://www.studyoima.com",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "StudyoİMA AI" }],
+  },
+};
+
 export default function LandingPage() {
 
   return (
@@ -99,8 +114,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5">
         <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="IMA AI Studio" width={32} height={32} className="rounded-full" />
-            <span className="text-base font-semibold tracking-tight">İMA Tryon</span>
+            <Image src="/logo.png" alt="StudyoİMA AI — Yapay Zeka Görsel Üretim Platformu" width={32} height={32} className="rounded-full" />
+            <span className="text-base font-semibold tracking-tight">StudyoİMA AI</span>
           </Link>
           <div className="flex items-center gap-5">
             <Link href="/login" className="text-sm text-[#737373] hover:text-[#0f0f0f] transition-colors">
@@ -127,9 +142,9 @@ export default function LandingPage() {
                 Yapay Zeka · Görsel Üretim
               </p>
               <h1 className="text-5xl sm:text-7xl xl:text-8xl font-bold tracking-[-0.03em] leading-[0.93] mb-10">
-                Kıyafet,<br />
-                Gözlük<br />
-                <span className="text-[#c9a96e]">& Video</span>
+                Yapay Zeka ile<br />
+                Kıyafet, Gözlük<br />
+                <span className="text-[#c9a96e]">&amp; Video Üretimi</span>
               </h1>
               <p className="text-lg text-[#737373] mb-12 max-w-lg leading-relaxed">
                 Katalog çekimi olmadan saniyeler içinde profesyonel manken görseli ve video.
@@ -157,7 +172,7 @@ export default function LandingPage() {
               <div className="space-y-4">
                 <div className="aspect-[3/4] rounded-3xl overflow-hidden bg-[#f5f5f5]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/product.jpg" alt="Ürün fotoğrafı" className="w-full h-full object-cover" />
+                  <img src="/demo/product.jpg" alt="Yapay zeka kıyafet try-on — ürün fotoğrafı girdi" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-[#f5f5f5] rounded-2xl px-4 py-3 text-center">
                   <p className="text-[10px] text-[#a3a3a3] uppercase tracking-widest">Ürün</p>
@@ -166,7 +181,7 @@ export default function LandingPage() {
               <div className="space-y-4 mt-10">
                 <div className="aspect-[3/4] rounded-3xl overflow-hidden bg-[#f5f5f5]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/model.jpg" alt="AI manken görseli" className="w-full h-full object-cover" />
+                  <img src="/demo/model.jpg" alt="AI kıyafet try-on sonucu — manken üzerinde ürün görseli" className="w-full h-full object-cover" />
                 </div>
                 <div className="bg-[#c9a96e] rounded-2xl px-4 py-3 text-center">
                   <p className="text-[10px] text-white/80 uppercase tracking-widest">AI Çıktı</p>
@@ -349,7 +364,7 @@ export default function LandingPage() {
             <div className="text-center">
               <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/eyewear_model.jpg" alt="Orijinal manken" className="w-full h-full object-cover object-top" />
+                <img src="/demo/eyewear_model.jpg" alt="Gözlük try-on öncesi — orijinal manken görseli" className="w-full h-full object-cover object-top" />
               </div>
               <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">Orijinal</p>
             </div>
@@ -358,14 +373,14 @@ export default function LandingPage() {
               <div className="text-center">
                 <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result1.jpg" alt="Gözlük sonuç 1" className="w-full h-full object-cover object-top" />
+                  <img src="/demo/eyewear_result1.jpg" alt="Yapay zeka gözlük try-on sonucu — manken üzerinde gözlük" className="w-full h-full object-cover object-top" />
                 </div>
                 <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 1</p>
               </div>
               <div className="text-center">
                 <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result2.jpg" alt="Gözlük sonuç 2" className="w-full h-full object-cover object-top" />
+                  <img src="/demo/eyewear_result2.jpg" alt="AI gözlük görselleştirme — farklı çerçeve modeli" className="w-full h-full object-cover object-top" />
                 </div>
                 <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 2</p>
               </div>
@@ -501,13 +516,13 @@ export default function LandingPage() {
       <footer className="border-t border-[#e8e8e8] py-10 px-8 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="IMA AI Studio" width={28} height={28} className="rounded-full" />
-            <span className="text-sm font-semibold text-[#0f0f0f]">İMA Tryon</span>
+            <Image src="/logo.png" alt="StudyoİMA AI — Yapay Zeka Görsel Üretim Platformu" width={28} height={28} className="rounded-full" />
+            <span className="text-sm font-semibold text-[#0f0f0f]">StudyoİMA AI</span>
           </Link>
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-[#a3a3a3]">
             <Link href="/hakkimizda" className="hover:text-[#0f0f0f] transition-colors">Hakkımızda</Link>
             <Link href="/iletisim" className="hover:text-[#0f0f0f] transition-colors">İletişim</Link>
-            <Link href="/gizlilik" className="hover:text-[#0f0f0f] transition-colors">KVKK</Link>
+            <Link href="/gizlilik" className="hover:text-[#0f0f0f] transition-colors">Gizlilik Politikası</Link>
             <Link href="/satis-sozlesmesi" className="hover:text-[#0f0f0f] transition-colors">Satış Sözleşmesi</Link>
             <Link href="/login" className="hover:text-[#0f0f0f] transition-colors">Giriş Yap</Link>
             <Link href="/register" className="hover:text-[#0f0f0f] transition-colors">Kayıt Ol</Link>
@@ -518,7 +533,20 @@ export default function LandingPage() {
               <Facebook className="w-3.5 h-3.5" /> Facebook
             </a>
           </div>
-          <p className="text-xs text-[#c0c0c0]">© {new Date().getFullYear()} İMA Tryon</p>
+          <p className="text-xs text-[#c0c0c0]">© {new Date().getFullYear()} StudyoİMA AI</p>
+        </div>
+
+        {/* Güvenli Ödeme */}
+        <div className="max-w-7xl mx-auto mt-6 pt-5 border-t border-[#f0f0f0] flex flex-col sm:flex-row items-center justify-center gap-3">
+          <span className="text-[11px] text-[#b0b0b0] tracking-wide">GÜVENLİ ÖDEME</span>
+          <div className="flex items-center gap-2">
+            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
+              <Image src="/visa.svg" alt="Visa" width={46} height={15} className="object-contain" />
+            </div>
+            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
+              <Image src="/mastercard.svg" alt="Mastercard" width={38} height={24} className="object-contain" />
+            </div>
+          </div>
         </div>
       </footer>
 

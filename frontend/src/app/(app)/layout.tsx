@@ -50,7 +50,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/" className="flex items-center gap-3">
             <Image src="/logo.png" alt="IMA AI Studio" width={38} height={38} className="rounded-full ring-1 ring-white/20" />
             <div>
-              <span className="text-white text-base font-semibold tracking-tight block">İMA Tryon</span>
+              <span className="text-white text-base font-semibold tracking-tight block">StudyoİMA AI</span>
               <span className="text-[10px] text-[#c9a96e] font-medium tracking-[0.2em] uppercase">AI Studio</span>
             </div>
           </Link>
