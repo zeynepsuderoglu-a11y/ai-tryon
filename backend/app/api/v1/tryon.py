@@ -289,9 +289,11 @@ def _build_fashn_prompt(analysis, pose: str = "front", body_type: str = "standar
         f"if the neckline has a bow, scarf-tie, or fabric tie, reproduce it exactly — do NOT replace with cowl, drape, or plain neckline; "
         f"PIPING RULE: if the garment has curved or wavy piping trim along seams, reproduce the CURVED shape exactly — do NOT straighten piping into a vertical stripe or side panel; "
         f"SLEEVE RULE: reproduce EXACT sleeve length — if sleeves are 3/4 length (mid-forearm), do NOT extend to wrist; if sleeves are SHORT, do NOT lengthen; "
+        f"SLEEVE FIT RULE: sleeves must drape naturally on the model's arms as if worn — do NOT copy the hanger-distorted or flat-lay sleeve shape from the product photo; reproduce natural worn sleeve silhouette with smooth fabric; "
         f"PANT HEM RULE: if pant hem is described as straight/plain, reproduce a clean straight hem — do NOT add elastic cuffs, ribbing, or ankle bands unless explicitly stated; "
         f"SKIRT RULE: if the skirt is A-line or fit-and-flare, reproduce the FULL voluminous skirt — do NOT slim it into a pencil or slip silhouette; "
-        f"reproduce any logo/text exactly as described — correct text, correct position, correct color, do NOT swap brand or invent new graphics"
+        f"LABEL RULE: do NOT reproduce any inner garment labels, care tags, brand tags, size labels, or manufacturer tags that are visible inside the collar or neckline in the product photo — these are internal manufacturing details NOT part of the garment exterior; the collar and neckline area must be clean fabric only; "
+        f"reproduce any exterior logo/text or embroidery exactly as described — correct text, correct position, correct color, do NOT swap brand or invent new graphics"
     )
 
 
