@@ -28,7 +28,7 @@ from app.services.garment_analysis_service import (
     analyze_trend_styling, build_trend_outfit_prompt,
     check_generation_quality,
 )
-from app.services.fal_service import run_catvton
+from app.services.fal_service import run_catvton, run_fashn_tryon
 from app.services.modal_service import run_catvton_modal
 from app.services.replicate_service import run_tryon_async as replicate_run_tryon
 from app.services.cloudinary_service import cloudinary_service
@@ -511,29 +511,46 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     f"model fully centered in frame, {background_desc}"
                 )
 
-                # ── Tek deneme — kalite kontrolü arka planda yapılacak ───────
+                # ── FASHN.ai → fallback: fal.ai FASHN VTON ──────────────────
                 logger.info("[%s] FASHN çağrısı yapılıyor", generation_id)
                 logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
 
-                run_result = await fashn_service.run_product_to_model(
-                    product_image_url=garment_url,
-                    model_image_url=model_image_url,
-                    prompt=base_prompt,
-                    resolution="4k",
-                    aspect_ratio="3:4",
-                    num_images=1,
-                )
-                prediction_id = run_result.get("id")
-                if not prediction_id:
-                    raise RuntimeError(f"FASHN product-to-model prediction id gelmedi: {run_result}")
+                try:
+                    run_result = await fashn_service.run_product_to_model(
+                        product_image_url=garment_url,
+                        model_image_url=model_image_url,
+                        prompt=base_prompt,
+                        resolution="4k",
+                        aspect_ratio="3:4",
+                        num_images=1,
+                    )
+                    prediction_id = run_result.get("id")
+                    if not prediction_id:
+                        raise RuntimeError(f"FASHN product-to-model prediction id gelmedi: {run_result}")
 
-                final = await fashn_service.poll_until_complete(prediction_id)
-                raw_output = final.get("output", [])
-                output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
-                output_urls = output_urls[:1]  # Sadece 1 görsel — FASHN try-on modda num_images'ı dikkate almıyor
+                    final = await fashn_service.poll_until_complete(prediction_id)
+                    raw_output = final.get("output", [])
+                    output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
+                    output_urls = output_urls[:1]
 
-                if not output_urls:
-                    raise RuntimeError("FASHN product-to-model boş çıktı döndürdü")
+                    if not output_urls:
+                        raise RuntimeError("FASHN product-to-model boş çıktı döndürdü")
+
+                    logger.info("[%s] FASHN.ai tamamlandı", generation_id)
+
+                except Exception as fashn_err:
+                    logger.warning(
+                        "[%s] FASHN.ai başarısız (%s) — fal.ai FASHN VTON fallback başlatılıyor",
+                        generation_id, fashn_err
+                    )
+                    fallback_url = await run_fashn_tryon(
+                        model_image_url=model_image_url,
+                        garment_image_url=garment_url,
+                        category=analysis.category,
+                        mode="quality",
+                    )
+                    output_urls = [fallback_url]
+                    logger.info("[%s] fal.ai FASHN VTON fallback tamamlandı: %s", generation_id, fallback_url)
 
                 logger.info("[%s] FASHN tamamlandı, kullanıcıya gösterilecek", generation_id)
 
