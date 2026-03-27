@@ -1,3 +1,15 @@
+export interface BillingProfile {
+  type: "individual" | "corporate";
+  full_name?: string;
+  city: string;
+  district: string;
+  tc_no?: string;
+  company_name?: string;
+  tax_no?: string;
+  tax_office?: string;
+  address?: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -5,6 +17,7 @@ export interface User {
   role: "user" | "admin";
   credits_remaining: number;
   is_active: boolean;
+  billing_profile?: BillingProfile | null;
 }
 
 export interface TokenResponse {

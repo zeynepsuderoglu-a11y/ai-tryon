@@ -25,6 +25,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, setUser } = useAuthStore();
 
   useEffect(() => {
+    // Ödeme sonuç sayfaları auth gerektirmez (iyzico redirect sonrası token kaybolabilir)
+    if (pathname === "/credits/success" || pathname === "/credits/fail") return;
     if (!isAuthenticated()) { router.push("/login"); return; }
     if (!user) {
       authApi.me().then(setUser).catch(() => {
@@ -32,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         router.push("/login");
       });
     }
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
     clearTokens();

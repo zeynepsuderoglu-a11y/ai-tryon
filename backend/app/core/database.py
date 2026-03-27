@@ -51,6 +51,7 @@ async def apply_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS video_credits INTEGER NOT NULL DEFAULT 0",
         # Tek havuz migrasyonu: tüm ayrı kredileri credits_remaining'e topla
         "UPDATE users SET credits_remaining = clothing_credits + eyewear_credits + video_credits WHERE clothing_credits + eyewear_credits + video_credits > credits_remaining",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS billing_profile JSONB",
     ]
     async with engine.begin() as conn:
         for sql in migrations:

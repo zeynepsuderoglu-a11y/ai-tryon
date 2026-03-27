@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Form, Request
 from fastapi.responses import RedirectResponse
@@ -11,6 +12,7 @@ from app.core.config import settings
 from app.api.v1.auth import get_current_user
 from app.models.user import User
 from app.models.payment import Payment
+from app.schemas.auth import BillingProfile
 from app.services import iyzico_service
 from app.services.iyzico_service import IYZICO_PACKAGES, get_package, make_order_id
 
@@ -43,6 +45,7 @@ async def list_packages():
 
 class CreateCheckoutRequest(BaseModel):
     package_id: str
+    billing_profile: Optional[BillingProfile] = None
 
 
 @router.post("/create-checkout")
@@ -62,6 +65,15 @@ async def create_checkout(
     )
 
     order_id = make_order_id(str(current_user.id))
+
+    # billing_profile: isteğe bağlı — gelirse user'a kaydet
+    effective_billing: dict | None = None
+    if body.billing_profile:
+        current_user.billing_profile = body.billing_profile.model_dump()
+        await db.flush()
+        effective_billing = current_user.billing_profile
+    elif current_user.billing_profile:
+        effective_billing = current_user.billing_profile
 
     # Ödeme kaydını önceden oluştur (pending)
     payment = Payment(
@@ -86,6 +98,7 @@ async def create_checkout(
             package_name=pkg["name"],
             package_description=pkg["description"],
             user_ip=user_ip,
+            billing_profile=effective_billing,
         )
     except Exception as e:
         logger.error(f"iyzico checkout hatası: {e}")
@@ -120,8 +133,8 @@ async def payment_callback(
         logger.error(f"iyzico callback sorgu hatası: {e}")
         return RedirectResponse(f"{settings.FRONTEND_URL}/credits/fail", status_code=303)
 
-    # conversationId = sipariş oluştururken gönderdiğimiz order_id
-    conversation_id = data.get("conversationId") or data.get("basketId", "")
+    # basketId = sipariş oluştururken gönderdiğimiz order_id (conversationId token'ı yansıtabilir)
+    conversation_id = data.get("basketId") or data.get("conversationId", "")
 
     result = await db.execute(
         select(Payment).where(Payment.merchant_oid == conversation_id)

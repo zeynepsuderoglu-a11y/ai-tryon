@@ -4,21 +4,22 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/store";
 import { authApi } from "@/lib/api";
-import { CheckCircle, ArrowRight, Coins } from "lucide-react";
+import { isAuthenticated } from "@/lib/auth";
+import { CheckCircle, ArrowRight, Coins, LogIn } from "lucide-react";
 
 export default function PaymentSuccessPage() {
-  const { setUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
-  // Kredi bakiyesini yenile
   useEffect(() => {
-    authApi.me().then(setUser).catch(() => {});
+    if (isAuthenticated()) {
+      authApi.me().then(setUser).catch(() => {});
+    }
   }, []);
 
   return (
     <div className="min-h-screen bg-[#f8f8f8] flex items-center justify-center px-6">
       <div className="max-w-sm w-full text-center">
 
-        {/* İkon */}
         <div className="w-20 h-20 rounded-full bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10 text-green-500" />
         </div>
@@ -28,7 +29,6 @@ export default function PaymentSuccessPage() {
         </h1>
         <p className="text-[#737373] text-sm mb-8 leading-relaxed">
           Üretim haklarınız hesabınıza tanımlandı.
-          Hemen görsel üretmeye başlayabilirsiniz.
         </p>
 
         <div className="bg-white border border-[#e8e8e8] rounded-2xl p-4 flex items-center gap-3 mb-8 text-left">
@@ -41,12 +41,21 @@ export default function PaymentSuccessPage() {
           </div>
         </div>
 
-        <Link
-          href="/studio"
-          className="inline-flex items-center gap-2 bg-[#0f0f0f] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#2a2a2a] transition-colors"
-        >
-          Stüdyoya Git <ArrowRight className="w-4 h-4" />
-        </Link>
+        {isAuthenticated() ? (
+          <Link
+            href="/studio"
+            className="inline-flex items-center gap-2 bg-[#0f0f0f] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#2a2a2a] transition-colors"
+          >
+            Stüdyoya Git <ArrowRight className="w-4 h-4" />
+          </Link>
+        ) : (
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 bg-[#0f0f0f] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-[#2a2a2a] transition-colors"
+          >
+            Giriş Yap <LogIn className="w-4 h-4" />
+          </Link>
+        )}
       </div>
     </div>
   );

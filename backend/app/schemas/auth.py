@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, field_validator
+from typing import Literal, Optional
 import uuid
 
 
@@ -58,6 +59,22 @@ class ChangePasswordRequest(BaseModel):
         return v
 
 
+class BillingProfile(BaseModel):
+    type: Literal["individual", "corporate"]
+    full_name: Optional[str] = None
+    city: str
+    district: str
+    tc_no: Optional[str] = None
+    company_name: Optional[str] = None
+    tax_no: Optional[str] = None
+    tax_office: Optional[str] = None
+    address: Optional[str] = None
+
+
+class BillingUpdateRequest(BaseModel):
+    billing_profile: BillingProfile
+
+
 class UserOut(BaseModel):
     id: uuid.UUID
     email: str
@@ -65,5 +82,6 @@ class UserOut(BaseModel):
     role: str
     credits_remaining: int
     is_active: bool
+    billing_profile: Optional[dict] = None
 
     model_config = {"from_attributes": True}

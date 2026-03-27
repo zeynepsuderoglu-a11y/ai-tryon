@@ -11,7 +11,7 @@ from app.models.user import User
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse,
     RefreshRequest, UserOut, ForgotPasswordRequest, ResetPasswordRequest,
-    ChangePasswordRequest,
+    ChangePasswordRequest, BillingUpdateRequest,
 )
 from app.api.deps import get_current_user
 from app.core.config import settings
@@ -111,6 +111,17 @@ async def change_password(
     current_user.password_hash = get_password_hash(data.new_password)
     await db.flush()
     return {"message": "Şifreniz başarıyla güncellendi."}
+
+
+@router.put("/billing", response_model=UserOut)
+async def update_billing(
+    data: BillingUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    current_user.billing_profile = data.billing_profile.model_dump()
+    await db.flush()
+    return current_user
 
 
 @router.post("/reset-password", status_code=200)

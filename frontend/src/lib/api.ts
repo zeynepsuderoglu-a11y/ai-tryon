@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import Cookies from "js-cookie";
 import type {
   User, TokenResponse, ModelAsset, Generation, BatchJob,
-  PaginatedResponse, AdminStats, VideoGeneration
+  PaginatedResponse, AdminStats, VideoGeneration, BillingProfile
 } from "@/types";
 
 // Browser'dan Next.js proxy üzerinden gider (CORS sorunu olmaz)
@@ -75,6 +75,9 @@ export const authApi = {
 
   changePassword: (data: { current_password: string; new_password: string }) =>
     api.post<{ message: string }>("/auth/change-password", data).then((r) => r.data),
+
+  updateBilling: (billing_profile: BillingProfile) =>
+    api.put<User>("/auth/billing", { billing_profile }).then((r) => r.data),
 };
 
 // Try-On
@@ -183,10 +186,10 @@ export const paymentsApi = {
   packages: () =>
     api.get<Record<string, { id: string; credits: number; price: number; name: string; description: string }>>("/payments/packages").then((r) => r.data),
 
-  createCheckout: (package_id: string) =>
+  createCheckout: (package_id: string, billing_profile?: BillingProfile) =>
     api.post<{ paymentPageUrl: string; token: string; package: { credits: number; price: number; name: string; description: string } }>(
       "/payments/create-checkout",
-      { package_id }
+      { package_id, billing_profile }
     ).then((r) => r.data),
 
   history: () =>

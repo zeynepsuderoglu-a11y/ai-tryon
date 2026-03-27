@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import { paymentsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
 import { Coins, ArrowRight, Check, Clock, Package, Glasses, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import BillingModal from "@/components/BillingModal";
 
 const plans = [
-  { id: "kredi_10",  credits: 10,  price: 150,  unitPrice: 15,    discount: 0,  name: "Başlangıç Paketi",  desc: "10 AI Görsel Üretimi" },
+{ id: "kredi_10",  credits: 10,  price: 150,  unitPrice: 15,    discount: 0,  name: "Başlangıç Paketi",  desc: "10 AI Görsel Üretimi" },
   { id: "kredi_50",  credits: 50,  price: 712,  unitPrice: 14.25, discount: 5,  name: "Standart Paket",    desc: "50 AI Görsel Üretimi" },
   { id: "kredi_100", credits: 100, price: 1350, unitPrice: 13.50, discount: 10, name: "Profesyonel Paket", desc: "100 AI Görsel Üretimi", popular: true },
   { id: "kredi_500", credits: 500, price: 6000, unitPrice: 12,    discount: 20, name: "Kurumsal Paket",    desc: "500 AI Görsel Üretimi" },
@@ -23,17 +22,12 @@ const usageInfo = [
 
 export default function CreditsPage() {
   const { user } = useAuthStore();
-  const [loading, setLoading] = useState<string | null>(null);
+  const [billingModalOpen, setBillingModalOpen] = useState(false);
+  const [pendingPackageId, setPendingPackageId] = useState<string | null>(null);
 
-  const handleBuy = async (packageId: string) => {
-    setLoading(packageId);
-    try {
-      const result = await paymentsApi.createCheckout(packageId);
-      window.location.href = result.paymentPageUrl;
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Ödeme başlatılamadı");
-      setLoading(null);
-    }
+  const handleBuy = (packageId: string) => {
+    setPendingPackageId(packageId);
+    setBillingModalOpen(true);
   };
 
   return (
@@ -139,19 +133,14 @@ export default function CreditsPage() {
                 </span>
                 <button
                   onClick={() => handleBuy(plan.id)}
-                  disabled={loading !== null}
                   className={cn(
-                    "flex items-center gap-1.5 text-xs px-3 sm:px-4 py-2 rounded-full font-semibold transition-all flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed",
+                    "flex items-center gap-1.5 text-xs px-3 sm:px-4 py-2 rounded-full font-semibold transition-all flex-shrink-0",
                     plan.popular
                       ? "bg-white text-[#0f0f0f] hover:bg-[#f0f0f0]"
                       : "bg-[#0f0f0f] text-white hover:bg-[#2a2a2a]"
                   )}
                 >
-                  {loading === plan.id ? (
-                    <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>Satın Al <ArrowRight className="w-3 h-3" /></>
-                  )}
+                  Satın Al <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -178,6 +167,14 @@ export default function CreditsPage() {
           </Link>
         </div>
       </div>
+
+      {pendingPackageId && (
+        <BillingModal
+          isOpen={billingModalOpen}
+          onClose={() => { setBillingModalOpen(false); setPendingPackageId(null); }}
+          packageId={pendingPackageId}
+        />
+      )}
     </div>
   );
 }
