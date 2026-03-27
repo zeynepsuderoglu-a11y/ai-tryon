@@ -83,10 +83,16 @@ async def create_checkout_form(
     bp_city = bp.get("city", "Istanbul")
     bp_district = bp.get("district", "")
     bp_tc = bp.get("tc_no") or ""
+    bp_tax_no = bp.get("tax_no") or ""
     bp_address_raw = bp.get("address", "")
 
-    # Kimlik numarası: TC (11 hane) → kullan, aksi hâlde fallback
-    identity_number = bp_tc if (bp_tc and len(bp_tc) == 11 and bp_tc.isdigit()) else "11111111111"
+    # Kimlik numarası: bireysel TC veya kurumsal TC (11 hane) → kullan, VKN (10 hane) ise fallback
+    if bp_tc and len(bp_tc) == 11 and bp_tc.isdigit():
+        identity_number = bp_tc
+    elif bp_tax_no and len(bp_tax_no) == 11 and bp_tax_no.isdigit():
+        identity_number = bp_tax_no
+    else:
+        identity_number = "11111111111"
 
     # iletişim adı: kurumsal → firma adı, bireysel → ad soyad
     if bp_type == "corporate":

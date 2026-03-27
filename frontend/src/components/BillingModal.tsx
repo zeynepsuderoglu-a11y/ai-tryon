@@ -71,7 +71,9 @@ export default function BillingModal({ isOpen, onClose, packageId }: BillingModa
       if (!form.full_name?.trim()) return "Ad Soyad zorunludur.";
     } else {
       if (!form.company_name?.trim()) return "Firma adı zorunludur.";
-      if (!form.tax_no?.trim()) return "Vergi numarası zorunludur.";
+      if (!form.tax_no?.trim()) return "Vergi No / T.C. Kimlik No zorunludur.";
+      const taxLen = form.tax_no.trim().length;
+      if (taxLen !== 10 && taxLen !== 11) return "Vergi No 10, T.C. Kimlik No 11 hane olmalıdır.";
       if (!form.tax_office?.trim()) return "Vergi dairesi zorunludur.";
       if (!form.address?.trim()) return "Adres zorunludur.";
     }
@@ -153,7 +155,7 @@ export default function BillingModal({ isOpen, onClose, packageId }: BillingModa
             <>
               <Field label="Firma Adı *" value={form.company_name || ""} onChange={(v) => set("company_name", v)} placeholder="Örnek A.Ş." />
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Vergi No *" value={form.tax_no || ""} onChange={(v) => set("tax_no", v)} placeholder="1234567890" maxLength={10} />
+                <Field label="Vergi No / T.C. Kimlik No *" value={form.tax_no || ""} onChange={(v) => set("tax_no", v)} placeholder="10 veya 11 hane" maxLength={11} />
                 <Field label="Vergi Dairesi *" value={form.tax_office || ""} onChange={(v) => set("tax_office", v)} placeholder="Kadıköy V.D." />
               </div>
               <div className="grid grid-cols-2 gap-3">
