@@ -496,69 +496,50 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "full body shot from head to feet, shoes visible"
                 )
 
-                # Açık/kapalı durum — ürün fotoğrafındaki haliyle eşleş
+                # Açık/kapalı durum — kısa ve net
                 closure_rule = (
-                    "jacket/blazer FULLY CLOSED — all buttons fastened, front panels overlapping with NO gap"
+                    "blazer closed, all buttons fastened"
                     if analysis.is_closed_front
-                    else "jacket/blazer worn OPEN — front panels apart exactly as shown in product photo"
+                    else "blazer worn open"
                 )
 
-                button_rule = "reproduce EXACT button count from the product image — do NOT add extra buttons, do NOT remove buttons"
-
-                # Kombin tamamlama — sadece tamamlayıcı parçalar (ana kıyafet FASHN tarafından fotoğraftan okunuyor)
+                # Kombin tamamlama — kısa tutulur (uzun prompt garment fidelity'yi düşürür)
                 _gt = analysis.garment_type.lower()
                 _is_jacket = any(k in _gt for k in ("blazer", "jacket", "coat", "ceket", "kaban", "palto", "cardigan", "vest", "yelek"))
 
                 if analysis.category == "tops":
                     if _is_jacket and not analysis.is_closed_front:
-                        # Açık ceket/blazer → içinde beyaz crop/gömlek + altında pantolon + ayakkabı
+                        # Açık blazer → içinde beyaz crop + altında pantolon
                         outfit_completion = (
-                            "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
-                            "in a complementary dark color on the bottom — REPLACE any existing pants with tailored trousers; "
-                            "CRITICAL: a white or beige fitted spaghetti-strap crop top fabric MUST be clearly visible "
-                            "BETWEEN THE JACKET LAPELS at the chest and neckline area — "
-                            "show the solid fabric of the inner top between the two lapels, NOT bare skin, NOT décolletage — "
-                            "the inner garment fabric must fill the V-opening between the lapels; "
-                            f"on the feet: {analysis.footwear}"
+                            f"slim tailored trousers, white fitted inner top visible at neckline, "
+                            f"{analysis.footwear}"
                         )
                     elif _is_jacket and analysis.is_closed_front:
-                        # Kapalı ceket → sadece altında pantolon + ayakkabı
+                        # Kapalı ceket → pantolon + ayakkabı
                         outfit_completion = (
-                            "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
-                            "in a complementary color on the bottom — REPLACE any existing pants with tailored trousers; "
-                            f"on the feet: {analysis.footwear}"
+                            f"slim tailored trousers, {analysis.footwear}"
                         )
                     else:
-                        # Tişört, gömlek, kazak vb. → altında pantolon/etek + ayakkabı
+                        # Tişört, gömlek, kazak vb.
                         outfit_completion = (
-                            "FULL OUTFIT: the model MUST wear well-fitted trousers or a skirt "
-                            "in a complementary color on the bottom — REPLACE any existing pants; "
-                            f"on the feet: {analysis.footwear}"
+                            f"slim trousers or skirt, {analysis.footwear}"
                         )
                 elif analysis.category == "bottoms":
-                    # Pantolon, etek vb. → üstte uygun bir top + ayakkabı
-                    outfit_completion = (
-                        "FULL OUTFIT: the model MUST wear a fitted blouse, shirt, or top "
-                        "in a complementary color on the upper body — REPLACE any existing top; "
-                        f"on the feet: {analysis.footwear}"
-                    )
+                    outfit_completion = f"fitted top, {analysis.footwear}"
                 else:
-                    # Elbise, tulum, takım — sadece ayakkabı
-                    outfit_completion = f"on the feet: {analysis.footwear}"
+                    outfit_completion = f"{analysis.footwear}"
 
                 accessories_note = (
-                    "minimal accessories — small handbag and delicate jewelry"
+                    "minimal accessories"
                     if trend["aesthetic"] == "with_accessories"
                     else "no accessories"
                 )
 
                 base_prompt = (
-                    f"{closure_rule}, {button_rule}, "
-                    + (f"{outfit_completion}, " if outfit_completion else "")
-                    + f"{accessories_note}, "
-                    f"preserve the model's original pose and body posture, "
-                    f"{crop_frame}, model fully centered in frame, {background_desc}, "
-                    f"photorealistic face with natural features, sharp facial details, no face distortion"
+                    f"{closure_rule}, "
+                    f"{outfit_completion}, {accessories_note}, "
+                    f"preserve pose, {crop_frame}, {background_desc}, "
+                    f"photorealistic"
                 )
 
                 # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
