@@ -421,8 +421,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                                    garment_url: str, category: str = "tops", pose: str = "front",
                                    body_type: str = "standard", provider: str = "fashn",
                                    background: str = "white_studio", quality: str = "high",
-                                   aesthetic: str = "auto", crop_type: str = "full_body",
-                                   tuck_style: str = "auto"):
+                                   aesthetic: str = "auto", crop_type: str = "full_body"):
     """FASHN.ai ile try-on işlemi yap, sonucu kaydet."""
     from app.core.database import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
@@ -497,14 +496,8 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "full body shot from head to feet, shoes visible"
                 )
 
-                # Müşteri notu
-                customer_note_instruction = f"styling note: {tuck_style}. " if tuck_style and tuck_style.strip() else ""
-
                 # Sadece sahne/çerçeve bilgisi — kıyafet detayları FASHN ürün fotoğrafından otomatik çıkarılıyor
-                base_prompt = (
-                    f"{customer_note_instruction}"
-                    f"{crop_frame}, model fully centered in frame, {background_desc}"
-                )
+                base_prompt = f"{crop_frame}, model fully centered in frame, {background_desc}"
 
                 # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
                 logger.info("[%s] Garment preprocessing başlıyor", generation_id)
@@ -634,7 +627,6 @@ async def run_tryon(
     provider: str = Form("fashn"),
     background: str = Form("white_studio"),
     aesthetic: str = Form("auto"),
-    tuck_style: str = Form("auto"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -674,7 +666,6 @@ async def run_tryon(
         process_tryon_background,
         generation.id, effective_model_image_url, garment_url, "tops", "front", body_type, provider,
         background, "high", aesthetic, model.crop_type.value if model.crop_type else "full_body",
-        tuck_style
     )
 
     return TryOnResponse(generation_id=generation.id, status=generation.status)
