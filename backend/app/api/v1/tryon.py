@@ -515,7 +515,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         # Açık ceket/blazer → içinde beyaz crop/gömlek + altında pantolon + ayakkabı
                         outfit_completion = (
                             "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
-                            "in a complementary dark color on the bottom — REPLACE any existing pants with tailored trousers; "
+                            "in a complementary dark color on the bottom — trousers MUST be clearly visible below the jacket hem, legs must NOT be bare; "
                             "CRITICAL: a white or beige fitted spaghetti-strap crop top fabric MUST be clearly visible "
                             "BETWEEN THE JACKET LAPELS at the chest and neckline area — "
                             "show the solid fabric of the inner top between the two lapels, NOT bare skin, NOT décolletage — "
@@ -526,7 +526,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         # Kapalı ceket → sadece altında pantolon + ayakkabı
                         outfit_completion = (
                             "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
-                            "in a complementary color on the bottom — REPLACE any existing pants with tailored trousers; "
+                            "in a complementary color on the bottom — trousers MUST be clearly visible below the jacket hem, legs must NOT be bare; "
                             f"on the feet: {analysis.footwear}"
                         )
                     else:
