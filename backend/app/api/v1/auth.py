@@ -91,10 +91,7 @@ async def forgot_password(data: ForgotPasswordRequest, request: Request, db: Asy
     await r.setex(f"pwd_reset:{token}", 3600, str(user.id))
     await r.aclose()
 
-    base_url = str(request.base_url).rstrip("/")
-    # Frontend URL — strip Next.js proxy path, use frontend port
-    frontend_url = base_url.replace(":8000", ":3002")
-    reset_url = f"{frontend_url}/reset-password?token={token}"
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
     await send_password_reset_email(user.email, reset_url)
 
     return {"message": "Eğer bu e-posta kayıtlıysa sıfırlama linki gönderildi."}

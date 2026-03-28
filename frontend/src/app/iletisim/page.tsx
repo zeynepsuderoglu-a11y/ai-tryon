@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Mail, Instagram, Facebook } from "lucide-react";
+import ContactForm from "./ContactForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -78,6 +79,13 @@ export default function IletisimPage() {
             </div>
 
           </div>
+
+          {/* İletişim Formu */}
+          <h2 className="text-xl font-semibold text-[#1a1a1a] mb-1">Bize Ulaşın</h2>
+          <p className="text-sm text-[#737373] mb-6">
+            Sorularınız, demo talepleriniz veya destek için aşağıdaki formu doldurun.
+          </p>
+          <ContactForm />
 
         </div>
       </div>
