@@ -516,8 +516,10 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         outfit_completion = (
                             "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
                             "in a complementary dark color on the bottom — REPLACE any existing pants with tailored trousers; "
-                            "a white or beige fitted spaghetti-strap crop top or slim fitted shirt MUST be clearly visible "
-                            "at the neckline underneath the open jacket — this inner top is REQUIRED, do NOT leave bare skin; "
+                            "CRITICAL: a white or beige fitted spaghetti-strap crop top fabric MUST be clearly visible "
+                            "BETWEEN THE JACKET LAPELS at the chest and neckline area — "
+                            "show the solid fabric of the inner top between the two lapels, NOT bare skin, NOT décolletage — "
+                            "the inner garment fabric must fill the V-opening between the lapels; "
                             f"on the feet: {analysis.footwear}"
                         )
                     elif _is_jacket and analysis.is_closed_front:
