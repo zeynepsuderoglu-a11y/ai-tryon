@@ -508,7 +508,8 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 base_prompt = (
                     f"{closure_rule}, {button_rule}, "
-                    f"{crop_frame}, model fully centered in frame, {background_desc}"
+                    f"{crop_frame}, model fully centered in frame, {background_desc}, "
+                    f"photorealistic face with natural features, sharp facial details, no face distortion"
                 )
 
                 # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
