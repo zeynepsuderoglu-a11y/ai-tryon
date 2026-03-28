@@ -102,7 +102,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Sosyal Medya */}
           <div className="flex gap-1">
             <a
-              href="https://www.instagram.com/imaaistudio"
+              href="https://www.instagram.com/studyoimaai"
               target="_blank"
               rel="noopener noreferrer"
               title="Instagram"

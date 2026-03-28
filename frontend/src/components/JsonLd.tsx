@@ -12,7 +12,7 @@ export default function JsonLd() {
       availableLanguage: "Turkish",
     },
     sameAs: [
-      "https://www.instagram.com/imaaistudio",
+      "https://www.instagram.com/studyoimaai",
       "https://www.facebook.com/imaaistudio/",
     ],
     address: {

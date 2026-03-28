@@ -527,7 +527,7 @@ export default function LandingPage() {
             <Link href="/satis-sozlesmesi" className="hover:text-[#0f0f0f] transition-colors">Satış Sözleşmesi</Link>
             <Link href="/login" className="hover:text-[#0f0f0f] transition-colors">Giriş Yap</Link>
             <Link href="/register" className="hover:text-[#0f0f0f] transition-colors">Kayıt Ol</Link>
-            <a href="https://www.instagram.com/imaaistudio" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#0f0f0f] transition-colors">
+            <a href="https://www.instagram.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#0f0f0f] transition-colors">
               <Instagram className="w-3.5 h-3.5" /> Instagram
             </a>
             <a href="https://www.facebook.com/imaaistudio/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#0f0f0f] transition-colors">
