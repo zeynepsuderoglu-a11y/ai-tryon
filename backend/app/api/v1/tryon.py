@@ -512,33 +512,38 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 if analysis.category == "tops":
                     if _is_jacket and not analysis.is_closed_front:
-                        # Açık ceket/blazer → içinde crop/gömlek + altında pantolon
+                        # Açık ceket/blazer → içinde beyaz crop/gömlek + altında pantolon + ayakkabı
+                        outfit_completion = (
+                            "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
+                            "in a complementary dark color on the bottom — REPLACE any existing pants with tailored trousers; "
+                            "a white or beige fitted spaghetti-strap crop top or slim fitted shirt MUST be clearly visible "
+                            "at the neckline underneath the open jacket — this inner top is REQUIRED, do NOT leave bare skin; "
+                            f"on the feet: {analysis.footwear}"
+                        )
+                    elif _is_jacket and analysis.is_closed_front:
+                        # Kapalı ceket → sadece altında pantolon + ayakkabı
                         outfit_completion = (
                             "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
                             "in a complementary color on the bottom — REPLACE any existing pants with tailored trousers; "
-                            "a fitted spaghetti-strap crop top or slim fitted shirt MUST be visible underneath the open jacket"
-                        )
-                    elif _is_jacket and analysis.is_closed_front:
-                        # Kapalı ceket → sadece altında pantolon
-                        outfit_completion = (
-                            "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
-                            "in a complementary color on the bottom — REPLACE any existing pants with tailored trousers"
+                            f"on the feet: {analysis.footwear}"
                         )
                     else:
-                        # Tişört, gömlek, kazak vb. → altında pantolon/etek
+                        # Tişört, gömlek, kazak vb. → altında pantolon/etek + ayakkabı
                         outfit_completion = (
                             "FULL OUTFIT: the model MUST wear well-fitted trousers or a skirt "
-                            "in a complementary color on the bottom — REPLACE any existing pants"
+                            "in a complementary color on the bottom — REPLACE any existing pants; "
+                            f"on the feet: {analysis.footwear}"
                         )
                 elif analysis.category == "bottoms":
-                    # Pantolon, etek vb. → üstte uygun bir top
+                    # Pantolon, etek vb. → üstte uygun bir top + ayakkabı
                     outfit_completion = (
                         "FULL OUTFIT: the model MUST wear a fitted blouse, shirt, or top "
-                        "in a complementary color on the upper body — REPLACE any existing top"
+                        "in a complementary color on the upper body — REPLACE any existing top; "
+                        f"on the feet: {analysis.footwear}"
                     )
                 else:
-                    # Elbise, tulum, takım — ek parça yok
-                    outfit_completion = ""
+                    # Elbise, tulum, takım — sadece ayakkabı
+                    outfit_completion = f"on the feet: {analysis.footwear}"
 
                 accessories_note = (
                     "minimal accessories — small handbag and delicate jewelry"
@@ -550,6 +555,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     f"{closure_rule}, {button_rule}, "
                     + (f"{outfit_completion}, " if outfit_completion else "")
                     + f"{accessories_note}, "
+                    f"preserve the model's original pose and body posture, "
                     f"{crop_frame}, model fully centered in frame, {background_desc}, "
                     f"photorealistic face with natural features, sharp facial details, no face distortion"
                 )
