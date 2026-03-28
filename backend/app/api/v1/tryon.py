@@ -514,26 +514,36 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     if _is_jacket and not analysis.is_closed_front:
                         # Açık ceket/blazer → içinde crop/gömlek + altında pantolon
                         outfit_completion = (
-                            "styled with slim-fit well-fitted trousers in a complementary color on the bottom, "
-                            "a fitted spaghetti-strap crop top or fitted shirt visible underneath the open jacket"
+                            "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
+                            "in a complementary color on the bottom — REPLACE any existing pants with tailored trousers; "
+                            "a fitted spaghetti-strap crop top or slim fitted shirt MUST be visible underneath the open jacket"
                         )
                     elif _is_jacket and analysis.is_closed_front:
                         # Kapalı ceket → sadece altında pantolon
-                        outfit_completion = "styled with slim-fit well-fitted trousers in a complementary color on the bottom"
+                        outfit_completion = (
+                            "FULL OUTFIT: the model MUST wear slim-fit tailored trousers (NOT leggings, NOT shorts) "
+                            "in a complementary color on the bottom — REPLACE any existing pants with tailored trousers"
+                        )
                     else:
                         # Tişört, gömlek, kazak vb. → altında pantolon/etek
-                        outfit_completion = "styled with well-fitted trousers or a skirt in a complementary color on the bottom"
+                        outfit_completion = (
+                            "FULL OUTFIT: the model MUST wear well-fitted trousers or a skirt "
+                            "in a complementary color on the bottom — REPLACE any existing pants"
+                        )
                 elif analysis.category == "bottoms":
                     # Pantolon, etek vb. → üstte uygun bir top
-                    outfit_completion = "styled with a fitted top, blouse, or shirt on the upper body in a complementary color"
+                    outfit_completion = (
+                        "FULL OUTFIT: the model MUST wear a fitted blouse, shirt, or top "
+                        "in a complementary color on the upper body — REPLACE any existing top"
+                    )
                 else:
                     # Elbise, tulum, takım — ek parça yok
                     outfit_completion = ""
 
                 accessories_note = (
-                    "with minimal accessories — small handbag and simple jewelry"
+                    "minimal accessories — small handbag and delicate jewelry"
                     if trend["aesthetic"] == "with_accessories"
-                    else "clean minimal look with no accessories"
+                    else "no accessories"
                 )
 
                 base_prompt = (
