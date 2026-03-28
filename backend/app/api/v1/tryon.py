@@ -496,8 +496,20 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "full body shot from head to feet, shoes visible"
                 )
 
-                # Sadece sahne/çerçeve bilgisi — kıyafet detayları FASHN ürün fotoğrafından otomatik çıkarılıyor
-                base_prompt = f"{crop_frame}, model fully centered in frame, {background_desc}"
+                # Açık/kapalı durum — ürün fotoğrafındaki haliyle eşleş
+                closure_rule = (
+                    "jacket/blazer FULLY CLOSED — all buttons fastened, front panels overlapping with NO gap"
+                    if analysis.is_closed_front
+                    else "jacket/blazer worn OPEN — front panels apart exactly as shown in product photo"
+                )
+
+                # Sadece düğme sayısı kuralı — garment şekli FASHN'a bırakılıyor
+                button_rule = "reproduce EXACT button count from the product image — do NOT add extra buttons, do NOT remove buttons"
+
+                base_prompt = (
+                    f"{closure_rule}, {button_rule}, "
+                    f"{crop_frame}, model fully centered in frame, {background_desc}"
+                )
 
                 # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
                 logger.info("[%s] Garment preprocessing başlıyor", generation_id)
