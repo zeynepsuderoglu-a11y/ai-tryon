@@ -28,7 +28,7 @@ from app.services.garment_analysis_service import (
     check_generation_quality,
 )
 from app.services.fal_service import run_catvton, run_fashn_tryon
-from app.services.garment_preprocess_service import clean_garment_image, clean_output_image
+from app.services.garment_preprocess_service import clean_garment_image, clean_output_image, split_composite_if_needed
 from app.services.modal_service import run_catvton_modal
 from app.services.replicate_service import run_tryon_async as replicate_run_tryon
 from app.services.cloudinary_service import cloudinary_service
@@ -595,6 +595,9 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                     logger.info("[%s] FASHN.ai tamamlandı", generation_id)
 
+                    # Composite (yan yana 2 görsel) kontrolü — tek görsel al
+                    output_urls = [await split_composite_if_needed(u) for u in output_urls]
+
                     # Çıktıdaki iç yaka etiketini temizle
                     logger.info("[%s] Output cleaning başlıyor", generation_id)
                     output_urls = [await clean_output_image(u) for u in output_urls]
@@ -610,6 +613,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         category=analysis.category,
                         mode="quality",
                     )
+                    fallback_url = await split_composite_if_needed(fallback_url)
                     fallback_url = await clean_output_image(fallback_url)
                     output_urls = [fallback_url]
                     logger.info("[%s] fal.ai FASHN VTON fallback tamamlandı: %s", generation_id, fallback_url)
