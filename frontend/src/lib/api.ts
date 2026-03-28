@@ -101,7 +101,6 @@ export const tryonApi = {
     background?: string;
     quality?: string;
     aesthetic?: string;
-    tuck_style?: string;
   }) => {
     const form = new FormData();
     Object.entries(data).forEach(([k, v]) => { if (v !== undefined) form.append(k, String(v)); });
