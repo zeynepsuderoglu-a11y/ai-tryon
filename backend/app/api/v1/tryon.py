@@ -503,14 +503,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "jacket/blazer worn OPEN — front panels apart exactly as shown in product photo"
                 )
 
-                # Düğme sayısını texture_prompt'tan çek ve kesin rakam olarak belirt
-                import re as _re
-                _btn_match = _re.search(r'EXACTLY\s+(\d+)\s+button', analysis.texture_prompt, _re.IGNORECASE)
-                if _btn_match:
-                    _btn_count = _btn_match.group(1)
-                    button_rule = f"EXACTLY {_btn_count} buttons TOTAL on the garment — do NOT add more, do NOT change arrangement, this garment has {_btn_count} buttons only"
-                else:
-                    button_rule = "reproduce EXACT button count from the product image — do NOT add extra buttons"
+                button_rule = "reproduce EXACT button count from the product image — do NOT add extra buttons, do NOT remove buttons"
 
                 # Kombin tamamlama — sadece tamamlayıcı parçalar (ana kıyafet FASHN tarafından fotoğraftan okunuyor)
                 _gt = analysis.garment_type.lower()
