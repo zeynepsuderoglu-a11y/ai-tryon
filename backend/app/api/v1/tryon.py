@@ -506,8 +506,40 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 # Sadece düğme sayısı kuralı — garment şekli FASHN'a bırakılıyor
                 button_rule = "reproduce EXACT button count from the product image — do NOT add extra buttons, do NOT remove buttons"
 
+                # Kombin tamamlama — sadece tamamlayıcı parçalar (ana kıyafet FASHN tarafından fotoğraftan okunuyor)
+                _gt = analysis.garment_type.lower()
+                _is_jacket = any(k in _gt for k in ("blazer", "jacket", "coat", "ceket", "kaban", "palto", "cardigan", "vest", "yelek"))
+
+                if analysis.category == "tops":
+                    if _is_jacket and not analysis.is_closed_front:
+                        # Açık ceket/blazer → içinde crop/gömlek + altında pantolon
+                        outfit_completion = (
+                            "styled with slim-fit well-fitted trousers in a complementary color on the bottom, "
+                            "a fitted spaghetti-strap crop top or fitted shirt visible underneath the open jacket"
+                        )
+                    elif _is_jacket and analysis.is_closed_front:
+                        # Kapalı ceket → sadece altında pantolon
+                        outfit_completion = "styled with slim-fit well-fitted trousers in a complementary color on the bottom"
+                    else:
+                        # Tişört, gömlek, kazak vb. → altında pantolon/etek
+                        outfit_completion = "styled with well-fitted trousers or a skirt in a complementary color on the bottom"
+                elif analysis.category == "bottoms":
+                    # Pantolon, etek vb. → üstte uygun bir top
+                    outfit_completion = "styled with a fitted top, blouse, or shirt on the upper body in a complementary color"
+                else:
+                    # Elbise, tulum, takım — ek parça yok
+                    outfit_completion = ""
+
+                accessories_note = (
+                    "with minimal accessories — small handbag and simple jewelry"
+                    if trend["aesthetic"] == "with_accessories"
+                    else "clean minimal look with no accessories"
+                )
+
                 base_prompt = (
                     f"{closure_rule}, {button_rule}, "
+                    + (f"{outfit_completion}, " if outfit_completion else "")
+                    + f"{accessories_note}, "
                     f"{crop_frame}, model fully centered in frame, {background_desc}, "
                     f"photorealistic face with natural features, sharp facial details, no face distortion"
                 )
