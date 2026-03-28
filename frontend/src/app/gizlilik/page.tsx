@@ -139,7 +139,7 @@ export default function GizlilikPage() {
                 <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Zararın giderilmesini talep etme</span></li>
               </ul>
               <p className="mt-3">
-                Bu haklarınızı kullanmak için <strong className="text-[#1a1a1a]">ilgi@ilet.in</strong> adresine
+                Bu haklarınızı kullanmak için <strong className="text-[#1a1a1a]">support@studyoima.com</strong> adresine
                 yazılı başvurabilirsiniz.
               </p>
             </section>
@@ -155,7 +155,7 @@ export default function GizlilikPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">10. İletişim</h2>
               <div className="p-4 bg-white border border-[#e5e5e5] rounded-xl space-y-1">
-                <p><strong className="text-[#1a1a1a]">E-posta:</strong> ilgi@ilet.in</p>
+                <p><strong className="text-[#1a1a1a]">E-posta:</strong> support@studyoima.com</p>
                 <p><strong className="text-[#1a1a1a]">Web:</strong> www.studyoima.com</p>
               </div>
             </section>

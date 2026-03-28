@@ -47,7 +47,7 @@ export default function ContactForm() {
         <CheckCircle className="w-12 h-12 text-[#c9a96e]" />
         <h3 className="text-lg font-semibold text-[#1a1a1a]">Mesajınız İletildi</h3>
         <p className="text-sm text-[#737373] max-w-sm">
-          En kısa sürede <span className="text-[#1a1a1a] font-medium">ilgi@ilet.in</span> adresinden dönüş yapacağız.
+          En kısa sürede <span className="text-[#1a1a1a] font-medium">support@studyoima.com</span> adresinden dönüş yapacağız.
         </p>
       </div>
     );

@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "İletişim",
   description:
-    "StudyoİMA AI iletişim bilgileri. E-posta: ilgi@ilet.in — Merkez Mh. Merter Sk. No:42/1 Güngören / İSTANBUL. Yapay zeka kıyafet ve gözlük görselleştirme platformu.",
+    "StudyoİMA AI iletişim bilgileri. E-posta: support@studyoima.com — Merkez Mh. Merter Sk. No:42/1 Güngören / İSTANBUL. Yapay zeka kıyafet ve gözlük görselleştirme platformu.",
   alternates: { canonical: "https://www.studyoima.com/iletisim" },
   openGraph: {
     title: "İletişim | StudyoİMA AI",
@@ -70,10 +70,10 @@ export default function IletisimPage() {
               <div>
                 <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-wider mb-1">E-posta</p>
                 <a
-                  href="mailto:ilgi@ilet.in"
+                  href="mailto:support@studyoima.com"
                   className="text-sm text-[#1a1a1a] hover:text-[#c9a96e] transition-colors"
                 >
-                  ilgi@ilet.in
+                  support@studyoima.com
                 </a>
               </div>
             </div>

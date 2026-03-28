@@ -58,7 +58,7 @@ async def send_contact_email(
       </p>
     </div>
     """
-    await send_email("ilgi@ilet.in", f"İletişim Formu: {name} {surname}", html)
+    await send_email("support@studyoima.com", f"İletişim Formu: {name} {surname}", html)
 
 
 async def send_password_reset_email(to: str, reset_url: str) -> None:
