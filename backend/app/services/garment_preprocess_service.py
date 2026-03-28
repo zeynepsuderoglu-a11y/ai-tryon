@@ -217,8 +217,9 @@ _output_cache: dict[str, str] = {}
 
 async def split_composite_if_needed(image_url: str) -> str:
     """
-    FASHN bazen 2 görseli yan yana birleştirmiş composite (landscape) bir URL döndürür.
-    Genişlik > yükseklik ise composite kabul edip sol yarıyı (ilk görseli) crop eder.
+    FASHN bazen 2 görseli yan yana birleştirmiş composite bir URL döndürür.
+    FASHN'dan 3:4 portrait istiyoruz (w/h=0.75). Eğer dönen görsel 3:4'ten belirgin
+    geniş ise (w > h * 0.85) composite kabul edip sol yarıyı crop eder.
     """
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -228,11 +229,13 @@ async def split_composite_if_needed(image_url: str) -> str:
 
         img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
         w, h = img.size
+        logger.info("[composite] Görsel boyutu: %dx%d (w/h=%.2f)", w, h, w / h if h else 0)
 
-        if w <= h:
-            return image_url  # zaten portrait, composite değil
+        # 3:4 portrait bekliyoruz (w/h ≈ 0.75). 0.85'ten geniş ise composite sayılır.
+        if w <= h * 0.85:
+            return image_url  # normal portrait, composite değil
 
-        logger.info("[composite] Landscape çıktı tespit edildi (%dx%d) — sol yarı crop ediliyor", w, h)
+        logger.info("[composite] Geniş çıktı tespit edildi (%dx%d, w/h=%.2f) — sol yarı crop ediliyor", w, h, w / h)
         half_w = w // 2
         img = img.crop((0, 0, half_w, h))
 

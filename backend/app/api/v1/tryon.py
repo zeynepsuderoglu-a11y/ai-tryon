@@ -509,20 +509,17 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 if analysis.category == "tops":
                     if _is_jacket and not analysis.is_closed_front:
-                        # Açık blazer → içinde beyaz crop + altında pantolon
                         outfit_completion = (
-                            f"slim tailored trousers, white fitted inner top visible at neckline, "
-                            f"{analysis.footwear}"
+                            f"slim straight trousers (not leggings), "
+                            f"white inner top visible at neckline, {analysis.footwear}"
                         )
                     elif _is_jacket and analysis.is_closed_front:
-                        # Kapalı ceket → pantolon + ayakkabı
                         outfit_completion = (
-                            f"slim tailored trousers, {analysis.footwear}"
+                            f"slim straight trousers (not leggings), {analysis.footwear}"
                         )
                     else:
-                        # Tişört, gömlek, kazak vb.
                         outfit_completion = (
-                            f"slim trousers or skirt, {analysis.footwear}"
+                            f"slim straight trousers or skirt (not leggings), {analysis.footwear}"
                         )
                 elif analysis.category == "bottoms":
                     outfit_completion = f"fitted top, {analysis.footwear}"
@@ -538,7 +535,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 base_prompt = (
                     f"{closure_rule}, "
                     f"{outfit_completion}, {accessories_note}, "
-                    f"preserve pose, {crop_frame}, {background_desc}, "
+                    f"single model only, preserve pose, {crop_frame}, {background_desc}, "
                     f"photorealistic"
                 )
 
