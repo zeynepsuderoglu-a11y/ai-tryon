@@ -24,11 +24,11 @@ from app.services import replicate_service
 from app.services.fashn_service import fashn_service
 from app.services.garment_analysis_service import (
     analyze_garment, select_best_image,
-    verify_garment_details, build_verification_note,
-    analyze_trend_styling, build_trend_outfit_prompt,
+    analyze_trend_styling,
     check_generation_quality,
 )
 from app.services.fal_service import run_catvton, run_fashn_tryon
+from app.services.garment_preprocess_service import clean_garment_image, clean_output_image
 from app.services.modal_service import run_catvton_modal
 from app.services.replicate_service import run_tryon_async as replicate_run_tryon
 from app.services.cloudinary_service import cloudinary_service
@@ -311,8 +311,10 @@ def _build_outfit_styling(analysis) -> str:
     is_open_front = any(k in garment for k in ("coat", "jacket", "blazer", "cardigan", "vest", "kaban", "ceket", "blazer", "hırka", "yelek", "kimono", "overshirt"))
     is_closed_front = getattr(analysis, "is_closed_front", False)
 
-    # İç kat: açık önlü VE ürün fotoğrafında kapalı değilse iç kat göster
-    if is_open_front and not is_closed_front:
+    # İç kat: açık önlü kıyafetlerde her zaman iç kat ekle (is_closed_front fark etmeksizin)
+    # Blazer/ceket kapalı görünse bile yakanın üstünde iç giysi görünmesi doğaldır
+    # ve ürün fotoğrafındaki yaka etiketi sorununu da engeller
+    if is_open_front:
         if is_winter:
             inner_layer = "fitted ribbed turtleneck knit sweater underneath — body fully covered, no bare skin visible"
         elif is_summer:
@@ -474,12 +476,11 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 logger.info("[%s] FASHN product-to-model | background=%s body_type=%s",
                             generation_id, background, body_type)
 
-                # Kıyafet analizi — 3 geçiş paralel (garment + doğrulama + trend)
-                logger.info("[%s] Garment analysis (3 geçiş paralel) başlıyor", generation_id)
+                # Kıyafet analizi — 2 geçiş paralel (garment + trend)
+                logger.info("[%s] Garment analysis (2 geçiş paralel) başlıyor", generation_id)
                 aesthetic_override = None if aesthetic == "auto" else aesthetic
-                analysis, verification, trend = await asyncio.gather(
+                analysis, trend = await asyncio.gather(
                     analyze_garment(garment_url, "auto"),
-                    verify_garment_details(garment_url),
                     analyze_trend_styling(garment_url, aesthetic_override),
                 )
                 logger.info("[%s] Garment: %s | category=%s | is_closed=%s",
@@ -487,31 +488,29 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                             analysis.is_closed_front)
                 logger.info("[%s] Trend: %s (%s)", generation_id, trend["aesthetic"], trend["reason"])
 
-                verification_note = build_verification_note(verification)
-                trend_outfit = build_trend_outfit_prompt(
-                    analysis, trend, analysis.is_closed_front, crop_type
-                )
                 background_desc = BACKGROUND_PROMPTS.get(background, BACKGROUND_PROMPTS["white_studio"])
 
-                # Müşteri notu
-                customer_note_instruction = f"CUSTOMER NOTE — apply this styling request exactly: {tuck_style}. " if tuck_style and tuck_style.strip() else ""
-
-                base_prompt = (
-                    f"GARMENT FIDELITY — reproduce the EXACT product image garment: {analysis.texture_prompt}. "
-                    f"{verification_note} "
-                    f"COLOR ACCURACY: reproduce the EXACT garment color from the product image — "
-                    f"do NOT shift color toward pink, mauve, dusty rose, rose-brown, lilac, or any purple/pink undertone; "
-                    f"if the product is warm grey-brown/taupe/greige, keep it strictly warm grey-brown with ZERO pink cast; "
-                    f"if the product is camel/beige, keep it golden-warm beige with no pink; "
-                    f"if the product is navy, keep it deep blue with no grey wash. "
-                    f"BUTTON RULE: preserve the EXACT buttons from the product image — do NOT change button size, shape, color, material or count; reproduce every button detail faithfully. "
-                    f"SHOULDER RULE: do NOT add cutouts, slits, cold-shoulder openings, or ANY structural modification to the shoulder or armhole area unless explicitly visible in the product image; clean intact shoulder seam only. "
-                    f"SLIT RULE: do NOT add side slits, leg splits, or vertical hem cuts to pants or skirts unless they are explicitly visible in the product image. "
-                    f"BODY PROPORTIONS: preserve natural human body proportions — do NOT stretch, widen, or distort the model horizontally; realistic body width. "
-                    f"{customer_note_instruction}"
-                    f"{trend_outfit}, "
-                    f"model fully centered in frame, {background_desc}"
+                # Çerçeve — tam boy veya yarım boy
+                crop_frame = (
+                    "upper body shot from head to mid-thigh"
+                    if crop_type == "half_body"
+                    else "full body shot from head to feet, shoes visible"
                 )
+
+                # Müşteri notu
+                customer_note_instruction = f"styling note: {tuck_style}. " if tuck_style and tuck_style.strip() else ""
+
+                # Sadece sahne/çerçeve bilgisi — kıyafet detayları FASHN ürün fotoğrafından otomatik çıkarılıyor
+                base_prompt = (
+                    f"{customer_note_instruction}"
+                    f"{crop_frame}, model fully centered in frame, {background_desc}"
+                )
+
+                # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
+                logger.info("[%s] Garment preprocessing başlıyor", generation_id)
+                garment_url_clean = await clean_garment_image(garment_url)
+                if garment_url_clean != garment_url:
+                    logger.info("[%s] Etiket temizlendi, temiz URL kullanılıyor", generation_id)
 
                 # ── FASHN.ai → fallback: fal.ai FASHN VTON ──────────────────
                 logger.info("[%s] FASHN çağrısı yapılıyor", generation_id)
@@ -519,7 +518,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 try:
                     run_result = await fashn_service.run_product_to_model(
-                        product_image_url=garment_url,
+                        product_image_url=garment_url_clean,
                         model_image_url=model_image_url,
                         prompt=base_prompt,
                         resolution="4k",
@@ -540,6 +539,10 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                     logger.info("[%s] FASHN.ai tamamlandı", generation_id)
 
+                    # Çıktıdaki iç yaka etiketini temizle
+                    logger.info("[%s] Output cleaning başlıyor", generation_id)
+                    output_urls = [await clean_output_image(u) for u in output_urls]
+
                 except Exception as fashn_err:
                     logger.warning(
                         "[%s] FASHN.ai başarısız (%s) — fal.ai FASHN VTON fallback başlatılıyor",
@@ -547,10 +550,11 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     )
                     fallback_url = await run_fashn_tryon(
                         model_image_url=model_image_url,
-                        garment_image_url=garment_url,
+                        garment_image_url=garment_url_clean,
                         category=analysis.category,
                         mode="quality",
                     )
+                    fallback_url = await clean_output_image(fallback_url)
                     output_urls = [fallback_url]
                     logger.info("[%s] fal.ai FASHN VTON fallback tamamlandı: %s", generation_id, fallback_url)
 
