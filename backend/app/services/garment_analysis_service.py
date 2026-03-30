@@ -124,14 +124,6 @@ def _parse_response(text: str, fallback_category: str) -> GarmentAnalysis:
             footwear = "simple neutral footwear"
         is_long_top = bool(data.get("is_long_top", False))
         is_closed_front = bool(data.get("is_closed_front", False))
-        # Double-breasted veya tamamen kapalı görünen blazer/ceket türleri
-        # ürün fotoğrafında kapalı göründüğünde Claude bazen is_closed=False dönebilir.
-        # Garment tipine göre override et.
-        _gt_lower = garment_type.lower()
-        if not is_closed_front and any(k in _gt_lower for k in (
-            "double-breasted", "double breasted", "çift sıra",
-        )):
-            is_closed_front = True
         photo_type = str(data.get("photo_type", "auto")).strip()
         if photo_type not in ("flat-lay", "model", "auto"):
             photo_type = "auto"

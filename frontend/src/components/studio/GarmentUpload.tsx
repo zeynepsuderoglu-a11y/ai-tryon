@@ -77,24 +77,49 @@ export default function GarmentUpload() {
   }
 
   return (
-    <div
-      {...getRootProps()}
-      className={cn(
-        "border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all",
-        isDragActive
-          ? "border-[#1a1a1a] bg-[#f5f5f5]"
-          : "border-[#d4d4d4] hover:border-[#a3a3a3] hover:bg-[#f9f9f9]"
-      )}
-    >
-      <input {...getInputProps()} />
-      <div className="w-14 h-14 rounded-full bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-4">
-        <Upload className="w-6 h-6 text-[#737373]" />
+    <div className="space-y-3">
+      <div
+        {...getRootProps()}
+        className={cn(
+          "border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all",
+          isDragActive
+            ? "border-[#1a1a1a] bg-[#f5f5f5]"
+            : "border-[#d4d4d4] hover:border-[#a3a3a3] hover:bg-[#f9f9f9]"
+        )}
+      >
+        <input {...getInputProps()} />
+        <div className="w-14 h-14 rounded-full bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-4">
+          <Upload className="w-6 h-6 text-[#737373]" />
+        </div>
+        <p className="text-sm font-medium text-[#1a1a1a] mb-1">
+          {isDragActive ? "Bırakabilirsiniz!" : "Ürün fotoğrafını yükle"}
+        </p>
+        <p className="text-xs text-[#737373] mb-4">Sürükle & bırak veya tıklayın</p>
+        <p className="text-[11px] text-[#a3a3a3]">JPG, PNG, WEBP · Maks 10MB</p>
       </div>
-      <p className="text-sm font-medium text-[#1a1a1a] mb-1">
-        {isDragActive ? "Bırakabilirsiniz!" : "Ürün fotoğrafını yükle"}
-      </p>
-      <p className="text-xs text-[#737373] mb-4">Sürükle & bırak veya tıklayın</p>
-      <p className="text-[11px] text-[#a3a3a3]">JPG, PNG, WEBP · Maks 10MB</p>
+
+      {/* Fotoğraf kalite kılavuzu */}
+      <div className="rounded-xl bg-[#f9f9f9] border border-[#efefef] p-3 space-y-2">
+        <p className="text-[11px] font-semibold text-[#525252] uppercase tracking-wide">En iyi sonuç için</p>
+        <div className="space-y-1.5">
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] mt-0.5 text-green-500 font-bold flex-shrink-0">✓</span>
+            <p className="text-[11px] text-[#525252]">Beyaz veya düz arka planlı e-ticaret fotoğrafı</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] mt-0.5 text-green-500 font-bold flex-shrink-0">✓</span>
+            <p className="text-[11px] text-[#525252]">Düz zemine yatırılmış veya askıda düzgün asılı kıyafet</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] mt-0.5 text-red-400 font-bold flex-shrink-0">✗</span>
+            <p className="text-[11px] text-[#737373]">Açık yakalı, iç etiketi görünen fotoğraflar</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] mt-0.5 text-red-400 font-bold flex-shrink-0">✗</span>
+            <p className="text-[11px] text-[#737373]">Karmaşık arka planlı ev ortamı çekimleri</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
