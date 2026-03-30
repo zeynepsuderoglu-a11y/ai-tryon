@@ -8,7 +8,7 @@ import JsonLd from "@/components/JsonLd";
 const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.studyoima.com"),
+  metadataBase: new URL("https://studyoima.com"),
   title: {
     default: "StudyoİMA AI — Yapay Zeka Kıyafet, Gözlük & Video Üretimi",
     template: "%s | StudyoİMA AI",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     "studyoima",
     "ai video üretimi",
   ],
-  authors: [{ name: "StudyoİMA AI", url: "https://www.studyoima.com" }],
+  authors: [{ name: "StudyoİMA AI", url: "https://studyoima.com" }],
   creator: "StudyoİMA AI",
   publisher: "StudyoİMA AI",
   robots: {
@@ -44,13 +44,13 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://www.studyoima.com",
+    canonical: "https://studyoima.com",
   },
   manifest: "/manifest.json",
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    url: "https://www.studyoima.com",
+    url: "https://studyoima.com",
     siteName: "StudyoİMA AI",
     title: "StudyoİMA AI — Yapay Zeka Kıyafet, Gözlük & Video Üretimi",
     description:

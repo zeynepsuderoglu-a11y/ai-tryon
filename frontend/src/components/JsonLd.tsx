@@ -3,8 +3,8 @@ export default function JsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "StudyoİMA AI",
-    url: "https://www.studyoima.com",
-    logo: "https://www.studyoima.com/logo.png",
+    url: "https://studyoima.com",
+    logo: "https://studyoima.com/logo.png",
     contactPoint: {
       "@type": "ContactPoint",
       email: "support@studyoima.com",
@@ -28,10 +28,10 @@ export default function JsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "StudyoİMA AI",
-    url: "https://www.studyoima.com",
+    url: "https://studyoima.com",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://www.studyoima.com/?q={search_term_string}",
+      target: "https://studyoima.com/?q={search_term_string}",
       "query-input": "required name=search_term_string",
     },
   };
@@ -42,7 +42,7 @@ export default function JsonLd() {
     name: "StudyoİMA AI",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    url: "https://www.studyoima.com",
+    url: "https://studyoima.com",
     description:
       "Yapay zeka ile ürün fotoğrafından profesyonel manken görseli oluşturma. Kıyafet try-on, gözlük try-on ve video üretimi.",
     offers: [
