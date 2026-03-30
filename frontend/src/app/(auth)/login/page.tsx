@@ -83,8 +83,12 @@ export default function LoginPage() {
       </div>
 
       {/* Sağ — Form */}
-      <div className="flex-1 flex items-center justify-center px-6">
-        <div className="w-full max-w-sm">
+      <div className="flex-1 flex items-center justify-center px-6 relative overflow-hidden">
+        {/* Dekoratif arka plan blob'ları */}
+        <div className="absolute top-0 left-0 w-72 h-72 rounded-full bg-[#c9a96e]/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#c9a96e]/4 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 w-48 h-48 rounded-full bg-[#f5f0e8]/60 blur-2xl pointer-events-none" />
+        <div className="w-full max-w-sm relative z-10">
 
           {/* Mobil logo */}
           <div className="lg:hidden text-center mb-10">
