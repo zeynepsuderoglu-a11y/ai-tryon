@@ -83,11 +83,62 @@ export default function LoginPage() {
       </div>
 
       {/* Sağ — Form */}
-      <div className="flex-1 flex items-center justify-center px-6 relative overflow-hidden">
-        {/* Dekoratif arka plan blob'ları */}
-        <div className="absolute top-0 left-0 w-72 h-72 rounded-full bg-[#c9a96e]/5 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#c9a96e]/4 blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/4 w-48 h-48 rounded-full bg-[#f5f0e8]/60 blur-2xl pointer-events-none" />
+      <div className="flex-1 flex items-center justify-center px-6 relative overflow-hidden bg-[#fdfcfa]">
+
+        {/* Sol floating kartlar */}
+        <div className="hidden 2xl:flex absolute left-10 top-1/2 -translate-y-1/2 flex-col gap-4 w-44">
+          <div className="bg-white border border-[#efefef] rounded-2xl p-4 shadow-sm">
+            <p className="text-[10px] font-semibold text-[#c9a96e] uppercase tracking-wider mb-2">Kıyafet Try-On</p>
+            <p className="text-[#1a1a1a] text-sm font-semibold leading-snug">Ürün fotoğrafından manken görseli</p>
+            <div className="mt-3 flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              <p className="text-[11px] text-[#737373]">2 kredi / üretim</p>
+            </div>
+          </div>
+          <div className="bg-white border border-[#efefef] rounded-2xl p-4 shadow-sm">
+            <p className="text-[10px] font-semibold text-[#c9a96e] uppercase tracking-wider mb-2">Gözlük Try-On</p>
+            <p className="text-[#1a1a1a] text-sm font-semibold leading-snug">468 nokta ile hassas hizalama</p>
+            <div className="mt-3 flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              <p className="text-[11px] text-[#737373]">1 kredi / üretim</p>
+            </div>
+          </div>
+          <div className="bg-white border border-[#efefef] rounded-2xl p-4 shadow-sm">
+            <p className="text-[10px] font-semibold text-[#c9a96e] uppercase tracking-wider mb-2">AI Video</p>
+            <p className="text-[#1a1a1a] text-sm font-semibold leading-snug">Görselden akıcı video üretimi</p>
+            <div className="mt-3 flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              <p className="text-[11px] text-[#737373]">5 kredi / video</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sağ floating kartlar */}
+        <div className="hidden 2xl:flex absolute right-10 top-1/2 -translate-y-1/2 flex-col gap-4 w-44">
+          <div className="bg-[#0f0f0f] rounded-2xl p-4 shadow-sm">
+            <p className="text-[#c9a96e] text-2xl font-bold">5</p>
+            <p className="text-white/60 text-xs mt-1">Ücretsiz üretim hakkı</p>
+            <p className="text-white/30 text-[10px] mt-0.5">Kayıt anında tanımlanır</p>
+          </div>
+          <div className="bg-white border border-[#efefef] rounded-2xl p-4 shadow-sm">
+            <p className="text-[#1a1a1a] text-2xl font-bold">{"< 30s"}</p>
+            <p className="text-[#737373] text-xs mt-1">Ortalama üretim süresi</p>
+          </div>
+          <div className="bg-white border border-[#efefef] rounded-2xl p-4 shadow-sm">
+            <p className="text-[#1a1a1a] text-sm font-semibold leading-snug mb-2">Kredi kartı gerekmez</p>
+            <p className="text-[#737373] text-[11px]">Hemen başlayın, beğenirseniz yükseltin</p>
+          </div>
+        </div>
+
+        {/* Hafif nokta grid */}
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, #1a1a1a 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+
         <div className="w-full max-w-sm relative z-10">
 
           {/* Mobil logo */}
