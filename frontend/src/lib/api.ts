@@ -197,6 +197,20 @@ export const paymentsApi = {
     ).then((r) => r.data),
 };
 
+// Ghost Mannequin
+export const ghostMannequinApi = {
+  run: (image_url: string) => {
+    const form = new FormData();
+    form.append("image_url", image_url);
+    return api.post<{ generation_id: string; status: string }>("/ghost-mannequin/run", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
+
+  getStatus: (id: string) =>
+    api.get<Generation>(`/ghost-mannequin/${id}/status`).then((r) => r.data),
+};
+
 // Admin
 export const adminApi = {
   stats: () => api.get<AdminStats>("/admin/stats").then((r) => r.data),

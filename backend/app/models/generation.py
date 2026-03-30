@@ -19,6 +19,7 @@ class GarmentCategory(str, enum.Enum):
     bottoms = "bottoms"
     one_pieces = "one-pieces"
     eyewear = "eyewear"
+    ghost_mannequin = "ghost_mannequin"
 
 
 class Generation(Base):

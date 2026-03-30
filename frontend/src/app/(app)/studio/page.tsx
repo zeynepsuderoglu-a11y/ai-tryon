@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { tryonApi, eyewearApi, videoApi } from "@/lib/api";
+import { tryonApi, eyewearApi, videoApi, ghostMannequinApi } from "@/lib/api";
 import { useStudioStore } from "@/lib/store";
 import { useAuthStore } from "@/lib/store";
 import GarmentUpload from "@/components/studio/GarmentUpload";
@@ -12,10 +13,11 @@ import ResultDisplay from "@/components/studio/ResultDisplay";
 import VideoResult from "@/components/studio/VideoResult";
 import {
   Wand2, ChevronLeft, Layers, Sparkles, Glasses, Package,
-  ShoppingCart, Video, Upload, X, ImageIcon,
+  ShoppingCart, Video, Upload, X, ImageIcon, UserX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 const BACKGROUNDS = [
   { value: "white_studio",   label: "Beyaz",   image: "/backgrounds/white_studio.jpg"   },
@@ -35,12 +37,194 @@ const AESTHETICS = [
   { value: "with_accessories", label: "Aksesuarlı",  emoji: "👜", desc: "Çanta, gözlük"    },
 ];
 
+/* ── Ghost Mannequin Upload Bileşeni ── */
+function GhostUpload() {
+  const { ghostInputUrl, setGhostInputUrl } = useStudioStore();
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+    setPreview(URL.createObjectURL(file));
+    setUploading(true);
+    try {
+      const result = await tryonApi.uploadGarment(file);
+      setGhostInputUrl(result.url);
+      toast.success("Fotoğraf yüklendi!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Yükleme başarısız");
+      setPreview(null);
+    } finally {
+      setUploading(false);
+    }
+  }, [setGhostInputUrl]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
+    maxSize: 10 * 1024 * 1024,
+    maxFiles: 1,
+  });
+
+  const clear = () => {
+    setPreview(null);
+    setGhostInputUrl(null);
+  };
+
+  if (preview || ghostInputUrl) {
+    return (
+      <div className="relative rounded-2xl overflow-hidden bg-[#f5f5f5] group max-w-xs mx-auto">
+        <div className="aspect-[3/4] relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={preview || ghostInputUrl!} alt="Ürün" className="w-full h-full object-contain p-4" />
+        </div>
+        {uploading && (
+          <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+        {!uploading && (
+          <>
+            <button
+              onClick={clear}
+              className="absolute top-3 right-3 bg-white shadow-sm text-[#1a1a1a] p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-[#e5e5e5]"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+            <div className="absolute bottom-3 left-3 right-3">
+              <div {...getRootProps()} className="cursor-pointer">
+                <input {...getInputProps()} />
+                <button className="w-full py-2 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-medium rounded-lg border border-[#e5e5e5] hover:bg-white transition-colors">
+                  Değiştir
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      {...getRootProps()}
+      className={cn(
+        "border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all",
+        isDragActive
+          ? "border-[#1a1a1a] bg-[#f5f5f5]"
+          : "border-[#d4d4d4] hover:border-[#a3a3a3] hover:bg-[#f9f9f9]"
+      )}
+    >
+      <input {...getInputProps()} />
+      <div className="w-14 h-14 rounded-full bg-[#f5f5f5] border border-[#e5e5e5] flex items-center justify-center mx-auto mb-4">
+        <Upload className="w-6 h-6 text-[#737373]" />
+      </div>
+      <p className="text-sm font-medium text-[#1a1a1a] mb-1">
+        {isDragActive ? "Bırakabilirsiniz!" : "Ürün fotoğrafını yükle"}
+      </p>
+      <p className="text-xs text-[#737373] mb-4">Sürükle & bırak veya tıklayın</p>
+      <p className="text-[11px] text-[#a3a3a3]">JPG, PNG, WEBP · Maks 10MB</p>
+    </div>
+  );
+}
+
+/* ── Ghost Sonuç Ekranı ── */
+function GhostResultPanel({
+  generationId,
+  onNew,
+}: {
+  generationId: string;
+  onNew: () => void;
+}) {
+  const [gen, setGen] = useState<any>(null);
+  const pollRef = useRef<NodeJS.Timeout | null>(null);
+
+  const downloadImage = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = "studyoimaai-ghost-mannequin.jpg";
+      a.click();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        const data = await ghostMannequinApi.getStatus(generationId);
+        setGen(data);
+        if (data.status === "completed" || data.status === "failed") {
+          clearInterval(pollRef.current!);
+        }
+      } catch {
+        clearInterval(pollRef.current!);
+      }
+    };
+    poll();
+    pollRef.current = setInterval(poll, 3000);
+    return () => clearInterval(pollRef.current!);
+  }, [generationId]);
+
+  return (
+    <div className="min-h-screen bg-[#f8f8f8] flex flex-col">
+      <div className="px-6 pt-5 pb-4 bg-white border-b border-[#e8e8e8] flex items-center justify-between">
+        <button
+          onClick={onNew}
+          className="flex items-center gap-1.5 text-sm text-[#737373] hover:text-[#0f0f0f] transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" /> Yeni Üretim
+        </button>
+        <span className="text-sm font-semibold text-[#0f0f0f]">Ghost Mannequin</span>
+        <div className="w-24" />
+      </div>
+
+      <div className="flex-1 p-5 max-w-2xl mx-auto w-full pb-20 md:pb-6 flex flex-col items-center gap-4">
+        {!gen || gen.status === "processing" || gen.status === "pending" ? (
+          <div className="w-full max-w-sm">
+            <div className="aspect-[3/4] rounded-2xl bg-[#f0f0f0] flex flex-col items-center justify-center gap-3">
+              <div className="w-10 h-10 border-2 border-[#c9a96e] border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm font-medium text-[#737373]">Ghost mannequin hazırlanıyor...</p>
+              <p className="text-xs text-[#a3a3a3]">Bu işlem 30–60 saniye sürebilir</p>
+            </div>
+          </div>
+        ) : gen.status === "failed" ? (
+          <div className="w-full max-w-sm rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-sm font-semibold text-red-600 mb-1">Üretim başarısız</p>
+            <p className="text-xs text-red-400">Kredi iade edildi. Lütfen tekrar deneyin.</p>
+          </div>
+        ) : gen.output_urls?.[0] ? (
+          <div className="w-full max-w-sm">
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-white">
+              <Image src={gen.output_urls[0]} alt="Ghost mannequin" fill className="object-contain object-center" />
+            </div>
+            <button
+              onClick={() => downloadImage(gen.output_urls[0])}
+              className="mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0f0f0f] text-white text-sm font-semibold hover:bg-[#2a2a2a] transition-colors"
+            >
+              İndir
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/* ── Ana Sayfa ── */
 export default function StudioPage() {
   const { user, setUser } = useAuthStore();
   const {
     garmentUrl, selectedModelId, isBatchMode, batchModelIds, setIsBatchMode,
     glassesUrl, studioMode, setStudioMode,
     videoImageUrls, setVideoImageUrls, videoMode, setVideoMode,
+    ghostInputUrl, setGhostInputUrl,
   } = useStudioStore();
 
   const [bodyType, setBodyType]     = useState("standard");
@@ -52,13 +236,17 @@ export default function StudioPage() {
   const [batchJobId, setBatchJobId]         = useState<string | null>(null);
   const [showResult, setShowResult]         = useState(false);
   const [videoGenerationId, setVideoGenerationId] = useState<string | null>(null);
+  const [ghostGenerationId, setGhostGenerationId] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
 
   const isEyewear = studioMode === "eyewear";
   const isVideo   = studioMode === "video";
+  const isGhost   = studioMode === "ghost";
 
-  const canGenerate = isVideo
+  const canGenerate = isGhost
+    ? !!ghostInputUrl
+    : isVideo
     ? videoImageUrls.length > 0
     : isEyewear
     ? !!glassesUrl && !!selectedModelId
@@ -66,16 +254,17 @@ export default function StudioPage() {
     ? !!garmentUrl && batchModelIds.length > 0
     : !!garmentUrl && !!selectedModelId;
 
-  const requiredCredits = isVideo ? 5 : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
+  const requiredCredits = isVideo ? 5 : isGhost ? 1 : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
   const hasCredits = !user || user.credits_remaining >= requiredCredits;
 
-  const handleModeSwitch = (mode: "kiyafet" | "eyewear" | "video") => {
+  const handleModeSwitch = (mode: "kiyafet" | "eyewear" | "video" | "ghost") => {
     if (mode === studioMode) return;
     setStudioMode(mode);
     setShowResult(false);
     setGenerationId(null);
     setBatchJobId(null);
     setVideoGenerationId(null);
+    setGhostGenerationId(null);
   };
 
   const handleVideoFileChange = async (files: FileList | null) => {
@@ -105,9 +294,16 @@ export default function StudioPage() {
     setBatchJobId(null);
     setShowResult(false);
     setVideoGenerationId(null);
+    setGhostGenerationId(null);
     setRunningMessage("Başlatılıyor...");
     try {
-      if (isVideo) {
+      if (isGhost) {
+        setRunningMessage("Ghost mannequin hazırlanıyor...");
+        const result = await ghostMannequinApi.run(ghostInputUrl!);
+        setGhostGenerationId(result.generation_id);
+        if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 1 });
+        setShowResult(true);
+      } else if (isVideo) {
         setRunningMessage("Video üretimi başlatılıyor...");
         const result = await videoApi.run({ image_urls: videoImageUrls, mode: videoMode });
         setVideoGenerationId(result.generation_id);
@@ -148,10 +344,22 @@ export default function StudioPage() {
     setGenerationId(null);
     setBatchJobId(null);
     setVideoGenerationId(null);
+    setGhostGenerationId(null);
     if (isVideo) setVideoImageUrls([]);
+    if (isGhost) setGhostInputUrl(null);
   };
 
-  /* ── Sonuç Ekranı ── */
+  /* ── Ghost Sonuç Ekranı ── */
+  if (showResult && isGhost && ghostGenerationId) {
+    return (
+      <GhostResultPanel
+        generationId={ghostGenerationId}
+        onNew={handleNewGeneration}
+      />
+    );
+  }
+
+  /* ── Diğer Sonuç Ekranları ── */
   if (showResult) {
     return (
       <div className="min-h-screen bg-[#f8f8f8] flex flex-col">
@@ -191,6 +399,7 @@ export default function StudioPage() {
             { mode: "kiyafet" as const, label: "Kıyafet", icon: <Package className="w-3.5 h-3.5" /> },
             { mode: "eyewear" as const, label: "Gözlük",  icon: <Glasses className="w-3.5 h-3.5" /> },
             { mode: "video"   as const, label: "Video",   icon: <Video className="w-3.5 h-3.5" />   },
+            { mode: "ghost"   as const, label: "Ghost",   icon: <UserX className="w-3.5 h-3.5" />   },
           ].map(({ mode, label, icon }) => (
             <button
               key={mode}
@@ -226,87 +435,116 @@ export default function StudioPage() {
       {/* ── İçerik ── */}
       <div className="max-w-2xl mx-auto px-5 py-6 space-y-4 pb-36">
 
-        {/* ─── BÖLÜM 1: YÜKLEME ─── */}
-        <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-          <div className="px-5 pt-5 pb-1">
-            <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">
-              {isVideo ? "Fotoğraf" : isEyewear ? "Gözlük Fotoğrafı" : "Ürün Fotoğrafı"}
-            </p>
-          </div>
-
-          {/* Kıyafet / Gözlük upload */}
-          {!isVideo && (
-            <div className="p-5 pt-3">
-              {isEyewear ? <GlassesUpload /> : <GarmentUpload />}
-            </div>
-          )}
-
-          {/* Video upload */}
-          {isVideo && (
-            <div className="p-5 pt-3 space-y-4">
-              {videoImageUrls.length > 0 && (
-                <div className="flex gap-3 flex-wrap">
-                  {videoImageUrls.map((url, i) => (
-                    <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#f0f0f0] group flex-shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                      <button
-                        onClick={() => setVideoImageUrls(videoImageUrls.filter((_, j) => j !== i))}
-                        className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                      {i === 0 && (
-                        <span className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 py-0.5 rounded-full">Ana</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {videoImageUrls.length < 3 && (
-                <button
-                  onClick={() => videoFileInputRef.current?.click()}
-                  disabled={videoUploading}
-                  className={cn(
-                    "w-full border-2 border-dashed rounded-2xl p-8 flex flex-col items-center gap-2 transition-all",
-                    videoUploading
-                      ? "border-[#e8e8e8] bg-[#f8f8f8] cursor-not-allowed"
-                      : "border-[#e0e0e0] hover:border-[#c9a96e] hover:bg-[#fdf9f4] cursor-pointer"
-                  )}
-                >
-                  {videoUploading ? (
-                    <>
-                      <div className="w-8 h-8 border-2 border-[#c9a96e] border-t-transparent rounded-full animate-spin" />
-                      <p className="text-xs text-[#737373]">Yükleniyor...</p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-10 h-10 rounded-xl bg-[#f5f0ea] flex items-center justify-center">
-                        <Upload className="w-5 h-5 text-[#c9a96e]" />
-                      </div>
-                      <p className="text-sm font-medium text-[#0f0f0f]">Fotoğraf Ekle</p>
-                      <p className="text-xs text-[#a3a3a3]">
-                        {videoImageUrls.length === 0 ? "1-3 fotoğraf · JPG, PNG" : `${3 - videoImageUrls.length} fotoğraf daha ekleyebilirsiniz`}
-                      </p>
-                    </>
-                  )}
-                </button>
-              )}
-              <input
-                ref={videoFileInputRef} type="file" accept="image/*" multiple className="hidden"
-                onChange={(e) => handleVideoFileChange(e.target.files)}
-              />
-              <div className="bg-[#f5f0ea] rounded-xl p-3">
-                <p className="text-xs text-[#a08040] leading-relaxed">
-                  Veo 3.1 Fast ile 8 saniyelik dikey video. İşlem yaklaşık 2-3 dakika sürer.
-                </p>
+        {/* ─── GHOST MANNEQUIN MODU ─── */}
+        {isGhost && (
+          <>
+            <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+              <div className="px-5 pt-5 pb-1">
+                <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Ürün Fotoğrafı</p>
+              </div>
+              <div className="p-5 pt-3">
+                <GhostUpload />
               </div>
             </div>
-          )}
-        </div>
 
-        {/* ─── BÖLÜM 2: MANKEN (video hariç) ─── */}
-        {!isVideo && (
+            <div className="bg-[#f5f0ea] rounded-2xl p-4">
+              <p className="text-xs font-semibold text-[#a08040] mb-1.5">Ghost Mannequin Nedir?</p>
+              <p className="text-xs text-[#a08040] leading-relaxed">
+                Kıyafet fotoğrafındaki manken veya model otomatik olarak kaldırılır, kıyafetin 3D şekli ve iç hacmi korunur.
+                Profesyonel e-ticaret ürün fotoğrafı elde edersiniz.
+              </p>
+              <ul className="mt-2 space-y-0.5 text-[11px] text-[#b09050]">
+                <li>✓ Manken üzerindeki ürün fotoğrafları</li>
+                <li>✓ Model üzerindeki ürün fotoğrafları</li>
+                <li>✓ Beyaz arka planlı veya stüdyo çekimleri</li>
+              </ul>
+            </div>
+          </>
+        )}
+
+        {/* ─── BÖLÜM 1: YÜKLEME (ghost hariç) ─── */}
+        {!isGhost && (
+          <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+            <div className="px-5 pt-5 pb-1">
+              <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">
+                {isVideo ? "Fotoğraf" : isEyewear ? "Gözlük Fotoğrafı" : "Ürün Fotoğrafı"}
+              </p>
+            </div>
+
+            {/* Kıyafet / Gözlük upload */}
+            {!isVideo && (
+              <div className="p-5 pt-3">
+                {isEyewear ? <GlassesUpload /> : <GarmentUpload />}
+              </div>
+            )}
+
+            {/* Video upload */}
+            {isVideo && (
+              <div className="p-5 pt-3 space-y-4">
+                {videoImageUrls.length > 0 && (
+                  <div className="flex gap-3 flex-wrap">
+                    {videoImageUrls.map((url, i) => (
+                      <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#f0f0f0] group flex-shrink-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => setVideoImageUrls(videoImageUrls.filter((_, j) => j !== i))}
+                          className="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        {i === 0 && (
+                          <span className="absolute bottom-1 left-1 text-[9px] bg-black/50 text-white px-1 py-0.5 rounded-full">Ana</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {videoImageUrls.length < 3 && (
+                  <button
+                    onClick={() => videoFileInputRef.current?.click()}
+                    disabled={videoUploading}
+                    className={cn(
+                      "w-full border-2 border-dashed rounded-2xl p-8 flex flex-col items-center gap-2 transition-all",
+                      videoUploading
+                        ? "border-[#e8e8e8] bg-[#f8f8f8] cursor-not-allowed"
+                        : "border-[#e0e0e0] hover:border-[#c9a96e] hover:bg-[#fdf9f4] cursor-pointer"
+                    )}
+                  >
+                    {videoUploading ? (
+                      <>
+                        <div className="w-8 h-8 border-2 border-[#c9a96e] border-t-transparent rounded-full animate-spin" />
+                        <p className="text-xs text-[#737373]">Yükleniyor...</p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-10 h-10 rounded-xl bg-[#f5f0ea] flex items-center justify-center">
+                          <Upload className="w-5 h-5 text-[#c9a96e]" />
+                        </div>
+                        <p className="text-sm font-medium text-[#0f0f0f]">Fotoğraf Ekle</p>
+                        <p className="text-xs text-[#a3a3a3]">
+                          {videoImageUrls.length === 0 ? "1-3 fotoğraf · JPG, PNG" : `${3 - videoImageUrls.length} fotoğraf daha ekleyebilirsiniz`}
+                        </p>
+                      </>
+                    )}
+                  </button>
+                )}
+                <input
+                  ref={videoFileInputRef} type="file" accept="image/*" multiple className="hidden"
+                  onChange={(e) => handleVideoFileChange(e.target.files)}
+                />
+                <div className="bg-[#f5f0ea] rounded-xl p-3">
+                  <p className="text-xs text-[#a08040] leading-relaxed">
+                    Veo 3.1 Fast ile 8 saniyelik dikey video. İşlem yaklaşık 2-3 dakika sürer.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── BÖLÜM 2: MANKEN (kıyafet + gözlük) ─── */}
+        {!isVideo && !isGhost && (
           <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
             <div className="px-5 pt-5 pb-1 flex items-center justify-between">
               <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Manken</p>
@@ -321,7 +559,7 @@ export default function StudioPage() {
         )}
 
         {/* ─── BÖLÜM 3: AYARLAR (sadece kıyafet) ─── */}
-        {!isVideo && !isEyewear && (
+        {!isVideo && !isEyewear && !isGhost && (
           <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
             <div className="px-5 pt-5 pb-1">
               <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Ayarlar</p>
@@ -403,7 +641,7 @@ export default function StudioPage() {
           </div>
         )}
 
-        {/* ─── BÖLÜM 3: VİDEO MODU ─── */}
+        {/* ─── VİDEO MODU ─── */}
         {isVideo && (
           <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
             <div className="px-5 pt-5 pb-1">
@@ -412,8 +650,8 @@ export default function StudioPage() {
             <div className="p-5 pt-3">
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "image_to_video",     emoji: "🎬", label: "Hızlı",    desc: "Fotoğrafı canlandır" },
-                  { value: "reference_to_video",  emoji: "✨", label: "Referanslı", desc: "Referans ile üret" },
+                  { value: "image_to_video",    emoji: "🎬", label: "Hızlı",      desc: "Fotoğrafı canlandır" },
+                  { value: "reference_to_video", emoji: "✨", label: "Referanslı", desc: "Referans ile üret"    },
                 ].map((m) => (
                   <button
                     key={m.value}
@@ -471,6 +709,8 @@ export default function StudioPage() {
                     <div className="w-4 h-4 border-2 border-[#a3a3a3] border-t-transparent rounded-full animate-spin" />
                     {runningMessage}
                   </>
+                ) : isGhost ? (
+                  <><UserX className="w-4 h-4" /> Ghost Mannequin — 1 üretim</>
                 ) : isVideo ? (
                   <><Video className="w-4 h-4" /> Video Üret — 5 üretim</>
                 ) : isEyewear ? (

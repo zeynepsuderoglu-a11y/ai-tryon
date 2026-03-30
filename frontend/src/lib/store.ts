@@ -23,17 +23,19 @@ interface StudioState {
   isBatchMode: boolean;
   batchModelIds: string[];
   glassesUrl: string | null;
-  studioMode: "kiyafet" | "eyewear" | "video";
+  studioMode: "kiyafet" | "eyewear" | "video" | "ghost";
   videoImageUrls: string[];
   videoMode: "image_to_video" | "reference_to_video";
+  ghostInputUrl: string | null;
   setGarmentUrl: (url: string | null) => void;
   setSelectedModelId: (id: string | null) => void;
   setIsBatchMode: (batch: boolean) => void;
   toggleBatchModel: (id: string) => void;
   setGlassesUrl: (url: string | null) => void;
-  setStudioMode: (mode: "kiyafet" | "eyewear" | "video") => void;
+  setStudioMode: (mode: "kiyafet" | "eyewear" | "video" | "ghost") => void;
   setVideoImageUrls: (urls: string[]) => void;
   setVideoMode: (mode: "image_to_video" | "reference_to_video") => void;
+  setGhostInputUrl: (url: string | null) => void;
   reset: () => void;
 }
 
@@ -46,6 +48,7 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   studioMode: "kiyafet",
   videoImageUrls: [],
   videoMode: "image_to_video",
+  ghostInputUrl: null,
   setGarmentUrl: (url) => set({ garmentUrl: url }),
   setSelectedModelId: (id) => set({ selectedModelId: id }),
   setIsBatchMode: (isBatchMode) => set({ isBatchMode, batchModelIds: [] }),
@@ -61,6 +64,7 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   setStudioMode: (mode) => set({ studioMode: mode }),
   setVideoImageUrls: (urls) => set({ videoImageUrls: urls }),
   setVideoMode: (mode) => set({ videoMode: mode }),
+  setGhostInputUrl: (url) => set({ ghostInputUrl: url }),
   reset: () =>
     set({
       garmentUrl: null,
@@ -71,5 +75,6 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
       studioMode: "kiyafet",
       videoImageUrls: [],
       videoMode: "image_to_video",
+      ghostInputUrl: null,
     }),
 }));

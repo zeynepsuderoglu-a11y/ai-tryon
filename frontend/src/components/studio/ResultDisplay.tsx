@@ -21,6 +21,7 @@ export default function ResultDisplay({ generationId, batchJobId, mode = "garmen
   const [loading, setLoading] = useState(true);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
+
   useEffect(() => {
     if (!generationId && !batchJobId) return;
 
