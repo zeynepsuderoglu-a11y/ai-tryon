@@ -176,7 +176,7 @@ export default function GizlilikPage() {
             <a href="https://www.instagram.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
               <Instagram className="w-3.5 h-3.5" /> Instagram
             </a>
-            <a href="https://www.facebook.com/imaaistudio/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
+            <a href="https://www.facebook.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
               <Facebook className="w-3.5 h-3.5" /> Facebook
             </a>
           </div>

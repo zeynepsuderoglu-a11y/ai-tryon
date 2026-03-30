@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <a href="https://www.instagram.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#0f0f0f] transition-colors">
           <Instagram className="w-3.5 h-3.5" /> @imaaistudio
         </a>
-        <a href="https://www.facebook.com/imaaistudio/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#0f0f0f] transition-colors">
+        <a href="https://www.facebook.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#0f0f0f] transition-colors">
           <Facebook className="w-3.5 h-3.5" /> Facebook
         </a>
       </footer>

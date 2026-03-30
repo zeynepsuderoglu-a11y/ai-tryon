@@ -111,7 +111,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Instagram className="w-3.5 h-3.5" /> Instagram
             </a>
             <a
-              href="https://www.facebook.com/imaaistudio/"
+              href="https://www.facebook.com/studyoimaai"
               target="_blank"
               rel="noopener noreferrer"
               title="Facebook"

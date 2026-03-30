@@ -13,7 +13,7 @@ export default function JsonLd() {
     },
     sameAs: [
       "https://www.instagram.com/studyoimaai",
-      "https://www.facebook.com/imaaistudio/",
+      "https://www.facebook.com/studyoimaai",
     ],
     address: {
       "@type": "PostalAddress",
