@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # FAL.ai (alternative try-on provider)
     FAL_KEY: str = ""
 
+    # Google Gemini (ghost mannequin image generation)
+    GEMINI_API_KEY: str = ""
+
     # Anthropic (garment analysis)
     ANTHROPIC_API_KEY: str = ""
 
