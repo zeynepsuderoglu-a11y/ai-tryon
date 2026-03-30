@@ -12,6 +12,7 @@ import { saveTokens } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import AuthDecorativePanel from "@/components/AuthDecorativePanel";
 
 const schema = z.object({
   full_name: z.string().min(2, "En az 2 karakter girin"),
@@ -170,6 +171,8 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
+
+      <AuthDecorativePanel />
     </div>
   );
 }

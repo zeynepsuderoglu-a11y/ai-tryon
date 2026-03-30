@@ -12,6 +12,7 @@ import { saveTokens } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
 import Image from "next/image";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import AuthDecorativePanel from "@/components/AuthDecorativePanel";
 
 const schema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
@@ -156,6 +157,8 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      <AuthDecorativePanel />
     </div>
   );
 }
