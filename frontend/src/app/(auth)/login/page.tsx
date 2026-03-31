@@ -65,8 +65,8 @@ export default function LoginPage() {
           </h2>
           <div className="space-y-5">
             {[
-              { title: "Kıyafet Try-On", desc: "Ürün fotoğrafından manken görseli" },
-              { title: "Gözlük Try-On",  desc: "468 yüz noktasıyla matematiksel hizalama" },
+              { title: "Kıyafet", desc: "Ürün fotoğrafından manken görseli" },
+              { title: "Gözlük",  desc: "468 yüz noktasıyla matematiksel hizalama" },
               { title: "5 Ücretsiz Üretim", desc: "Kredi kartı gerekmeden başlayın" },
             ].map((f) => (
               <div key={f.title} className="flex items-start gap-3">

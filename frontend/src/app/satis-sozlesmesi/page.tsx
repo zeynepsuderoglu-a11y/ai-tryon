@@ -70,7 +70,7 @@ export default function SatisSozlesmesiPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Madde 3 — Hizmet Tanımı ve Fiyatları</h2>
               <p className="mb-4">
-                Platform üzerinden kıyafet try-on, gözlük try-on ve video üretimi hizmetleri sunulmaktadır.
+                Platform üzerinden kıyafet, gözlük ve video üretimi hizmetleri sunulmaktadır.
                 Üretim hakları tüm hizmet türlerinde ortak havuzdan kullanılır; işlem türüne göre harcanan miktar değişir
                 (Gözlük: 1 üretim · Kıyafet: 2 üretim · Video: 5 üretim).
               </p>

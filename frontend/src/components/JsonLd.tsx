@@ -44,7 +44,7 @@ export default function JsonLd() {
     operatingSystem: "Web",
     url: "https://studyoima.com",
     description:
-      "Yapay zeka ile ürün fotoğrafından profesyonel manken görseli oluşturma. Kıyafet try-on, gözlük try-on ve video üretimi.",
+      "Yapay zeka ile ürün fotoğrafından profesyonel manken görseli oluşturma. Kıyafet, gözlük ve video üretimi.",
     offers: [
       {
         "@type": "Offer",
@@ -70,7 +70,7 @@ export default function JsonLd() {
     ],
     featureList: [
       "Yapay zeka kıyafet görselleştirme",
-      "Gözlük try-on",
+      "Gözlük",
       "AI video üretimi",
       "Toplu işlem",
       "Stüdyo kalitesinde çıktı",

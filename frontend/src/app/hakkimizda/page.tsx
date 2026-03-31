@@ -65,7 +65,7 @@ export default function HakkimizdaPage() {
                 <li className="flex gap-2">
                   <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
                   <span>
-                    <strong className="text-[#1a1a1a]">Kıyafet Try-On:</strong> Ürün fotoğrafından yapay zeka ile
+                    <strong className="text-[#1a1a1a]">Kıyafet:</strong> Ürün fotoğrafından yapay zeka ile
                     profesyonel manken görseli oluşturma. Düz ürün fotoğrafı veya herhangi bir açıdan
                     çekilmiş görsellerden çalışır.
                   </span>
@@ -81,7 +81,7 @@ export default function HakkimizdaPage() {
                 <li className="flex gap-2">
                   <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
                   <span>
-                    <strong className="text-[#1a1a1a]">Gözlük Try-On:</strong> Gözlük ürün fotoğrafından manken
+                    <strong className="text-[#1a1a1a]">Gözlük:</strong> Gözlük ürün fotoğrafından manken
                     üzerinde gerçekçi gözlük görseli oluşturma. Yüz tespiti ve AI gerçekçilik katmanı
                     ile çerçeve doğal görünümde yüze yapıştırılır.
                   </span>

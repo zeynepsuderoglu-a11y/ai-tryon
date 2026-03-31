@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const slides = [
   {
-    tag: "Kıyafet Try-On",
+    tag: "Kıyafet",
     title: "Ürün fotoğrafından\nmanken görseli",
     steps: [
       { step: "01", title: "Ürün Fotoğrafı Yükle", desc: "Beyaz fon, flat-lay veya askı fotoğrafı" },
@@ -17,7 +17,7 @@ const slides = [
     ],
   },
   {
-    tag: "Gözlük Try-On",
+    tag: "Gözlük",
     title: "Matematiksel\nhizalamayla gözlük",
     steps: [
       { step: "01", title: "Yüz Fotoğrafı Yükle", desc: "Düz, ön cepheden net bir portre" },

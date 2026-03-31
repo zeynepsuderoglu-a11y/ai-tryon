@@ -15,9 +15,9 @@ const plans = [
 ];
 
 const usageInfo = [
-  { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük Try-On",  cost: "1 üretim" },
+  { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük",  cost: "1 üretim" },
   { icon: <UserX   className="w-4 h-4 text-[#c9a96e]" />, label: "Ghost Manken",   cost: "1 üretim" },
-  { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet Try-On", cost: "2 üretim" },
+  { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet", cost: "2 üretim" },
   { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
 ];
 

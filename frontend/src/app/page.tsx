@@ -128,9 +128,9 @@ export default function LandingPage() {
   ];
 
   const creditUsage = [
-    { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük Try-On",  cost: "1 üretim" },
+    { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük",  cost: "1 üretim" },
     { icon: <UserX   className="w-4 h-4 text-[#c9a96e]" />, label: "Ghost Manken",   cost: "1 üretim" },
-    { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet Try-On", cost: "2 üretim" },
+    { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet", cost: "2 üretim" },
     { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
   ];
 
@@ -218,7 +218,7 @@ export default function LandingPage() {
                 <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
                   <Package className="w-5 h-5 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Kıyafet Try-On</h3>
+                <h3 className="text-white font-semibold text-lg">Kıyafet</h3>
               </div>
               <p className="text-white/50 text-sm leading-relaxed mb-8">
                 Ürün fotoğrafından yapay zeka ile profesyonel manken görseli. Tişörtten elbiseye, monttan pantolona her kategori.
@@ -242,7 +242,7 @@ export default function LandingPage() {
                 <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
                   <Glasses className="w-5 h-5 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Gözlük Try-On</h3>
+                <h3 className="text-white font-semibold text-lg">Gözlük</h3>
               </div>
               <p className="text-white/50 text-sm leading-relaxed mb-8">
                 Gözlük ürün fotoğrafından gerçekçi manken görseli. 468 yüz noktası ile matematiksel hizalama, AI gerçekçilik katmanı.

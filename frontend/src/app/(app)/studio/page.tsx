@@ -310,7 +310,7 @@ export default function StudioPage() {
       } else if (isEyewear) {
         const result = await eyewearApi.run({ glasses_url: glassesUrl!, model_asset_id: selectedModelId! });
         setGenerationId(result.generation_id);
-        toast.success("Gözlük try-on başladı!");
+        toast.success("Gözlük üretimi başladı!");
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 1 });
         setShowResult(true);
       } else if (isBatchMode) {

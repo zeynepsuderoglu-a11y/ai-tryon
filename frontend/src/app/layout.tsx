@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | StudyoİMA AI",
   },
   description:
-    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli oluşturun. Yapay zeka destekli kıyafet try-on, gözlük try-on ve video üretimi. E-ticaret kataloğunuzu hızlandırın.",
+    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli oluşturun. Yapay zeka destekli kıyafet, gözlük ve video üretimi. E-ticaret kataloğunuzu hızlandırın.",
   keywords: [
     "yapay zeka kıyafet",
     "ai kıyafet deneme",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "e-ticaret ürün fotoğrafı",
     "kıyafet görselleştirme",
     "sanal gözlük deneme",
-    "ai gözlük try-on",
+    "ai gözlük",
     "yapay zeka katalog",
     "studyoima ai",
     "studyoima",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     siteName: "StudyoİMA AI",
     title: "StudyoİMA AI — Yapay Zeka Kıyafet, Gözlük & Video Üretimi",
     description:
-      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli oluşturun. Yapay zeka destekli kıyafet try-on, gözlük deneme ve video üretimi.",
+      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli oluşturun. Yapay zeka destekli kıyafet, gözlük ve video üretimi.",
     images: [
       {
         url: "/og-image.jpg",

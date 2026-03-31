@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const slides = [
   {
-    label: "Kıyafet Try-On",
+    label: "Kıyafet",
     before: { src: "/demo/product.webp", alt: "Kıyafet try-on — ürün fotoğrafı girdi" },
     after:  { src: "/demo/model.webp",   alt: "AI kıyafet try-on sonucu — manken üzerinde ürün" },
     afterLabel: "AI Çıktı",
