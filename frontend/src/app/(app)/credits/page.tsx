@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/lib/store";
-import { Coins, ArrowRight, Check, Clock, Package, Glasses, Video } from "lucide-react";
+import { Coins, ArrowRight, Check, Clock, Package, Glasses, Video, UserX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import BillingModal from "@/components/BillingModal";
@@ -16,6 +16,7 @@ const plans = [
 
 const usageInfo = [
   { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük Try-On",  cost: "1 üretim" },
+  { icon: <UserX   className="w-4 h-4 text-[#c9a96e]" />, label: "Ghost Manken",   cost: "1 üretim" },
   { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet Try-On", cost: "2 üretim" },
   { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
 ];
@@ -50,7 +51,7 @@ export default function CreditsPage() {
         {/* Kullanım Tablosu */}
         <div className="bg-white border border-[#e8e8e8] rounded-2xl p-5 mb-8">
           <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-wider mb-4">Üretim Hakkı Kullanımı</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {usageInfo.map((item) => (
               <div key={item.label} className="flex flex-col items-center gap-2 py-4 bg-[#f8f8f8] rounded-xl">
                 {item.icon}
