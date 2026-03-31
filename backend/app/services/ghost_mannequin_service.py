@@ -18,15 +18,15 @@ logger = logging.getLogger(__name__)
 GHOST_PROMPT = """Transform this clothing product photo into a professional ghost mannequin (hollow man) product photo for an e-commerce fashion store.
 
 Instructions:
-- Remove the hanger, any background (wall, door, studio backdrop), and any visible mannequin or person completely
-- Replace with a clean, neutral light grey studio background
+- Remove the hanger, any background, and any visible mannequin or person completely
+- Background must be pure solid white (#FFFFFF) — absolutely flat, zero shadows, zero gradients, zero texture, no drop shadows under the garment
 - Keep the garment EXACTLY as photographed — preserve every detail: color, texture, buttons, stitching, patterns, zippers, pockets
 - Make the garment look naturally shaped and 3D, as if worn by an invisible mannequin standing upright
-- Show the hollow interior at the collar/neckline opening (the inside lining of the garment should be visible)
-- Sleeves should be naturally positioned and shaped
-- The overall result must look like a high-end professional product photography shot suitable for an online fashion store
+- Show the hollow interior at the collar/neckline opening (the inside lining should be visible)
+- Sleeves naturally positioned and shaped
+- If the product is a SET (top + bottom, suit, tracksuit etc.): show the complete outfit assembled vertically as worn together by an invisible person — top piece on upper half, bottom piece on lower half, properly aligned as a single ghost mannequin figure. Do NOT place pieces side by side.
 
-Output: a clean, professional, studio-quality ghost mannequin product photo."""
+Output: a clean, professional ghost mannequin product photo on a pure white background with no shadows."""
 
 
 def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg") -> bytes:
