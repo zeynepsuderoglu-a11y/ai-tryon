@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight, Package, Glasses, Eye, Users, Zap, ShieldCheck, Instagram, Facebook, Video, Coins, UserX } from "lucide-react";
 import DecorativeBg from "@/components/DecorativeBg";
 import HeroDemoSlider from "@/components/HeroDemoSlider";
+import DemoExamplesSection from "@/components/DemoExamplesSection";
 
 const clothingSteps = [
   { num: "01", title: "Ürün Fotoğrafı Yükle", desc: "Kıyafetin herhangi bir açıdan fotoğrafını yükleyin." },
@@ -38,16 +39,16 @@ const plans = [
 ];
 
 export const metadata: Metadata = {
-  title: "StudyoİMA AI — Kıyafet Try-On, Ghost Manken, Gözlük & Video Üretimi",
+  title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük & Video Üretimi",
   description:
-    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video. Yapay zeka kıyafet try-on, ghost manken, gözlük deneme ve AI video üretimi. E-ticaret kataloğunuzu hızlandırın.",
+    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video. Yapay zeka kıyafet, ghost manken, gözlük deneme ve AI video üretimi. E-ticaret kataloğunuzu hızlandırın.",
   alternates: {
     canonical: "https://www.studyoima.com",
   },
   openGraph: {
-    title: "StudyoİMA AI — Kıyafet Try-On, Ghost Manken, Gözlük & Video Üretimi",
+    title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük & Video Üretimi",
     description:
-      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video. Yapay zeka kıyafet try-on, ghost manken, gözlük deneme ve AI video üretimi.",
+      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video. Yapay zeka kıyafet, ghost manken, gözlük deneme ve AI video üretimi.",
     url: "https://www.studyoima.com",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "StudyoİMA AI" }],
   },
@@ -408,69 +409,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Gözlük Demo — Açık gri bg */}
-      <section className="py-24 px-8 bg-[#f8f8f8]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-[0.25em] mb-4">Gerçek Çıktı</p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em]">Gözlük Try-On Örnekleri</h2>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <div className="text-center">
-              <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/eyewear_model.webp" alt="Gözlük try-on öncesi — orijinal manken görseli" className="w-full h-full object-cover object-top" loading="lazy" />
-              </div>
-              <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">Orijinal</p>
-            </div>
-            <ArrowRight className="w-8 h-8 text-[#d4d4d4] flex-shrink-0 rotate-0 sm:rotate-0" />
-            <div className="flex gap-5">
-              <div className="text-center">
-                <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result1.webp" alt="Yapay zeka gözlük try-on sonucu — manken üzerinde gözlük" className="w-full h-full object-cover object-top" loading="lazy" />
-                </div>
-                <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 1</p>
-              </div>
-              <div className="text-center">
-                <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result2.webp" alt="AI gözlük görselleştirme — farklı çerçeve modeli" className="w-full h-full object-cover object-top" loading="lazy" />
-                </div>
-                <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 2</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Ghost Manken Demo */}
-      <section className="py-24 px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-[0.25em] mb-4">Gerçek Çıktı</p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em]">Ghost Manken Örnekleri</h2>
-            <p className="text-sm text-[#737373] mt-3">Askıdaki ürün fotoğrafından profesyonel e-ticaret görseli</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <div className="text-center">
-              <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm bg-[#f5f5f5]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/ghost_before.jpg" alt="Ghost mannequin öncesi — askıdaki kıyafet ürün fotoğrafı" className="w-full h-full object-cover object-top" loading="lazy" />
-              </div>
-              <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">Orijinal</p>
-            </div>
-            <ArrowRight className="w-8 h-8 text-[#d4d4d4] flex-shrink-0" />
-            <div className="text-center">
-              <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm bg-[#f5f5f5]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/ghost_after.jpg" alt="Ghost mannequin sonucu — profesyonel e-ticaret ghost mannequin görseli" className="w-full h-full object-cover object-top" loading="lazy" />
-              </div>
-              <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Ghost Çıktı</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <DemoExamplesSection />
 
       {/* Fiyatlandırma */}
       <section className="py-32 px-8 bg-white relative overflow-hidden">

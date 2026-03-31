@@ -6,12 +6,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Hakkımızda",
   description:
-    "StudyoİMA AI hakkında bilgi edinin. Türkiye'nin yapay zeka destekli kıyafet try-on, gözlük deneme ve video üretim platformu. FASHN.ai, MediaPipe ve Google Veo teknolojileriyle güçlendirilmiş.",
+    "StudyoİMA AI hakkında bilgi edinin. Türkiye'nin yapay zeka destekli kıyafet, ghost manken, gözlük deneme ve video üretim platformu.",
   alternates: { canonical: "https://www.studyoima.com/hakkimizda" },
   openGraph: {
     title: "Hakkımızda | StudyoİMA AI",
     description:
-      "StudyoİMA AI hakkında bilgi edinin. Yapay zeka destekli kıyafet ve gözlük görselleştirme platformu.",
+      "StudyoİMA AI hakkında bilgi edinin. Yapay zeka destekli kıyafet, ghost manken, gözlük ve video üretim platformu.",
     url: "https://www.studyoima.com/hakkimizda",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "StudyoİMA AI Hakkımızda" }],
   },
@@ -59,22 +59,30 @@ export default function HakkimizdaPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Ne Yapıyoruz?</h2>
               <p className="mb-3">
-                Platformumuz iki temel çözüm sunar:
+                Platformumuz dört temel çözüm sunar:
               </p>
               <ul className="space-y-2 pl-4">
                 <li className="flex gap-2">
                   <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
                   <span>
                     <strong className="text-[#1a1a1a]">Kıyafet Try-On:</strong> Ürün fotoğrafından yapay zeka ile
-                    profesyonel manken görseli oluşturma. Ghost mannequin, düz ürün fotoğrafı veya herhangi bir açıdan
+                    profesyonel manken görseli oluşturma. Düz ürün fotoğrafı veya herhangi bir açıdan
                     çekilmiş görsellerden çalışır.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
                   <span>
+                    <strong className="text-[#1a1a1a]">Ghost Manken:</strong> Kıyafet ürün fotoğrafından
+                    profesyonel ghost mannequin görseli oluşturma. Askıdaki, modeldeki veya düz zemindeki
+                    kıyafeti tek tıkla e-ticaret standardına taşır.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
+                  <span>
                     <strong className="text-[#1a1a1a]">Gözlük Try-On:</strong> Gözlük ürün fotoğrafından manken
-                    üzerinde gerçekçi gözlük görseli oluşturma. MediaPipe yüz tespiti ve AI gerçekçilik katmanı
+                    üzerinde gerçekçi gözlük görseli oluşturma. Yüz tespiti ve AI gerçekçilik katmanı
                     ile çerçeve doğal görünümde yüze yapıştırılır.
                   </span>
                 </li>
@@ -100,31 +108,11 @@ export default function HakkimizdaPage() {
 
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Teknoloji</h2>
-              <p className="mb-3">
-                Platformumuz en güncel yapay zeka teknolojilerini bir araya getirir:
+              <p>
+                Platformumuz, görsel kalitesi ve işlem hızı için sektörün önde gelen yapay zeka altyapılarını kullanmaktadır.
+                Kıyafet giydirme, ghost mannequin dönüşümü, yüz tespiti ve video üretimi için özel olarak optimize edilmiş
+                modeller bir arada çalışarak profesyonel e-ticaret standartlarında çıktı üretir.
               </p>
-              <ul className="space-y-2 pl-4">
-                <li className="flex gap-2">
-                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
-                  <span><strong className="text-[#1a1a1a]">FASHN.ai:</strong> Kıyafet giydirme motoru — ürün fotoğrafından gerçekçi manken görseli üretir.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
-                  <span><strong className="text-[#1a1a1a]">MediaPipe FaceMesh:</strong> 468 noktalı yüz tespiti — gözlüğü matematiksel olarak doğru konuma yerleştirir.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
-                  <span><strong className="text-[#1a1a1a]">Anthropic Claude:</strong> Kıyafet analizi ve stil önerileri için büyük dil modeli.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
-                  <span><strong className="text-[#1a1a1a]">kie.ai Veo:</strong> Video üretim motoru — manken görsellerinden hareket ve sahne içeren kısa tanıtım videoları üretir.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
-                  <span><strong className="text-[#1a1a1a]">Cloudinary:</strong> Üretilen görseller güvenli bulut depolama ile saklanır.</span>
-                </li>
-              </ul>
             </section>
 
             <section>
