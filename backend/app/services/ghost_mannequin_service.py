@@ -37,15 +37,12 @@ def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg") -> 
     from google import genai
     from google.genai import types
 
-    client = genai.Client(
-        api_key=settings.GEMINI_API_KEY,
-        http_options=types.HttpOptions(api_version="v1alpha"),
-    )
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
     logger.info("[ghost] Gemini 2.0 Flash isteği gönderiliyor...")
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash-preview-image-generation",
+        model="gemini-2.5-flash-image",
         contents=[
             types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
             GHOST_PROMPT,
