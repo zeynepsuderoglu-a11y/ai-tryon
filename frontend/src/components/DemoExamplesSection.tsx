@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 const slides = [
   {
-    label: "Kıyafet Try-On",
+    label: "Kıyafet",
     before: { src: "/demo/product.webp",       alt: "Kahverengi mont ürün fotoğrafı",          caption: "Ürün"         },
     after:  { src: "/demo/model.webp",          alt: "AI kıyafet try-on sonucu — manken üzerinde kahverengi mont", caption: "AI Çıktı"   },
   },
@@ -16,7 +16,7 @@ const slides = [
     after:  { src: "/demo/ghost_after.jpg",     alt: "Ghost mannequin sonucu — e-ticaret görseli", caption: "Ghost Çıktı" },
   },
   {
-    label: "Gözlük Try-On",
+    label: "Gözlük",
     before: { src: "/demo/eyewear_model.webp",  alt: "Gözlük try-on öncesi — manken",           caption: "Orijinal"    },
     after:  { src: "/demo/eyewear_result1.webp",alt: "AI gözlük try-on sonucu",                 caption: "AI Çıktı"   },
   },
