@@ -29,6 +29,16 @@ const VIDEO_MESSAGES = [
   "Video dosyası hazırlanıyor...",
 ];
 
+const GHOST_MESSAGES = [
+  "Ürün fotoğrafı analiz ediliyor...",
+  "Manken ve arka plan kaldırılıyor...",
+  "Kıyafet şekli ve hacmi hesaplanıyor...",
+  "Ghost mannequin efekti uygulanıyor...",
+  "Detaylar ve dokular korunuyor...",
+  "Profesyonel stüdyo görünümü oluşturuluyor...",
+  "Görseliniz neredeyse hazır...",
+];
+
 const TIPS = [
   "💡 Beyaz veya açık arka planlı ürün fotoğrafları en iyi sonucu verir.",
   "✨ Kıyafetin tüm detayları net görünüyorsa daha yüksek kalite elde edilir.",
@@ -38,7 +48,7 @@ const TIPS = [
 ];
 
 interface Props {
-  mode?: "garment" | "eyewear" | "video";
+  mode?: "garment" | "eyewear" | "video" | "ghost";
   estimatedSeconds?: number;
 }
 
@@ -48,7 +58,7 @@ export default function GenerationWaiting({ mode = "garment", estimatedSeconds =
   const [elapsed, setElapsed]     = useState(0);
   const [progress, setProgress]   = useState(2);
 
-  const messages = mode === "eyewear" ? EYEWEAR_MESSAGES : mode === "video" ? VIDEO_MESSAGES : MESSAGES;
+  const messages = mode === "eyewear" ? EYEWEAR_MESSAGES : mode === "video" ? VIDEO_MESSAGES : mode === "ghost" ? GHOST_MESSAGES : MESSAGES;
 
   useEffect(() => {
     const timer    = setInterval(() => setElapsed((e) => e + 1), 1000);
@@ -82,10 +92,10 @@ export default function GenerationWaiting({ mode = "garment", estimatedSeconds =
 
       {/* Başlık */}
       <h3 className="text-xl font-bold text-[#0f0f0f] mb-2">
-        {mode === "video" ? "Video Üretiliyor" : "Görseliniz Hazırlanıyor"}
+        {mode === "video" ? "Video Üretiliyor" : mode === "ghost" ? "Ghost Mannequin Hazırlanıyor" : "Görseliniz Hazırlanıyor"}
       </h3>
       <p className="text-sm text-[#737373] mb-8 max-w-xs leading-relaxed">
-        Yüksek kaliteli bir {mode === "video" ? "video" : "görsel"} üretiyoruz.
+        Yüksek kaliteli bir {mode === "video" ? "video" : mode === "ghost" ? "ghost mannequin görseli" : "görsel"} üretiyoruz.
         Lütfen sayfayı kapatmadan bekleyin.
       </p>
 

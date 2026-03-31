@@ -11,6 +11,7 @@ import GlassesUpload from "@/components/studio/GlassesUpload";
 import ModelSelector from "@/components/studio/ModelSelector";
 import ResultDisplay from "@/components/studio/ResultDisplay";
 import VideoResult from "@/components/studio/VideoResult";
+import GenerationWaiting from "@/components/studio/GenerationWaiting";
 import {
   Wand2, ChevronLeft, Layers, Sparkles, Glasses, Package,
   ShoppingCart, Video, Upload, X, ImageIcon, UserX,
@@ -187,12 +188,8 @@ function GhostResultPanel({
 
       <div className="flex-1 p-5 max-w-2xl mx-auto w-full pb-20 md:pb-6 flex flex-col items-center gap-4">
         {!gen || gen.status === "processing" || gen.status === "pending" ? (
-          <div className="w-full max-w-sm">
-            <div className="aspect-[3/4] rounded-2xl bg-[#f0f0f0] flex flex-col items-center justify-center gap-3">
-              <div className="w-10 h-10 border-2 border-[#c9a96e] border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm font-medium text-[#737373]">Ghost mannequin hazırlanıyor...</p>
-              <p className="text-xs text-[#a3a3a3]">Bu işlem 30–60 saniye sürebilir</p>
-            </div>
+          <div className="w-full">
+            <GenerationWaiting mode="ghost" estimatedSeconds={60} />
           </div>
         ) : gen.status === "failed" ? (
           <div className="w-full max-w-sm rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
