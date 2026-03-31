@@ -15,18 +15,18 @@ from app.services.cloudinary_service import cloudinary_service
 
 logger = logging.getLogger(__name__)
 
-GHOST_PROMPT = """Transform this clothing product photo into a professional ghost mannequin (hollow man) product photo for an e-commerce fashion store.
+GHOST_PROMPT = """Transform this clothing product photo into a professional ghost mannequin (hollow man / invisible mannequin) product photo for an e-commerce fashion store.
 
 Instructions:
 - Remove the hanger, any background, and any visible mannequin or person completely
 - Background must be pure solid white (#FFFFFF) — absolutely flat, zero shadows, zero gradients, zero texture, no drop shadows under the garment
-- Keep the garment EXACTLY as photographed — preserve every detail: color, texture, buttons, stitching, patterns, zippers, pockets
-- Make the garment look naturally shaped and 3D, as if worn by an invisible mannequin standing upright
-- Show the hollow interior at the collar/neckline opening (the inside lining should be visible)
-- Sleeves naturally positioned and shaped
-- If the product is a SET (top + bottom, suit, tracksuit etc.): show the complete outfit assembled vertically as worn together by an invisible person — top piece on upper half, bottom piece on lower half, properly aligned as a single ghost mannequin figure. Do NOT place pieces side by side.
+- CRITICAL — VOLUME & SHAPE: The garment(s) MUST look naturally filled and volumetric, as if an invisible person is actively wearing them right now. The fabric should have natural 3D body, natural folds, natural drape — NOT flat, NOT deflated, NOT lying on the floor, NOT like they were dropped on a surface
+- Keep every garment detail exactly: color, texture, buttons, stitching, patterns, zippers, pockets
+- Show the hollow interior at the collar/neckline opening (inside lining visible) — this is the ghost mannequin signature look
+- Sleeves and legs naturally positioned, filled with volume, hanging naturally
+- If the product is a SET (top + bottom, suit, two-piece etc.): assemble both pieces vertically as one complete outfit worn by an invisible standing person — top aligned on upper body, bottom on lower body. Do NOT place side by side. The complete outfit should look like a standing invisible person wearing it
 
-Output: a clean, professional ghost mannequin product photo on a pure white background with no shadows."""
+Output: a clean, professional ghost mannequin product photo on pure white background — garments filled with natural volume, no shadows."""
 
 
 def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg") -> bytes:
