@@ -1,93 +1,98 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-const tabs = [
-  { id: "gozluk", label: "Gözlük Try-On" },
-  { id: "ghost",  label: "Ghost Manken"  },
-] as const;
-
-type TabId = typeof tabs[number]["id"];
+const slides = [
+  {
+    label: "Kıyafet Try-On",
+    before: { src: "/demo/product.webp",       alt: "Kahverengi mont ürün fotoğrafı",          caption: "Ürün"         },
+    after:  { src: "/demo/model.webp",          alt: "AI kıyafet try-on sonucu — manken üzerinde kahverengi mont", caption: "AI Çıktı"   },
+  },
+  {
+    label: "Ghost Manken",
+    before: { src: "/demo/ghost_before.jpg",    alt: "Ghost mannequin öncesi — askıdaki kıyafet", caption: "Orijinal"    },
+    after:  { src: "/demo/ghost_after.jpg",     alt: "Ghost mannequin sonucu — e-ticaret görseli", caption: "Ghost Çıktı" },
+  },
+  {
+    label: "Gözlük Try-On",
+    before: { src: "/demo/eyewear_model.webp",  alt: "Gözlük try-on öncesi — manken",           caption: "Orijinal"    },
+    after:  { src: "/demo/eyewear_result1.webp",alt: "AI gözlük try-on sonucu",                 caption: "AI Çıktı"   },
+  },
+];
 
 export default function DemoExamplesSection() {
-  const [activeTab, setActiveTab] = useState<TabId>("gozluk");
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setCurrent((c) => (c + 1) % slides.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  const slide = slides[current];
 
   return (
     <section className="py-24 px-8 bg-[#f8f8f8]">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
+        <div className="text-center mb-12">
           <p className="text-xs font-medium text-[#a3a3a3] uppercase tracking-[0.25em] mb-4">Gerçek Çıktı</p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em]">AI Üretim Örnekleri</h2>
         </div>
 
-        {/* Tabs */}
-        <div className="flex justify-center gap-2 mb-12">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? "bg-[#0f0f0f] text-white"
-                  : "bg-white border border-[#e8e8e8] text-[#737373] hover:text-[#0f0f0f]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Slide label */}
+        <p className="text-center text-sm font-semibold text-[#c9a96e] uppercase tracking-[0.2em] mb-8">
+          {slide.label}
+        </p>
+
+        {/* Before → After */}
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          {/* Before */}
+          <div className="text-center">
+            <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm bg-[#efefef]">
+              <Image
+                key={slide.before.src}
+                src={slide.before.src}
+                alt={slide.before.alt}
+                width={176}
+                height={240}
+                className="w-full h-full object-cover object-top transition-opacity duration-500"
+              />
+            </div>
+            <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">{slide.before.caption}</p>
+          </div>
+
+          <ArrowRight className="w-8 h-8 text-[#d4d4d4] flex-shrink-0" />
+
+          {/* After */}
+          <div className="text-center">
+            <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm bg-[#efefef]">
+              <Image
+                key={slide.after.src}
+                src={slide.after.src}
+                alt={slide.after.alt}
+                width={176}
+                height={240}
+                className="w-full h-full object-cover object-top transition-opacity duration-500"
+              />
+            </div>
+            <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">{slide.after.caption}</p>
+          </div>
         </div>
 
-        {/* Gözlük Tab */}
-        {activeTab === "gozluk" && (
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <div className="text-center">
-              <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/eyewear_model.webp" alt="Gözlük try-on öncesi — orijinal manken görseli" className="w-full h-full object-cover object-top" loading="lazy" />
-              </div>
-              <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">Orijinal</p>
-            </div>
-            <ArrowRight className="w-8 h-8 text-[#d4d4d4] flex-shrink-0 rotate-0 sm:rotate-0" />
-            <div className="flex gap-5">
-              <div className="text-center">
-                <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result1.webp" alt="Yapay zeka gözlük try-on sonucu — manken üzerinde gözlük" className="w-full h-full object-cover object-top" loading="lazy" />
-                </div>
-                <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 1</p>
-              </div>
-              <div className="text-center">
-                <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/demo/eyewear_result2.webp" alt="AI gözlük görselleştirme — farklı çerçeve modeli" className="w-full h-full object-cover object-top" loading="lazy" />
-                </div>
-                <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Sonuç 2</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Ghost Tab */}
-        {activeTab === "ghost" && (
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <div className="text-center">
-              <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm bg-[#f5f5f5]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/ghost_before.jpg" alt="Ghost mannequin öncesi — askıdaki kıyafet ürün fotoğrafı" className="w-full h-full object-cover object-top" loading="lazy" />
-              </div>
-              <p className="text-xs text-[#a3a3a3] uppercase tracking-wider mt-4">Orijinal</p>
-            </div>
-            <ArrowRight className="w-8 h-8 text-[#d4d4d4] flex-shrink-0" />
-            <div className="text-center">
-              <div className="w-44 h-60 rounded-3xl overflow-hidden shadow-sm bg-[#f5f5f5]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/demo/ghost_after.jpg" alt="Ghost mannequin sonucu — profesyonel e-ticaret görseli" className="w-full h-full object-cover object-top" loading="lazy" />
-              </div>
-              <p className="text-xs text-[#c9a96e] uppercase tracking-wider mt-4">Ghost Çıktı</p>
-            </div>
-          </div>
-        )}
+        {/* Dots */}
+        <div className="flex justify-center gap-2 mt-10">
+          {slides.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === current ? "w-6 bg-[#c9a96e]" : "w-1.5 bg-[#d4d4d4]"
+              }`}
+              aria-label={s.label}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
