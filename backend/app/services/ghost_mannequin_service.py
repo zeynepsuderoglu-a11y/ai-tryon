@@ -42,7 +42,7 @@ def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg") -> 
     logger.info("[ghost] Gemini 2.0 Flash isteği gönderiliyor...")
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash-exp",
+        model="gemini-2.0-flash-preview-image-generation",
         contents=[
             types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
             GHOST_PROMPT,
