@@ -95,7 +95,7 @@ export default function GizlilikPage() {
               <ul className="space-y-2 pl-4">
                 <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Yalnızca sizin hesabınızla ilişkilendirilir ve üçüncü taraflarla paylaşılmaz.</span></li>
                 <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Hesabınızı sildiğinizde görselleriniz de sistemden kaldırılır.</span></li>
-                <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Yapay zeka işleme sürecinde üçüncü taraf API sağlayıcılarına (FASHN.ai, Replicate) iletilir; bu sağlayıcılar kendi gizlilik politikalarına tabidir.</span></li>
+                <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Yapay zeka işleme sürecinde üçüncü taraf API sağlayıcılarına iletilir; bu sağlayıcılar kendi gizlilik politikalarına tabidir.</span></li>
               </ul>
             </section>
 
