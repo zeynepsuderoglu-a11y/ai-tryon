@@ -22,7 +22,7 @@ Instructions:
 - Background must be pure solid white (#FFFFFF) — absolutely flat, zero shadows, zero gradients, zero texture, no drop shadows under the garment
 - CRITICAL — VOLUME & SHAPE: The garment(s) MUST look naturally filled and volumetric, as if an invisible person is actively wearing them right now. The fabric should have natural 3D body, natural folds, natural drape — NOT flat, NOT deflated, NOT lying on the floor, NOT like they were dropped on a surface
 - Keep every garment detail exactly: color, texture, buttons, stitching, patterns, zippers, pockets
-- Show the hollow interior at the collar/neckline opening (inside lining visible) — this is the ghost mannequin signature look
+- The mannequin (including neck, shoulders, and any body form) must be COMPLETELY invisible — erase it entirely. At the collar/neckline, show only the garment's own inner lining or fabric edge — NO mannequin neck or body shape should remain visible anywhere
 - Sleeves and legs naturally positioned, filled with volume, hanging naturally
 - If the product is a SET (top + bottom, suit, two-piece etc.): assemble both pieces vertically as one complete outfit worn by an invisible standing person — top aligned on upper body, bottom on lower body. Do NOT place side by side. The complete outfit should look like a standing invisible person wearing it
 
