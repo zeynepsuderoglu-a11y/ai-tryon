@@ -18,11 +18,11 @@ logger = logging.getLogger(__name__)
 GHOST_PROMPT = """Transform this clothing product photo into a professional ghost mannequin (hollow man / invisible mannequin) product photo for an e-commerce fashion store.
 
 Instructions:
+- CRITICAL — PRESERVE GARMENT: Keep every garment detail exactly as-is: color, texture, button count, button placement, stitching, patterns, zippers, pockets, lapels, silhouette. Do NOT redesign, alter or recreate any part of the garment.
 - Remove the hanger, any background, and any visible mannequin or person completely
 - Background must be pure solid white (#FFFFFF) — absolutely flat, zero shadows, zero gradients, zero texture, no drop shadows under the garment
 - CRITICAL — VOLUME & SHAPE: The garment(s) MUST look naturally filled and volumetric, as if an invisible person is actively wearing them right now. The fabric should have natural 3D body, natural folds, natural drape — NOT flat, NOT deflated, NOT lying on the floor, NOT like they were dropped on a surface
-- Keep every garment detail exactly: color, texture, buttons, stitching, patterns, zippers, pockets
-- The mannequin (including neck, shoulders, and any body form) must be COMPLETELY invisible — erase it entirely. At the collar/neckline, show only the garment's own inner lining or fabric edge — NO mannequin neck or body shape should remain visible anywhere
+- Make the mannequin fully invisible. At the collar/neckline, reveal only the garment's own inner lining as a natural hollow opening — do NOT show any mannequin neck or body form, and do NOT alter or recreate any garment details
 - Sleeves and legs naturally positioned, filled with volume, hanging naturally
 - If the product is a SET (top + bottom, suit, two-piece etc.): assemble both pieces vertically as one complete outfit worn by an invisible standing person — top aligned on upper body, bottom on lower body. Do NOT place side by side. The complete outfit should look like a standing invisible person wearing it
 
