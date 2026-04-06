@@ -148,7 +148,7 @@ function GhostResultPanel({
       const objectUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = objectUrl;
-      a.download = "studyoimaai-ghost-mannequin.jpg";
+      a.download = `studyoimaai-ghost-mannequin-${Date.now()}.png`;
       a.click();
       URL.revokeObjectURL(objectUrl);
     } catch {
