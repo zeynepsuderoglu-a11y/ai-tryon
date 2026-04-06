@@ -22,13 +22,14 @@ router = APIRouter(prefix="/ghost-mannequin", tags=["ghost-mannequin"])
 async def process_ghost_mannequin_background(
     new_generation_id: uuid.UUID,
     input_image_url: str,
+    garment_type: str = "set",
 ):
     from app.core.database import AsyncSessionLocal
 
     async with AsyncSessionLocal() as db:
         try:
-            logger.info("[ghost/%s] Servis çağrısı başlıyor", new_generation_id)
-            output_url = await ghost_mannequin_service.run(input_image_url)
+            logger.info("[ghost/%s] Servis çağrısı başlıyor (garment_type=%s)", new_generation_id, garment_type)
+            output_url = await ghost_mannequin_service.run(input_image_url, garment_type)
             logger.info("[ghost/%s] Tamamlandı: %s", new_generation_id, output_url)
 
             result = await db.execute(
@@ -68,12 +69,13 @@ async def process_ghost_mannequin_background(
 async def run_ghost_mannequin(
     background_tasks: BackgroundTasks,
     image_url: str = Form(...),
+    garment_type: str = Form("set"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    image_url: kıyafetin manken üzerinde gösterildiği fotoğraf URL'si
-    (try-on çıktısı, Cloudinary URL veya herhangi bir görsel URL)
+    image_url: ürün veya model fotoğrafı URL'si
+    garment_type: "top" | "bottom" | "dress" | "set" (varsayılan: "set")
     """
     credits_cost = 1
 
@@ -99,6 +101,7 @@ async def run_ghost_mannequin(
         process_ghost_mannequin_background,
         new_gen.id,
         image_url,
+        garment_type,
     )
 
     return TryOnResponse(generation_id=new_gen.id, status=new_gen.status)

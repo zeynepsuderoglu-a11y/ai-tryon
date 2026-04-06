@@ -199,9 +199,10 @@ export const paymentsApi = {
 
 // Ghost Mannequin
 export const ghostMannequinApi = {
-  run: (image_url: string) => {
+  run: (image_url: string, garment_type: string = "set") => {
     const form = new FormData();
     form.append("image_url", image_url);
+    form.append("garment_type", garment_type);
     return api.post<{ generation_id: string; status: string }>("/ghost-mannequin/run", form, {
       headers: { "Content-Type": "multipart/form-data" },
     }).then((r) => r.data);

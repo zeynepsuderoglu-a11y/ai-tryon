@@ -224,10 +224,11 @@ export default function StudioPage() {
     ghostInputUrl, setGhostInputUrl,
   } = useStudioStore();
 
-  const [bodyType, setBodyType]     = useState("standard");
-  const [background, setBackground] = useState("white_studio");
-  const [aesthetic, setAesthetic]   = useState("no_accessories");
-  const [running, setRunning]       = useState(false);
+  const [bodyType, setBodyType]         = useState("standard");
+  const [background, setBackground]     = useState("white_studio");
+  const [aesthetic, setAesthetic]       = useState("no_accessories");
+  const [ghostGarmentType, setGhostGarmentType] = useState("top");
+  const [running, setRunning]           = useState(false);
   const [runningMessage, setRunningMessage] = useState("Başlatılıyor...");
   const [generationId, setGenerationId]     = useState<string | null>(null);
   const [batchJobId, setBatchJobId]         = useState<string | null>(null);
@@ -262,6 +263,7 @@ export default function StudioPage() {
     setBatchJobId(null);
     setVideoGenerationId(null);
     setGhostGenerationId(null);
+    if (mode === "ghost") setGhostGarmentType("top");
   };
 
   const handleVideoFileChange = async (files: FileList | null) => {
@@ -296,7 +298,7 @@ export default function StudioPage() {
     try {
       if (isGhost) {
         setRunningMessage("Ghost mannequin hazırlanıyor...");
-        const result = await ghostMannequinApi.run(ghostInputUrl!);
+        const result = await ghostMannequinApi.run(ghostInputUrl!, ghostGarmentType);
         setGhostGenerationId(result.generation_id);
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 1 });
         setShowResult(true);
@@ -441,6 +443,37 @@ export default function StudioPage() {
               </div>
               <div className="p-5 pt-3">
                 <GhostUpload />
+              </div>
+            </div>
+
+            {/* Ürün Tipi Seçimi */}
+            <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+              <div className="px-5 pt-5 pb-1">
+                <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Ürün Tipi</p>
+              </div>
+              <div className="p-5 pt-3 grid grid-cols-2 gap-2">
+                {[
+                  { value: "top",    label: "Üst Parça",      desc: "Bluz, gömlek, ceket..." },
+                  { value: "bottom", label: "Alt Parça",       desc: "Pantolon, etek..."      },
+                  { value: "dress",  label: "Elbise / Tulum",  desc: "Tam boy kıyafet"        },
+                  { value: "set",    label: "Tam Set",         desc: "Üst + alt kombin"       },
+                ].map((gt) => (
+                  <button
+                    key={gt.value}
+                    onClick={() => setGhostGarmentType(gt.value)}
+                    className={cn(
+                      "flex flex-col items-start gap-0.5 p-3.5 rounded-xl border text-left transition-all",
+                      ghostGarmentType === gt.value
+                        ? "border-[#0f0f0f] bg-[#0f0f0f] text-white"
+                        : "border-[#e8e8e8] bg-white text-[#0f0f0f] hover:border-[#0f0f0f]"
+                    )}
+                  >
+                    <span className="text-xs font-semibold">{gt.label}</span>
+                    <span className={cn("text-[10px]", ghostGarmentType === gt.value ? "text-white/50" : "text-[#a3a3a3]")}>
+                      {gt.desc}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
 
