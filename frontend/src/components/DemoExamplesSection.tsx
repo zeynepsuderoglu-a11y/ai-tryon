@@ -12,8 +12,18 @@ const slides = [
   },
   {
     label: "Ghost Manken",
-    before: { src: "/demo/ghost_before.jpg",    alt: "Ghost mannequin öncesi — askıdaki kıyafet", caption: "Orijinal"    },
-    after:  { src: "/demo/ghost_after.jpg",     alt: "Ghost mannequin sonucu — e-ticaret görseli", caption: "Ghost Çıktı" },
+    before: { src: "/demo/ghost_before.jpg",    alt: "Ghost mannequin öncesi — askıdaki kıyafet",       caption: "Orijinal"    },
+    after:  { src: "/demo/ghost_after.jpg",     alt: "Ghost mannequin sonucu — e-ticaret görseli",       caption: "Ghost Çıktı" },
+  },
+  {
+    label: "Ghost Manken",
+    before: { src: "/demo/ghost_before2.jpg",   alt: "Ghost mannequin öncesi — kahverengi kombin",       caption: "Orijinal"    },
+    after:  { src: "/demo/ghost_after2.jpg",    alt: "Ghost mannequin sonucu — kahverengi gömlek kombin", caption: "Ghost Çıktı" },
+  },
+  {
+    label: "Ghost Manken",
+    before: { src: "/demo/ghost_before3.jpg",   alt: "Ghost mannequin öncesi — lacivert elbise",         caption: "Orijinal"    },
+    after:  { src: "/demo/ghost_after3.jpg",    alt: "Ghost mannequin sonucu — lacivert elbise",          caption: "Ghost Çıktı" },
   },
   {
     label: "Gözlük",
