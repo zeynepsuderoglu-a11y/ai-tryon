@@ -12,6 +12,7 @@ from app.models.generation import Generation
 from app.models.batch_job import BatchJob
 from app.models.model_asset import ModelAsset, Gender, BodyType, SkinTone, CropType
 from app.models.credit_transaction import CreditTransaction, TransactionType
+from app.models.payment import Payment
 from app.schemas.admin import AdminStatsResponse, AdminCreditAdjust, AdminUserOut
 from app.schemas.model_asset import ModelAssetCreate, ModelAssetUpdate, ModelAssetOut, ModelAssetListResponse
 from app.services.credit_service import credit_service
@@ -141,6 +142,7 @@ async def delete_user(
     await db.execute(delete(Generation).where(Generation.user_id == user_id))
     await db.execute(delete(CreditTransaction).where(CreditTransaction.user_id == user_id))
     await db.execute(delete(BatchJob).where(BatchJob.user_id == user_id))
+    await db.execute(delete(Payment).where(Payment.user_id == user_id))
     await db.delete(user)
     await db.commit()
 
