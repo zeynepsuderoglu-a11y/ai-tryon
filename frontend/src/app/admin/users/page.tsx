@@ -14,6 +14,7 @@ interface AdminUser {
   credits_remaining: number;
   is_active: boolean;
   total_generations: number;
+  created_at: string;
 }
 
 export default function AdminUsersPage() {
@@ -73,6 +74,7 @@ export default function AdminUsersPage() {
               <tr className="border-b border-white/10 text-gray-400 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 text-left">User</th>
                 <th className="px-4 py-3 text-left">Role</th>
+                <th className="px-4 py-3 text-left">Kayıt Tarihi</th>
                 <th className="px-4 py-3 text-right">Üretim</th>
                 <th className="px-4 py-3 text-right">Generations</th>
                 <th className="px-4 py-3 text-right">Status</th>
@@ -83,7 +85,7 @@ export default function AdminUsersPage() {
               {loading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
-                      {Array.from({ length: 6 }).map((_, j) => (
+                      {Array.from({ length: 7 }).map((_, j) => (
                         <td key={j} className="px-4 py-3">
                           <div className="h-4 bg-gray-700 rounded animate-pulse" />
                         </td>
@@ -95,6 +97,9 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3">
                         <p className="font-medium">{u.full_name}</p>
                         <p className="text-gray-500 text-xs">{u.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
+                        {new Date(u.created_at).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn(

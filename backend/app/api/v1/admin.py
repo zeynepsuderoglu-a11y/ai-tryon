@@ -81,6 +81,7 @@ async def list_users(
             credits_remaining=u.credits_remaining,
             is_active=u.is_active,
             total_generations=gen_count,
+            created_at=u.created_at,
         ))
 
     return {"items": user_list, "total": total, "page": page, "page_size": page_size}

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 import uuid
 
 
@@ -24,5 +25,6 @@ class AdminUserOut(BaseModel):
     credits_remaining: int
     is_active: bool
     total_generations: int
+    created_at: datetime
 
     model_config = {"from_attributes": True}
