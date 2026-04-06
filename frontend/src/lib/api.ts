@@ -225,6 +225,9 @@ export const adminApi = {
   toggleUserStatus: (userId: string, isActive: boolean) =>
     api.put(`/admin/users/${userId}/status`, null, { params: { is_active: isActive } }).then((r) => r.data),
 
+  deleteUser: (userId: string) =>
+    api.delete(`/admin/users/${userId}`).then((r) => r.data),
+
   models: {
     list: (params?: { page?: number; page_size?: number; include_inactive?: boolean }) =>
       api.get<PaginatedResponse<ModelAsset>>("/admin/models", { params }).then((r) => r.data),

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { adminApi } from "@/lib/api";
-import { UserCheck, UserX, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { UserCheck, UserX, Plus, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AdminUser {
@@ -23,6 +23,7 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [creditModal, setCreditModal] = useState<{ userId: string; name: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ userId: string; name: string } | null>(null);
   const [creditAmount, setCreditAmount] = useState("");
   const [creditType, setCreditType] = useState("unified");
   const PAGE_SIZE = 20;
@@ -42,6 +43,16 @@ export default function AdminUsersPage() {
       toast.success(`User ${!isActive ? "activated" : "deactivated"}`);
       fetchUsers();
     } catch { toast.error("Failed to update status"); }
+  };
+
+  const deleteUser = async () => {
+    if (!deleteConfirm) return;
+    try {
+      await adminApi.deleteUser(deleteConfirm.userId);
+      toast.success(`${deleteConfirm.name} silindi`);
+      setDeleteConfirm(null);
+      fetchUsers();
+    } catch { toast.error("Silme başarısız"); }
   };
 
   const addCredits = async () => {
@@ -148,6 +159,13 @@ export default function AdminUsersPage() {
                           >
                             {u.is_active ? <UserX className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
                           </button>
+                          <button
+                            onClick={() => setDeleteConfirm({ userId: u.id, name: u.full_name })}
+                            className="p-1.5 rounded-lg bg-gray-700/30 hover:bg-red-900/40 text-gray-500 hover:text-red-400 transition-colors"
+                            title="Kullanıcıyı sil"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -170,6 +188,29 @@ export default function AdminUsersPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirm Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="glass rounded-2xl p-6 w-80">
+            <h3 className="font-semibold mb-1 text-red-400">Kullanıcıyı Sil</h3>
+            <p className="text-gray-400 text-sm mb-1">{deleteConfirm.name}</p>
+            <p className="text-gray-500 text-xs mb-5">
+              Bu kullanıcı ve tüm üretimleri kalıcı olarak silinecek. Bu işlem geri alınamaz.
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setDeleteConfirm(null)}
+                className="flex-1 bg-[#f5f5f5] hover:bg-[#e5e5e5] text-[#1a1a1a] py-2 rounded-lg text-sm">
+                İptal
+              </button>
+              <button onClick={deleteUser}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-medium">
+                Sil
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Credit Modal */}
       {creditModal && (

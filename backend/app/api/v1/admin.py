@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, distinct
+from sqlalchemy import select, func, distinct, delete
 from datetime import datetime, timezone
 from app.core.database import get_db
 from app.api.deps import get_current_admin
@@ -119,6 +119,30 @@ async def toggle_user_status(
         raise HTTPException(status_code=404, detail="User not found")
     user.is_active = is_active
     return {"user_id": str(user_id), "is_active": is_active}
+
+
+@router.delete("/users/{user_id}", status_code=204)
+async def delete_user(
+    user_id: uuid.UUID,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Kendi hesabınızı silemezsiniz")
+
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    if user.role == "admin":
+        raise HTTPException(status_code=400, detail="Admin hesabı silinemez")
+
+    # İlişkili kayıtları sırayla sil (cascade yok)
+    await db.execute(delete(Generation).where(Generation.user_id == user_id))
+    await db.execute(delete(CreditTransaction).where(CreditTransaction.user_id == user_id))
+    await db.execute(delete(BatchJob).where(BatchJob.user_id == user_id))
+    await db.delete(user)
+    await db.commit()
 
 
 # Model management
