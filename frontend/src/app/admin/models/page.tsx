@@ -5,7 +5,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { adminApi } from "@/lib/api";
 import type { ModelAsset } from "@/types";
-import { Plus, Trash2, Eye, EyeOff, Upload, X, Link } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Upload, X, Link, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminModelsPage() {
@@ -22,6 +22,9 @@ export default function AdminModelsPage() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadMode, setUploadMode] = useState<"file" | "url">("file");
   const [imageUrl, setImageUrl] = useState("");
+  const [editingModel, setEditingModel] = useState<ModelAsset | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", gender: "female", body_type: "slim", crop_type: "full_body" });
+  const [saving, setSaving] = useState(false);
 
   const fetchModels = () => {
     setLoading(true);
@@ -73,6 +76,23 @@ export default function AdminModelsPage() {
       toast.success(`Model ${!model.is_active ? "activated" : "deactivated"}`);
       fetchModels();
     } catch { toast.error("Update failed"); }
+  };
+
+  const openEdit = (model: ModelAsset) => {
+    setEditingModel(model);
+    setEditForm({ name: model.name, gender: model.gender, body_type: model.body_type, crop_type: model.crop_type ?? "full_body" });
+  };
+
+  const handleUpdate = async () => {
+    if (!editingModel || !editForm.name) return;
+    setSaving(true);
+    try {
+      await adminApi.models.update(editingModel.id, editForm);
+      toast.success("Model güncellendi");
+      setEditingModel(null);
+      fetchModels();
+    } catch { toast.error("Güncelleme başarısız"); }
+    finally { setSaving(false); }
   };
 
   const deleteModel = async (id: string) => {
@@ -135,6 +155,13 @@ export default function AdminModelsPage() {
                 </div>
                 <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
+                    onClick={() => openEdit(model)}
+                    className="bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg"
+                    title="Düzenle"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                  <button
                     onClick={() => toggleActive(model)}
                     className="bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg"
                     title={model.is_active ? "Deactivate" : "Activate"}
@@ -153,6 +180,94 @@ export default function AdminModelsPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingModel && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="glass rounded-2xl p-6 w-full max-w-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg">Modeli Düzenle</h3>
+              <button onClick={() => setEditingModel(null)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">İsim *</label>
+                <input
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                  style={{ color: "white" }}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Fotoğraf Tipi</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[{ value: "full_body", label: "Tam Boy" }, { value: "half_body", label: "Yarım Boy" }].map((ct) => (
+                    <button
+                      key={ct.value}
+                      type="button"
+                      onClick={() => setEditForm((f) => ({ ...f, crop_type: ct.value }))}
+                      className={cn(
+                        "py-2 px-3 rounded-lg text-xs border transition-colors",
+                        editForm.crop_type === ct.value
+                          ? "bg-primary-600 border-primary-500 text-white"
+                          : "bg-gray-800 border-white/10 text-gray-300 hover:border-white/30"
+                      )}
+                    >
+                      {ct.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Cinsiyet</label>
+                  <select
+                    value={editForm.gender}
+                    onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))}
+                    className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs focus:outline-none"
+                    style={{ color: "white" }}
+                  >
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="unisex">Unisex</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Vücut Tipi</label>
+                  <select
+                    value={editForm.body_type}
+                    onChange={(e) => setEditForm((f) => ({ ...f, body_type: e.target.value }))}
+                    className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs focus:outline-none"
+                    style={{ color: "white" }}
+                  >
+                    <option value="slim">Slim</option>
+                    <option value="average">Average</option>
+                    <option value="plus_size">Plus Size</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => setEditingModel(null)}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-lg text-sm"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleUpdate}
+                  disabled={saving}
+                  className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium"
+                >
+                  {saving ? "Kaydediliyor..." : "Kaydet"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upload Modal */}
       {showUpload && (

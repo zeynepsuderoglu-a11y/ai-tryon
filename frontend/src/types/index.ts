@@ -32,6 +32,7 @@ export interface ModelAsset {
   gender: "male" | "female" | "unisex";
   body_type: "slim" | "average" | "plus_size";
   skin_tone: "light" | "medium" | "dark";
+  crop_type?: "full_body" | "half_body";
   image_url: string;
   thumbnail_url?: string;
   is_active: boolean;
