@@ -19,6 +19,7 @@ export const useAuthStore = create<AuthState>()(
 
 interface StudioState {
   garmentUrl: string | null;
+  garmentDetailUrls: string[];
   selectedModelId: string | null;
   isBatchMode: boolean;
   batchModelIds: string[];
@@ -28,6 +29,7 @@ interface StudioState {
   videoMode: "image_to_video" | "reference_to_video";
   ghostInputUrl: string | null;
   setGarmentUrl: (url: string | null) => void;
+  setGarmentDetailUrls: (urls: string[]) => void;
   setSelectedModelId: (id: string | null) => void;
   setIsBatchMode: (batch: boolean) => void;
   toggleBatchModel: (id: string) => void;
@@ -41,6 +43,7 @@ interface StudioState {
 
 export const useStudioStore = create<StudioState>()((set, get) => ({
   garmentUrl: null,
+  garmentDetailUrls: [],
   selectedModelId: null,
   isBatchMode: false,
   batchModelIds: [],
@@ -50,6 +53,7 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   videoMode: "image_to_video",
   ghostInputUrl: null,
   setGarmentUrl: (url) => set({ garmentUrl: url }),
+  setGarmentDetailUrls: (urls) => set({ garmentDetailUrls: urls }),
   setSelectedModelId: (id) => set({ selectedModelId: id }),
   setIsBatchMode: (isBatchMode) => set({ isBatchMode, batchModelIds: [] }),
   toggleBatchModel: (id) => {
@@ -68,6 +72,7 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   reset: () =>
     set({
       garmentUrl: null,
+      garmentDetailUrls: [],
       selectedModelId: null,
       isBatchMode: false,
       batchModelIds: [],

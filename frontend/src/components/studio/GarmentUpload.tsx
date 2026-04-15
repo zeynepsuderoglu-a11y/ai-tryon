@@ -3,15 +3,17 @@
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Plus } from "lucide-react";
 import { tryonApi } from "@/lib/api";
 import { useStudioStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export default function GarmentUpload() {
-  const { garmentUrl, setGarmentUrl } = useStudioStore();
+  const { garmentUrl, setGarmentUrl, garmentDetailUrls, setGarmentDetailUrls } = useStudioStore();
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [detailPreviews, setDetailPreviews] = useState<string[]>([]);
+  const [uploadingDetail, setUploadingDetail] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -30,8 +32,33 @@ export default function GarmentUpload() {
     }
   }, [setGarmentUrl]);
 
+  const onDropDetail = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+    if (garmentDetailUrls.length >= 2) return;
+    const localPreview = URL.createObjectURL(file);
+    setUploadingDetail(true);
+    try {
+      const result = await tryonApi.uploadGarment(file);
+      setGarmentDetailUrls([...garmentDetailUrls, result.url]);
+      setDetailPreviews((prev) => [...prev, localPreview]);
+      toast.success("Detay fotoğrafı eklendi!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Yükleme başarısız");
+    } finally {
+      setUploadingDetail(false);
+    }
+  }, [garmentDetailUrls, setGarmentDetailUrls]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
+    maxSize: 10 * 1024 * 1024,
+    maxFiles: 1,
+  });
+
+  const { getRootProps: getDetailRootProps, getInputProps: getDetailInputProps } = useDropzone({
+    onDrop: onDropDetail,
     accept: { "image/*": [".jpg", ".jpeg", ".png", ".webp"] },
     maxSize: 10 * 1024 * 1024,
     maxFiles: 1,
@@ -40,38 +67,92 @@ export default function GarmentUpload() {
   const clear = () => {
     setPreview(null);
     setGarmentUrl(null);
+    setDetailPreviews([]);
+    setGarmentDetailUrls([]);
+  };
+
+  const removeDetail = (index: number) => {
+    setDetailPreviews((prev) => prev.filter((_, i) => i !== index));
+    setGarmentDetailUrls(garmentDetailUrls.filter((_, i) => i !== index));
   };
 
   if (preview || garmentUrl) {
     return (
-      <div className="relative rounded-2xl overflow-hidden bg-[#f5f5f5] group max-w-xs mx-auto">
-        <div className="aspect-[3/4] relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview || garmentUrl!} alt="Kıyafet" className="w-full h-full object-cover" />
-        </div>
-        {uploading && (
-          <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
+      <div className="space-y-2">
+        {/* Primary image */}
+        <div className="relative rounded-2xl overflow-hidden bg-[#f5f5f5] group max-w-xs mx-auto">
+          <div className="aspect-[3/4] relative">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={preview || garmentUrl!} alt="Kıyafet" className="w-full h-full object-cover" />
           </div>
-        )}
-        {!uploading && (
-          <>
-            <button
-              onClick={clear}
-              className="absolute top-3 right-3 bg-white shadow-sm text-[#1a1a1a] p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-[#e5e5e5]"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-            <div className="absolute bottom-3 left-3 right-3">
-              <div {...getRootProps()} className="cursor-pointer">
-                <input {...getInputProps()} />
-                <button className="w-full py-2 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-medium rounded-lg border border-[#e5e5e5] hover:bg-white transition-colors">
-                  Değiştir
+          {uploading && (
+            <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          {!uploading && (
+            <>
+              <button
+                onClick={clear}
+                className="absolute top-3 right-3 bg-white shadow-sm text-[#1a1a1a] p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity border border-[#e5e5e5]"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <div className="absolute bottom-3 left-3 right-3">
+                <div {...getRootProps()} className="cursor-pointer">
+                  <input {...getInputProps()} />
+                  <button className="w-full py-2 bg-white/90 backdrop-blur-sm text-[#1a1a1a] text-xs font-medium rounded-lg border border-[#e5e5e5] hover:bg-white transition-colors">
+                    Değiştir
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Detail images row */}
+        <div className="max-w-xs mx-auto">
+          <div className="flex items-center gap-2">
+            {detailPreviews.map((src, i) => (
+              <div key={i} className="relative w-16 h-20 rounded-lg overflow-hidden bg-[#f5f5f5] border border-[#e5e5e5] flex-shrink-0 group/detail">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={`Detay ${i + 1}`} className="w-full h-full object-cover" />
+                <button
+                  onClick={() => removeDetail(i)}
+                  className="absolute top-0.5 right-0.5 bg-white/90 text-[#1a1a1a] p-0.5 rounded-full opacity-0 group-hover/detail:opacity-100 transition-opacity"
+                >
+                  <X className="w-2.5 h-2.5" />
                 </button>
               </div>
-            </div>
-          </>
-        )}
+            ))}
+
+            {garmentDetailUrls.length < 2 && (
+              <div {...getDetailRootProps()} className="cursor-pointer">
+                <input {...getDetailInputProps()} />
+                <div className={cn(
+                  "w-16 h-20 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors",
+                  uploadingDetail
+                    ? "border-[#a3a3a3] bg-[#f5f5f5]"
+                    : "border-[#d4d4d4] hover:border-[#a3a3a3] hover:bg-[#f9f9f9]"
+                )}>
+                  {uploadingDetail ? (
+                    <div className="w-4 h-4 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 text-[#a3a3a3]" />
+                      <span className="text-[9px] text-[#a3a3a3] text-center leading-tight">Detay<br/>ekle</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          {(detailPreviews.length > 0 || garmentDetailUrls.length < 2) && (
+            <p className="text-[10px] text-[#a3a3a3] mt-1">
+              Yaka, desen gibi detay fotoğrafları analize yardımcı olur (maks. 2)
+            </p>
+          )}
+        </div>
       </div>
     );
   }

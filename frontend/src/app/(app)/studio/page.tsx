@@ -21,7 +21,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 const BACKGROUNDS = [
-  { value: "white_studio",   label: "Beyaz",   image: "/backgrounds/white_studio.jpg"   },
+  { value: "original",       label: "Orijinal", image: null                              },
+  { value: "white_studio",   label: "Beyaz",    image: "/backgrounds/white_studio.jpg"   },
   { value: "grey_studio",    label: "Gri",      image: "/backgrounds/grey_studio.jpg"    },
   { value: "cream",          label: "Krem",     image: "/backgrounds/cream.jpg"          },
   { value: "black_studio",   label: "Siyah",    image: "/backgrounds/black_studio.jpg"   },
@@ -218,7 +219,7 @@ function GhostResultPanel({
 export default function StudioPage() {
   const { user, setUser } = useAuthStore();
   const {
-    garmentUrl, selectedModelId, isBatchMode, batchModelIds, setIsBatchMode,
+    garmentUrl, garmentDetailUrls, selectedModelId, isBatchMode, batchModelIds, setIsBatchMode,
     glassesUrl, studioMode, setStudioMode,
     videoImageUrls, setVideoImageUrls, videoMode, setVideoMode,
     ghostInputUrl, setGhostInputUrl,
@@ -226,6 +227,11 @@ export default function StudioPage() {
 
   const [bodyType, setBodyType]         = useState("standard");
   const [background, setBackground]     = useState("white_studio");
+
+  // Model galerisinden seçim yapılınca otomatik "orijinal arka plan" moduna geç
+  useEffect(() => {
+    if (selectedModelId) setBackground("original");
+  }, [selectedModelId]);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
   const [running, setRunning]           = useState(false);
@@ -325,6 +331,7 @@ export default function StudioPage() {
         const result = await tryonApi.run({
           garment_url: garmentUrl!, model_asset_id: selectedModelId!,
           body_type: bodyType, provider: "fashn", background, aesthetic,
+          ...(garmentDetailUrls.length > 0 ? { garment_detail_urls: garmentDetailUrls } : {}),
         });
         setGenerationId(result.generation_id);
         toast.success("Üretim başladı!");
@@ -635,8 +642,14 @@ export default function StudioPage() {
                           ? "ring-2 ring-[#0f0f0f] ring-offset-2"
                           : "hover:ring-1 hover:ring-[#a3a3a3] ring-offset-1"
                       )}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={bg.image} alt={bg.label} className="w-full h-full object-cover" />
+                        {bg.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={bg.image} alt={bg.label} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border-2 border-dashed border-gray-300">
+                            <ImageIcon className="w-4 h-4 text-gray-400" />
+                          </div>
+                        )}
                       </div>
                       <span className={cn("text-[10px] text-center leading-tight", background === bg.value ? "text-[#0f0f0f] font-semibold" : "text-[#a3a3a3]")}>
                         {bg.label}

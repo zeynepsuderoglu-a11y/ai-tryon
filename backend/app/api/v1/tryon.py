@@ -53,6 +53,22 @@ async def upload_url_to_cloudinary(image_url: str, folder: str = "tryon/models")
     return await upload_to_cloudinary(resp.content, folder=folder)
 
 
+def _cloudinary_crop_3x4(url: str) -> str:
+    """
+    Cloudinary URL'sine 3:4 pad transformation ekler.
+    c_pad: içeriği kırpmaz, eksik alanı beyaz ile doldurur.
+    Böylece model görseli tam olarak korunur, FASHN siyah kenar üretmez.
+    Cloudinary dışı URL'lere dokunmaz.
+    """
+    if "res.cloudinary.com" not in url:
+        return url
+    return url.replace(
+        "/image/upload/",
+        "/image/upload/c_pad,ar_3:4,b_white/",
+        1,
+    )
+
+
 async def ensure_public_url(url: str) -> str:
     """
     Verilen URL localhost ise görseli indirip Cloudinary'e yükler
@@ -152,6 +168,7 @@ BACKGROUND_PROMPTS: dict[str, str] = {
     "minimal_room":  "minimal bright modern white interior room, natural window light, clean Scandinavian aesthetic",
     "pink_studio":   "soft pastel pink seamless studio background, even diffused lighting, feminine aesthetic",
     "beige_outdoor": "warm sandy beige outdoor terrace background, golden hour soft sunlight, bokeh",
+    "original":      "preserve exact background and environment from model reference image, no background alteration",
 }
 
 BODY_TYPE_PROMPTS: dict[str, str] = {
@@ -421,7 +438,8 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                                    garment_url: str, category: str = "tops", pose: str = "front",
                                    body_type: str = "standard", provider: str = "fashn",
                                    background: str = "white_studio", quality: str = "high",
-                                   aesthetic: str = "auto", crop_type: str = "full_body"):
+                                   aesthetic: str = "auto", crop_type: str = "full_body",
+                                   garment_detail_urls: list[str] | None = None):
     """FASHN.ai ile try-on işlemi yap, sonucu kaydet."""
     from app.core.database import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
@@ -479,7 +497,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 logger.info("[%s] Garment analysis (2 geçiş paralel) başlıyor", generation_id)
                 aesthetic_override = None if aesthetic == "auto" else aesthetic
                 analysis, trend = await asyncio.gather(
-                    analyze_garment(garment_url, "auto"),
+                    analyze_garment(garment_url, "auto", garment_detail_urls or []),
                     analyze_trend_styling(garment_url, aesthetic_override),
                 )
                 logger.info("[%s] Garment: %s | category=%s | is_closed=%s",
@@ -491,21 +509,24 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 # Çerçeve — tam boy veya yarım boy
                 crop_frame = (
-                    "upper body shot from head to mid-thigh"
+                    "upper body shot from head to mid-thigh, model centered in frame"
                     if crop_type == "half_body"
-                    else "full body shot from head to feet, shoes visible"
-                )
-
-                # Açık/kapalı durum — kısa ve net
-                closure_rule = (
-                    "blazer closed, all buttons fastened"
-                    if analysis.is_closed_front
-                    else "blazer worn open"
+                    else "full body shot, complete figure from top of head to feet, both feet fully visible, model centered, do NOT cut off any part of the body"
                 )
 
                 # Kombin tamamlama — kısa tutulur (uzun prompt garment fidelity'yi düşürür)
                 _gt = analysis.garment_type.lower()
                 _is_jacket = any(k in _gt for k in ("blazer", "jacket", "coat", "ceket", "kaban", "palto", "cardigan", "vest", "yelek"))
+
+                # Açık/kapalı durum — yalnızca gerçek ceket/blazer türü kıyafetlerde kullanılır
+                if _is_jacket:
+                    closure_rule = (
+                        "blazer closed, all buttons fastened"
+                        if analysis.is_closed_front
+                        else "blazer worn open"
+                    )
+                else:
+                    closure_rule = ""
 
                 if analysis.category == "tops":
                     if _is_jacket and not analysis.is_closed_front:
@@ -533,7 +554,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 )
 
                 base_prompt = (
-                    f"{closure_rule}, "
+                    f"{closure_rule + ', ' if closure_rule else ''}"
                     f"{outfit_completion}, {accessories_note}, "
                     f"single model only, preserve pose, {crop_frame}, {background_desc}, "
                     f"photorealistic"
@@ -550,12 +571,13 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
 
                 try:
+                    _fashn_aspect = "2:3" if crop_type == "full_body" else "3:4"
                     run_result = await fashn_service.run_product_to_model(
                         product_image_url=garment_url_clean,
-                        model_image_url=model_image_url,
+                        model_image_url=_cloudinary_crop_3x4(model_image_url),
                         prompt=base_prompt,
                         resolution="4k",
-                        aspect_ratio="3:4",
+                        aspect_ratio=_fashn_aspect,
                         num_images=1,
                     )
                     prediction_id = run_result.get("id")
@@ -671,6 +693,7 @@ async def run_tryon(
     provider: str = Form("fashn"),
     background: str = Form("white_studio"),
     aesthetic: str = Form("auto"),
+    garment_detail_urls: str = Form(""),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -706,10 +729,20 @@ async def run_tryon(
     db.add(generation)
     await db.flush()
 
+    # detail URL listesini parse et (JSON array string)
+    import json as _json
+    _detail_urls: list[str] = []
+    if garment_detail_urls:
+        try:
+            _detail_urls = _json.loads(garment_detail_urls)
+        except Exception:
+            _detail_urls = []
+
     background_tasks.add_task(
         process_tryon_background,
         generation.id, effective_model_image_url, garment_url, "tops", "front", body_type, provider,
         background, "high", aesthetic, model.crop_type.value if model.crop_type else "full_body",
+        _detail_urls,
     )
 
     return TryOnResponse(generation_id=generation.id, status=generation.status)

@@ -101,9 +101,14 @@ export const tryonApi = {
     background?: string;
     quality?: string;
     aesthetic?: string;
+    garment_detail_urls?: string[];
   }) => {
     const form = new FormData();
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined) form.append(k, String(v)); });
+    const { garment_detail_urls, ...rest } = data;
+    Object.entries(rest).forEach(([k, v]) => { if (v !== undefined) form.append(k, String(v)); });
+    if (garment_detail_urls && garment_detail_urls.length > 0) {
+      form.append("garment_detail_urls", JSON.stringify(garment_detail_urls));
+    }
     return api.post<{ generation_id: string; status: string }>("/tryon/run", form, {
       headers: { "Content-Type": "multipart/form-data" },
     }).then((r) => r.data);

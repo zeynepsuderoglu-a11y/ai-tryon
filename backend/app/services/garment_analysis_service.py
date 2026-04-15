@@ -32,6 +32,7 @@ class GarmentAnalysis:
     texture_prompt: str      # FASHN prompt'una geçilecek kısa materyal/doku/renk/aksesuar özeti
     proportion_hint: str     # Orantı ipucu: "knee-length hem, full-length sleeves" gibi
     footwear: str            # Kıyafete uygun ayakkabı: "knee-high leather boots" gibi
+    critical_detail: str = ""    # En önemli görsel detay (yaka, trim, özel kapama)
     is_long_top: bool = False
     is_closed_front: bool = False  # True: ürün fotoğrafında tüm düğmeler/fermuar kapalı
     photo_type: str = "auto"
@@ -45,9 +46,10 @@ Respond ONLY with a raw JSON object (no markdown, no code fences):
   "garment_type": "exact English garment name (e.g. wool overcoat, leather biker jacket, silk slip dress, cable-knit sweater, raw-hem denim jeans, pleated midi skirt)",
   "category": "tops or bottoms or one-pieces",
   "description": "4-5 sentences covering: (1) exact color(s) with shade precision — 'camel', 'burgundy', 'slate blue', 'off-white', NOT generic 'brown/red/blue/white'; (2) fabric/material — wool, leather, denim, silk, cotton, linen, synthetic, knit, woven, tweed, velvet, etc.; (3) texture surface — smooth, matte, glossy, heathered, melange, quilted, ribbed, cable-knit, twill, herringbone, etc.; (4) garment length — cropped/waist/hip/thigh/knee/midi/maxi/ankle; (5) fit — slim/regular/relaxed/oversized/boxy; (6) collar/neckline; (7) sleeve; (8) every closure — zippers (length, pull color), buttons (count, color, material), snaps; (9) all pockets; (10) all hardware/accessories — buckles, belts, chains, fur trim, patches, embroidery, logo; (11) stitching — topstitching, quilting lines, seam placement",
-  "texture_prompt": "A concise 2-3 sentence string optimized for an image generation AI, describing material, texture, color accuracy, ALL accessories, and CRITICAL absence/length flags. POCKET RULE: only describe pockets if they are clearly and unambiguously visible in the product image — if no pockets are visible, write 'no pockets'. Do NOT invent or assume pockets. (1) Describe material, texture, color. (2) Include ALL hardware/closures/trim. BUTTON COUNT IS CRITICAL: count every visible button precisely and write 'EXACTLY [N] buttons — do NOT add or remove buttons, do NOT change button count'. If you see 3 buttons, write 'EXACTLY 3 buttons'; if 4, write 'EXACTLY 4 buttons'; etc. Never write 'several' or 'multiple'. Infer belts/ties for garment types that always have them (robes, trench coats, wrap dresses, kimonos). (3) ALWAYS add explicit flags to lock proportions and prevent hallucination — SLEEVE LENGTH is critical: if sleeves are SHORT (end above elbow), write 'SHORT [mid-bicep or elbow]-length sleeves — do NOT extend to wrist'; if sleeves are 3/4 length (end at mid-forearm), write '3/4-length sleeves ending at mid-forearm — do NOT extend to wrist'; if sleeves are FULL length (reach wrist), write 'full-length sleeves to wrist — do NOT shorten'; if sleeve ends are plain, write 'clean-cut sleeve hem with no cuff or elastic'; PANT HEM is critical: if pants have a plain straight hem (no elastic, no ribbing visible at ankle), write 'straight-cut ankle hem with NO elastic cuff, NO ribbing, NO ankle band — plain open hem only'; if pants have a ribbed/elastic ankle cuff (jogger style), write 'ribbed elastic ankle cuffs — jogger style hem'; if pants/skirt hem is straight (no ankle elastic, no ribbed cuff), write 'straight-cut ankle hem with no elastic cuff or ribbing'; SIDE SLIT/SPLIT RULE is critical: examine the outer leg seam and hem area carefully for vertical cuts/slits. If NO side slits are visible anywhere on the pants or skirt: write 'NO side slits, NO leg splits, NO hem cuts — completely closed seam and plain hem all around'. If side slits ARE clearly present: write 'side slits at outer leg seam, [height] — reproduce exact slit position and height, do NOT add slits elsewhere'; PIPING is critical: if the garment has piping/trim along seams, describe its exact path — 'CURVED wavy white piping along side seams' or 'straight white piping along raglan seams' — never omit the shape; if garment has no contrasting stripes/panels beyond the described piping, write 'no additional stripes or decorative panels beyond described piping'; if logos/graphic prints are present, describe them precisely: exact text content, font style (serif/sans-serif/script/bold), color, size (small/medium/large patch), exact position on garment (e.g. 'left chest', 'center chest', 'right sleeve', 'back center'), then write 'small white sans-serif POLO text logo on left chest — reproduce in exact position, do NOT alter text or swap for different brand'. (4) For BOTTOMS (pants, jeans, skirts): if the product image shows the FRONT of the garment, explicitly write 'product image shows FRONT of garment — front pockets and fly/zipper facing forward, no back pockets visible in this view, do NOT show interior waistband label on front'. Examples: 'camel wool overcoat, EXACTLY 4 buttons — do NOT add or remove buttons, full-length sleeves to wrist, clean-cut sleeve hem with no cuff, straight-cut ankle hem' / 'heathered grey fleece tracksuit, CURVED wavy white piping along side seams only — do NOT straighten into vertical stripe, SHORT 3/4-length sleeves ending at mid-forearm — do NOT extend to wrist, clean-cut sleeve hem with no cuff, straight ankle hem with NO elastic cuff or ribbing, POLO chest logo — preserve exact logo without alteration, no added stripes or panels' / 'glossy burgundy patent leather with silver zipper hardware, quilted sleeve panels, leather waist belt with gold buckle' / 'jet black satin robe with ivory piping trim and matching self-tie sash belt'",
+  "texture_prompt": "A concise 2-3 sentence string optimized for an image generation AI, describing material, texture, color accuracy, ALL accessories, and CRITICAL absence/length flags. POCKET RULE: only describe pockets if they are clearly and unambiguously visible in the product image — if no pockets are visible, write 'no pockets'. Do NOT invent or assume pockets. (1) Describe material, texture, color. (2) Include ALL hardware/closures/trim. BUTTON COUNT IS CRITICAL: count every visible button precisely and write 'EXACTLY [N] buttons — do NOT add or remove buttons, do NOT change button count'. If you see 3 buttons, write 'EXACTLY 3 buttons'; if 4, write 'EXACTLY 4 buttons'; etc. Never write 'several' or 'multiple'. Infer belts/ties for garment types that always have them (robes, trench coats, wrap dresses, kimonos). NECKLINE/COLLAR DETAIL IS CRITICAL — examine the neckline area carefully even in multi-piece or hanger photos where the top hangs further away: if the neckline has ANY decorative trim (lace, ruffle, frill, embroidery, crochet, broderie, contrast fabric, piping, ribbon), write '[trim type]-trimmed [neckline shape] neckline — preserve exact [trim type] at neckline, do NOT replace with plain neckline'. If there is a center-front button placket or keyhole opening at the neckline, write 'center-front [V/keyhole] neckline opening with EXACTLY [N] buttons at placket — preserve button closure at neckline'. If neckline is plain with no trim, write 'plain [V/round/scoop/square]-neck with clean-cut neckline edge — no trim or decorative detail'. Never omit neckline construction. (3) ALWAYS add explicit flags to lock proportions and prevent hallucination — SLEEVE LENGTH is critical: if sleeves are SHORT (end above elbow), write 'SHORT [mid-bicep or elbow]-length sleeves — do NOT extend to wrist'; if sleeves are 3/4 length (end at mid-forearm), write '3/4-length sleeves ending at mid-forearm — do NOT extend to wrist'; if sleeves are FULL length (reach wrist), write 'full-length sleeves to wrist — do NOT shorten'; if sleeve ends are plain, write 'clean-cut sleeve hem with no cuff or elastic'; PANT HEM is critical: if pants have a plain straight hem (no elastic, no ribbing visible at ankle), write 'straight-cut ankle hem with NO elastic cuff, NO ribbing, NO ankle band — plain open hem only'; if pants have a ribbed/elastic ankle cuff (jogger style), write 'ribbed elastic ankle cuffs — jogger style hem'; if pants/skirt hem is straight (no ankle elastic, no ribbed cuff), write 'straight-cut ankle hem with no elastic cuff or ribbing'; SIDE SLIT/SPLIT RULE is critical: examine the outer leg seam and hem area carefully for vertical cuts/slits. If NO side slits are visible anywhere on the pants or skirt: write 'NO side slits, NO leg splits, NO hem cuts — completely closed seam and plain hem all around'. If side slits ARE clearly present: write 'side slits at outer leg seam, [height] — reproduce exact slit position and height, do NOT add slits elsewhere'; PIPING is critical: if the garment has piping/trim along seams, describe its exact path — 'CURVED wavy white piping along side seams' or 'straight white piping along raglan seams' — never omit the shape; if garment has no contrasting stripes/panels beyond the described piping, write 'no additional stripes or decorative panels beyond described piping'; if logos/graphic prints are present, describe them precisely: exact text content, font style (serif/sans-serif/script/bold), color, size (small/medium/large patch), exact position on garment (e.g. 'left chest', 'center chest', 'right sleeve', 'back center'), then write 'small white sans-serif POLO text logo on left chest — reproduce in exact position, do NOT alter text or swap for different brand'. (4) For BOTTOMS (pants, jeans, skirts): if the product image shows the FRONT of the garment, explicitly write 'product image shows FRONT of garment — front pockets and fly/zipper facing forward, no back pockets visible in this view, do NOT show interior waistband label on front'. (5) TWO-PIECE SET RULE: if the image shows a matching top+bottom set, describe the top's neckline, sleeve, and trim details FIRST, then describe the bottom's silhouette and hem — both must be explicit. Examples: 'camel wool overcoat, EXACTLY 4 buttons — do NOT add or remove buttons, full-length sleeves to wrist, clean-cut sleeve hem with no cuff, straight-cut ankle hem' / 'heathered grey fleece tracksuit, CURVED wavy white piping along side seams only — do NOT straighten into vertical stripe, SHORT 3/4-length sleeves ending at mid-forearm — do NOT extend to wrist, clean-cut sleeve hem with no cuff, straight ankle hem with NO elastic cuff or ribbing, POLO chest logo — preserve exact logo without alteration, no added stripes or panels' / 'glossy burgundy patent leather with silver zipper hardware, quilted sleeve panels, leather waist belt with gold buckle' / 'jet black satin robe with ivory piping trim and matching self-tie sash belt' / 'burgundy polka-dot pajama set, lace-trimmed V-neckline with center-front keyhole opening and EXACTLY 3 buttons at placket — preserve lace trim at neckline do NOT replace with plain neck, full-length sleeves to wrist, plain straight-cut ankle hem on pants NO elastic cuff'",
   "proportion_hint": "Exact body length AND sleeve length AND leg/skirt width — all must be stated precisely so the AI does not invent proportions. SLEEVE LENGTH: use one of: 'full-length sleeves to wrist', '3/4-length sleeves to mid-forearm', 'elbow-length sleeves', 'SHORT mid-bicep sleeves', 'cap sleeves', 'sleeveless'. BODY LENGTH: state where hem falls on the body (waist/hip/thigh/knee/midi/ankle). LEG/SKIRT WIDTH for bottoms and sets: ALWAYS state the leg silhouette explicitly — 'wide-leg / palazzo (very full, draping leg opening)', 'straight leg', 'slim/tapered leg', 'flared leg', 'skinny leg', 'culotte/wide cropped'. If pants are wide-leg or palazzo style, write 'WIDE-LEG palazzo silhouette — do NOT narrow or taper the leg'. CRITICAL for two-piece matching sets: describe BOTH pieces — e.g. 'SHORT mid-bicep sleeves, hip-length relaxed top; WIDE-LEG palazzo pants to full ankle with plain straight hem — do NOT taper the leg'. Single-garment examples: 'full-length sleeves to wrist, hip-length body with plain straight hem' / 'SHORT elbow-length sleeves, midi-length body reaching knee' / 'sleeveless, ankle-length maxi hem'. Always use the actual visible measurements from the product image — do NOT guess.",
-  "footwear": "The single most appropriate footwear for this garment's style, occasion, silhouette AND fabric weight/season. CRITICAL SEASON RULE: lightweight fabrics (gauze, crinkle, linen, cotton voile, chiffon, broderie anglaise, seersucker) are warm-weather garments — choose open or minimal footwear: strappy sandals, slides, mules, espadrilles, white sneakers. NEVER choose boots or closed booties for lightweight summer fabrics. Heavy/warm fabrics (wool, tweed, velvet, corduroy, fleece, thick knit, leather) → boots, loafers, or closed shoes appropriate. Denim → versatile, match the wash and style. Be specific: 'tan leather slide sandals with thin strap' / 'white leather chunky-sole sneakers' / 'nude pointed-toe stiletto pumps' / 'tan suede ankle boots with low heel' / 'black strappy heeled sandals' / 'beige woven espadrille mules'. Match formality and color palette of the garment.",
+  "footwear": "The single most appropriate footwear for this garment's style, occasion, silhouette AND fabric weight/season. SLEEPWEAR/LOUNGEWEAR RULE — HIGHEST PRIORITY: if the garment is ANY type of pajama, nightgown, sleepwear, loungewear, robe, or home wear set (identifiable by soft fabric, elastic waistband, relaxed fit, matching printed set worn at home), ALWAYS write 'bare feet' — NEVER suggest shoes, heels, sandals, sneakers, or boots for sleepwear under any circumstances. CRITICAL SEASON RULE: lightweight fabrics (gauze, crinkle, linen, cotton voile, chiffon, broderie anglaise, seersucker) are warm-weather garments — choose open or minimal footwear: strappy sandals, slides, mules, espadrilles, white sneakers. NEVER choose boots or closed booties for lightweight summer fabrics. Heavy/warm fabrics (wool, tweed, velvet, corduroy, fleece, thick knit, leather) → boots, loafers, or closed shoes appropriate. Denim → versatile, match the wash and style. Be specific: 'tan leather slide sandals with thin strap' / 'white leather chunky-sole sneakers' / 'nude pointed-toe stiletto pumps' / 'tan suede ankle boots with low heel' / 'black strappy heeled sandals' / 'beige woven espadrille mules'. Match formality and color palette of the garment.",
+  "critical_detail": "ONE sentence max. State the single most visually distinctive feature FASHN must reproduce. Focus on neckline construction and trim. CRITICAL COLOR RULE: always state the EXACT COLOR of any trim/lace/ruffle — if the trim is the SAME COLOR as the garment body (self-colored), write 'self-colored [exact shade] lace/ruffle trim — do NOT use white, cream, or any contrasting color trim'. If trim IS a contrasting color, name it precisely. Examples: 'self-colored burgundy ruffle trim at V-neckline — NOT white, NOT cream' / 'white contrast lace collar trim at round neckline' / 'plain V-neck with no decorative trim — do NOT add any lace or ruffle'. Never omit trim color.",
   "is_long_top": true if garment hem reaches below the hip bone (long coats, trench coats, maxi cardigans, longline blazers) else false,
   "is_closed_front": true if the garment's front closure is VISIBLY FASTENED/CLOSED in the product image — all buttons buttoned, zipper fully zipped, coat/jacket front panels completely meeting and overlapping with NO gap; false if the garment is open-front by design (cardigan, open blazer, kimono, vest with no closures) OR if the closure is open/unfastened in the product photo,
   "photo_type": "flat-lay" if on a flat surface, "model" if worn by a visible person, "auto" if ghost/mannequin shot or unclear
@@ -122,6 +124,7 @@ def _parse_response(text: str, fallback_category: str) -> GarmentAnalysis:
         footwear = str(data.get("footwear", "")).strip()
         if not footwear:
             footwear = "simple neutral footwear"
+        critical_detail = str(data.get("critical_detail", "")).strip()
         is_long_top = bool(data.get("is_long_top", False))
         is_closed_front = bool(data.get("is_closed_front", False))
         photo_type = str(data.get("photo_type", "auto")).strip()
@@ -134,6 +137,7 @@ def _parse_response(text: str, fallback_category: str) -> GarmentAnalysis:
             texture_prompt=texture_prompt,
             proportion_hint=proportion_hint,
             footwear=footwear,
+            critical_detail=critical_detail,
             is_long_top=is_long_top,
             is_closed_front=is_closed_front,
             photo_type=photo_type,
@@ -142,8 +146,12 @@ def _parse_response(text: str, fallback_category: str) -> GarmentAnalysis:
         return _CATEGORY_FALLBACKS.get(fallback_category, _CATEGORY_FALLBACKS["tops"])
 
 
-def _build_message_content(image_data: str, content_type: str) -> list:
-    return [
+def _build_message_content(image_data: str, content_type: str, detail_images: list[tuple[str, str]] | None = None) -> list:
+    """
+    Ana ürün fotoğrafı + opsiyonel detay fotoğrafları ile mesaj içeriği oluşturur.
+    detail_images: [(base64_data, content_type), ...]
+    """
+    content: list = [
         {
             "type": "image",
             "source": {
@@ -152,11 +160,26 @@ def _build_message_content(image_data: str, content_type: str) -> list:
                 "data": image_data,
             },
         },
-        {
-            "type": "text",
-            "text": ANALYSIS_PROMPT,
-        },
     ]
+    if detail_images:
+        content.append({
+            "type": "text",
+            "text": "The following images are close-up detail photos of the SAME garment shown above. Use them to identify fine details (neckline trim, buttons, patterns, texture) that may not be clearly visible in the main product photo:",
+        })
+        for detail_data, detail_ct in detail_images:
+            content.append({
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": detail_ct,
+                    "data": detail_data,
+                },
+            })
+    content.append({
+        "type": "text",
+        "text": ANALYSIS_PROMPT,
+    })
+    return content
 
 
 TREND_AESTHETICS: dict[str, dict] = {
@@ -601,10 +624,10 @@ async def select_best_image(url1: str, url2: str) -> int:
         return 1
 
 
-async def analyze_garment(garment_url: str, category: str = "tops") -> GarmentAnalysis:
+async def analyze_garment(garment_url: str, category: str = "tops", detail_urls: list[str] | None = None) -> GarmentAnalysis:
     """
     Kıyafet görselini Claude Vision ile analiz eder.
-    Garment tipini, kategoriyi ve detaylı açıklamayı döndürür.
+    detail_urls: Ana görsele ek olarak yakın çekim detay fotoğrafları (max 2), analiz kalitesini artırır.
     """
     if not settings.ANTHROPIC_API_KEY:
         return _CATEGORY_FALLBACKS.get(category, _CATEGORY_FALLBACKS["tops"])
@@ -616,6 +639,19 @@ async def analyze_garment(garment_url: str, category: str = "tops") -> GarmentAn
             content_type = resp.headers.get("content-type", "image/jpeg").split(";")[0]
             image_data = base64.standard_b64encode(resp.content).decode("utf-8")
 
+            # Detay fotoğraflarını paralel indir
+            detail_images: list[tuple[str, str]] = []
+            if detail_urls:
+                for detail_url in detail_urls[:2]:  # max 2 detay
+                    try:
+                        d_resp = await http.get(detail_url)
+                        d_resp.raise_for_status()
+                        d_ct = d_resp.headers.get("content-type", "image/jpeg").split(";")[0]
+                        d_data = base64.standard_b64encode(d_resp.content).decode("utf-8")
+                        detail_images.append((d_data, d_ct))
+                    except Exception:
+                        pass  # Detay yüklenemezse devam et
+
         client = _get_async_client()
         message = await client.messages.create(
             model="claude-sonnet-4-6",
@@ -623,7 +659,7 @@ async def analyze_garment(garment_url: str, category: str = "tops") -> GarmentAn
             messages=[
                 {
                     "role": "user",
-                    "content": _build_message_content(image_data, content_type),
+                    "content": _build_message_content(image_data, content_type, detail_images or None),
                 }
             ],
         )
