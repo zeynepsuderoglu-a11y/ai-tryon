@@ -1,9 +1,12 @@
 import json
 import base64
+import logging
 import httpx
 import anthropic
 from dataclasses import dataclass
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 _async_client: anthropic.AsyncAnthropic | None = None
@@ -633,39 +636,46 @@ async def analyze_garment(garment_url: str, category: str = "tops", detail_urls:
         return _CATEGORY_FALLBACKS.get(category, _CATEGORY_FALLBACKS["tops"])
 
     try:
-        async with httpx.AsyncClient(timeout=20.0) as http:
+        async with httpx.AsyncClient(timeout=30.0) as http:
             resp = await http.get(garment_url)
             resp.raise_for_status()
             content_type = resp.headers.get("content-type", "image/jpeg").split(";")[0]
             image_data = base64.standard_b64encode(resp.content).decode("utf-8")
 
-            # Detay fotoğraflarını paralel indir
+            # Detay fotoğraflarını indir
             detail_images: list[tuple[str, str]] = []
             if detail_urls:
-                for detail_url in detail_urls[:2]:  # max 2 detay
+                logger.info("analyze_garment: %d detay URL alındı", len(detail_urls))
+                for i, detail_url in enumerate(detail_urls[:2]):
                     try:
                         d_resp = await http.get(detail_url)
                         d_resp.raise_for_status()
                         d_ct = d_resp.headers.get("content-type", "image/jpeg").split(";")[0]
                         d_data = base64.standard_b64encode(d_resp.content).decode("utf-8")
                         detail_images.append((d_data, d_ct))
-                    except Exception:
-                        pass  # Detay yüklenemezse devam et
+                        logger.info("analyze_garment: detay[%d] indirildi (%d bytes)", i, len(d_resp.content))
+                    except Exception as e:
+                        logger.warning("analyze_garment: detay[%d] indirilemedi: %s", i, e)
 
+        logger.info("analyze_garment: Claude'a gönderiliyor (ana+%d detay)", len(detail_images))
         client = _get_async_client()
         message = await client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=1024,
+            max_tokens=1200,
             messages=[
                 {
                     "role": "user",
-                    "content": _build_message_content(image_data, content_type, detail_images or None),
+                    "content": _build_message_content(image_data, content_type, detail_images if detail_images else None),
                 }
             ],
         )
-        return _parse_response(message.content[0].text, category)
+        result = _parse_response(message.content[0].text, category)
+        logger.info("analyze_garment: garment_type=%s category=%s critical_detail=%s",
+                    result.garment_type, result.category, result.critical_detail[:80] if result.critical_detail else "")
+        return result
 
-    except Exception:
+    except Exception as e:
+        logger.error("analyze_garment hatası: %s", e)
         return _CATEGORY_FALLBACKS.get(category, _CATEGORY_FALLBACKS["tops"])
 
 

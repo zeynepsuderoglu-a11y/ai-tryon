@@ -545,7 +545,19 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 elif analysis.category == "bottoms":
                     outfit_completion = f"fitted top, {analysis.footwear}"
                 else:
-                    outfit_completion = f"{analysis.footwear}"
+                    # one-pieces: şort/kısa alt parça içeren takımlarda pantolon hallüsinasyonunu engelle
+                    _ph = analysis.proportion_hint.lower()
+                    _gt_lower = analysis.garment_type.lower()
+                    _has_shorts = (
+                        "short" in _ph or "shorts" in _gt_lower or "hot pants" in _ph
+                    )
+                    if _has_shorts:
+                        outfit_completion = (
+                            f"wearing SHORT shorts (NOT long pants, NOT trousers) — "
+                            f"legs fully bare from mid-thigh to feet, {analysis.footwear}"
+                        )
+                    else:
+                        outfit_completion = f"{analysis.footwear}"
 
                 accessories_note = (
                     "minimal accessories"
@@ -553,11 +565,17 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "no accessories"
                 )
 
+                # Detay fotoğrafı varsa critical_detail prompt'a eklenir (doğrulanmış bilgi)
+                detail_note = ""
+                if garment_detail_urls and analysis.critical_detail:
+                    detail_note = f", {analysis.critical_detail}"
+                    logger.info("[%s] critical_detail eklendi: %s", generation_id, analysis.critical_detail)
+
                 base_prompt = (
                     f"{closure_rule + ', ' if closure_rule else ''}"
                     f"{outfit_completion}, {accessories_note}, "
                     f"single model only, preserve pose, {crop_frame}, {background_desc}, "
-                    f"photorealistic"
+                    f"photorealistic{detail_note}"
                 )
 
                 # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
@@ -576,7 +594,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         product_image_url=garment_url_clean,
                         model_image_url=_cloudinary_crop_3x4(model_image_url),
                         prompt=base_prompt,
-                        resolution="4k",
+                        resolution="1k",
                         aspect_ratio=_fashn_aspect,
                         num_images=1,
                     )
