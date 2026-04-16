@@ -514,8 +514,9 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "full body shot, complete figure from top of head to feet, both feet fully visible, model centered, do NOT cut off any part of the body"
                 )
 
-                # Kombin tamamlama — kısa tutulur (uzun prompt garment fidelity'yi düşürür)
+                # ── Garment tipi tespiti ──────────────────────────────────────
                 _gt = analysis.garment_type.lower()
+                _ph = analysis.proportion_hint.lower()
                 _is_jacket = any(k in _gt for k in ("blazer", "jacket", "coat", "ceket", "kaban", "palto", "cardigan", "vest", "yelek"))
 
                 # Açık/kapalı durum — yalnızca gerçek ceket/blazer türü kıyafetlerde kullanılır
@@ -528,6 +529,43 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 else:
                     closure_rule = ""
 
+                # ── Garment silhouette locks (proportion_hint'ten otomatik) ──────
+                # FASHN'ın eğitim verisinin kıyafet detaylarını ezmesini engeller.
+                # proportion_hint'te Claude ne gördüyse → FASHN'a kesin kural olarak iletilir.
+                _sleeve_lock = ""
+                _bottom_lock = ""
+
+                # Kol uzunluğu kilidi
+                if "spaghetti" in _gt or ("sleeveless" in _ph and ("strap" in _gt or "tank" in _gt)):
+                    _sleeve_lock = "sleeveless spaghetti-strap — NO sleeves"
+                elif "sleeveless" in _ph or "sleeveless" in _gt:
+                    _sleeve_lock = "sleeveless — do NOT add sleeves"
+                elif ("short" in _ph and "sleeve" in _ph) or "short sleeve" in _gt or "short-sleeve" in _gt:
+                    _sleeve_lock = "SHORT sleeves — do NOT extend to wrist"
+                elif "3/4" in _ph or "mid-forearm" in _ph:
+                    _sleeve_lock = "3/4-length sleeves to mid-forearm — do NOT extend to wrist"
+                # tam kol → kilide gerek yok (varsayılan)
+
+                # Alt parça uzunluğu kilidi (one-pieces + bottoms)
+                if analysis.category in ("one-pieces", "bottoms"):
+                    if "short" in _ph or "shorts" in _gt or "hot pants" in _ph:
+                        _bottom_lock = "SHORT shorts ending at mid-thigh — NOT long pants"
+                    elif any(k in _ph for k in ("palazzo", "wide-leg", "wide leg", "culotte")):
+                        _bottom_lock = "WIDE-LEG palazzo pants — do NOT narrow or taper the leg"
+                    elif "maxi" in _ph or ("floor" in _ph and "length" in _ph):
+                        _bottom_lock = "maxi-length to floor — do NOT shorten"
+                    elif "midi" in _ph:
+                        _bottom_lock = "midi-length — do NOT shorten to mini"
+                    elif "ankle" in _ph or ("full" in _ph and "length" in _ph and "pant" in _ph):
+                        _bottom_lock = "full-length pants to ankle — do NOT shorten"
+
+                # Kilitleri birleştir (boş olanlar atlanır)
+                _locks = ", ".join(x for x in [_sleeve_lock, _bottom_lock] if x)
+
+                logger.info("[%s] Garment locks: sleeve=%r bottom=%r",
+                            generation_id, _sleeve_lock or "none", _bottom_lock or "none")
+
+                # ── Kombin tamamlama ──────────────────────────────────────────
                 if analysis.category == "tops":
                     if _is_jacket and not analysis.is_closed_front:
                         outfit_completion = (
@@ -545,19 +583,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 elif analysis.category == "bottoms":
                     outfit_completion = f"fitted top, {analysis.footwear}"
                 else:
-                    # one-pieces: şort/kısa alt parça içeren takımlarda pantolon hallüsinasyonunu engelle
-                    _ph = analysis.proportion_hint.lower()
-                    _gt_lower = analysis.garment_type.lower()
-                    _has_shorts = (
-                        "short" in _ph or "shorts" in _gt_lower or "hot pants" in _ph
-                    )
-                    if _has_shorts:
-                        outfit_completion = (
-                            f"wearing SHORT shorts (NOT long pants, NOT trousers) — "
-                            f"legs fully bare from mid-thigh to feet, {analysis.footwear}"
-                        )
-                    else:
-                        outfit_completion = f"{analysis.footwear}"
+                    outfit_completion = f"{analysis.footwear}"
 
                 accessories_note = (
                     "minimal accessories"
@@ -573,6 +599,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 base_prompt = (
                     f"{closure_rule + ', ' if closure_rule else ''}"
+                    f"{_locks + ', ' if _locks else ''}"
                     f"{outfit_completion}, {accessories_note}, "
                     f"single model only, preserve pose, {crop_frame}, {background_desc}, "
                     f"photorealistic{detail_note}"
