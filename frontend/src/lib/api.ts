@@ -145,6 +145,7 @@ export const modelsApi = {
     gender?: string;
     body_type?: string;
     skin_tone?: string;
+    tags?: string;
   }) =>
     api.get<PaginatedResponse<ModelAsset>>("/models", { params }).then((r) => r.data),
 

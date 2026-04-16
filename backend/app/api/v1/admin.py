@@ -187,6 +187,7 @@ async def admin_upload_model(
     body_type: BodyType = Form(BodyType.average),
     skin_tone: SkinTone = Form(SkinTone.medium),
     crop_type: CropType = Form(CropType.full_body),
+    tags: str = Form(""),
     file: UploadFile = File(...),
     admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
@@ -206,7 +207,8 @@ async def admin_upload_model(
     model = ModelAsset(
         name=name, gender=gender, body_type=body_type,
         skin_tone=skin_tone, crop_type=crop_type,
-        image_url=image_url, thumbnail_url=image_url
+        image_url=image_url, thumbnail_url=image_url,
+        tags=tags.strip() or None,
     )
     db.add(model)
     await db.flush()

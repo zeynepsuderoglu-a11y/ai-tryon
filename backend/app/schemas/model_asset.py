@@ -13,6 +13,7 @@ class ModelAssetCreate(BaseModel):
     crop_type: CropType = CropType.full_body
     image_url: str
     thumbnail_url: Optional[str] = None
+    tags: Optional[str] = None
 
 
 class ModelAssetUpdate(BaseModel):
@@ -24,6 +25,7 @@ class ModelAssetUpdate(BaseModel):
     image_url: Optional[str] = None
     thumbnail_url: Optional[str] = None
     is_active: Optional[bool] = None
+    tags: Optional[str] = None
 
 
 class ModelAssetOut(BaseModel):
@@ -35,6 +37,7 @@ class ModelAssetOut(BaseModel):
     crop_type: CropType
     image_url: str
     thumbnail_url: Optional[str] = None
+    tags: Optional[str] = None
     is_active: bool
     created_at: datetime
 

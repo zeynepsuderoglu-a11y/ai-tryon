@@ -53,6 +53,7 @@ async def apply_migrations():
         "UPDATE users SET credits_remaining = clothing_credits + eyewear_credits + video_credits WHERE clothing_credits + eyewear_credits + video_credits > credits_remaining",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS billing_profile JSONB",
         "ALTER TYPE garmentcategory ADD VALUE IF NOT EXISTS 'ghost_mannequin'",
+        "ALTER TABLE model_assets ADD COLUMN IF NOT EXISTS tags VARCHAR(100)",
     ]
     async with engine.begin() as conn:
         for sql in migrations:

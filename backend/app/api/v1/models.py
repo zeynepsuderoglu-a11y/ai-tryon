@@ -18,6 +18,7 @@ async def list_models(
     gender: Gender | None = None,
     body_type: BodyType | None = None,
     skin_tone: SkinTone | None = None,
+    tags: str | None = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -28,6 +29,8 @@ async def list_models(
         query = query.where(ModelAsset.body_type == body_type)
     if skin_tone:
         query = query.where(ModelAsset.skin_tone == skin_tone)
+    if tags:
+        query = query.where(ModelAsset.tags == tags)
 
     count_result = await db.execute(select(func.count()).select_from(query.subquery()))
     total = count_result.scalar()

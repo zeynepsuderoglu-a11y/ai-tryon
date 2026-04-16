@@ -33,6 +33,7 @@ export interface ModelAsset {
   body_type: "slim" | "average" | "plus_size";
   skin_tone: "light" | "medium" | "dark";
   crop_type?: "full_body" | "half_body";
+  tags?: string | null;
   image_url: string;
   thumbnail_url?: string;
   is_active: boolean;

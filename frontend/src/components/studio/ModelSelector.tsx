@@ -21,6 +21,11 @@ const BODY_OPTIONS = [
   { value: "plus_size", label: "Büyük Beden"  },
 ] as const;
 
+const TAG_OPTIONS = [
+  { value: "all",    label: "Tüm Mankenler" },
+  { value: "pijama", label: "Pijama"        },
+] as const;
+
 // Strip absolute localhost origin so images proxy through Next.js (works from any device)
 const normalizeUrl = (url: string) =>
   url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):\d+/, "");
@@ -35,6 +40,7 @@ export default function ModelSelector() {
   const [loading, setLoading] = useState(true);
   const [gender, setGender] = useState<string>("all");
   const [bodyType, setBodyType] = useState<string>("all");
+  const [tag, setTag] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const PAGE_SIZE = 18;
@@ -44,11 +50,12 @@ export default function ModelSelector() {
     const params: Record<string, string | number> = { page, page_size: PAGE_SIZE };
     if (gender !== "all") params.gender = gender;
     if (bodyType !== "all") params.body_type = bodyType;
+    if (tag !== "all") params.tags = tag;
     modelsApi.list(params as any).then((res) => {
       setModels(res.items);
       setTotal(res.total);
     }).finally(() => setLoading(false));
-  }, [gender, bodyType, page]);
+  }, [gender, bodyType, tag, page]);
 
   const handleSelect = (id: string) => {
     if (isBatchMode) toggleBatchModel(id);
@@ -60,6 +67,24 @@ export default function ModelSelector() {
 
   return (
     <div className="space-y-3">
+      {/* Kategori filtresi */}
+      <div className="flex gap-2 flex-wrap">
+        {TAG_OPTIONS.map((t) => (
+          <button
+            key={t.value}
+            onClick={() => { setTag(t.value); setPage(1); }}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              tag === t.value
+                ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* Cinsiyet filtresi */}
       <div className="flex gap-2 flex-wrap">
         {GENDER_OPTIONS.map((g) => (
