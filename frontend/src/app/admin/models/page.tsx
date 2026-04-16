@@ -23,7 +23,7 @@ export default function AdminModelsPage() {
   const [uploadMode, setUploadMode] = useState<"file" | "url">("file");
   const [imageUrl, setImageUrl] = useState("");
   const [editingModel, setEditingModel] = useState<ModelAsset | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", gender: "female", body_type: "slim", crop_type: "full_body" });
+  const [editForm, setEditForm] = useState<{ name: string; gender: "male" | "female" | "unisex"; body_type: "slim" | "average" | "plus_size"; crop_type: "full_body" | "half_body" }>({ name: "", gender: "female", body_type: "slim", crop_type: "full_body" });
   const [saving, setSaving] = useState(false);
 
   const fetchModels = () => {
@@ -80,7 +80,7 @@ export default function AdminModelsPage() {
 
   const openEdit = (model: ModelAsset) => {
     setEditingModel(model);
-    setEditForm({ name: model.name, gender: model.gender, body_type: model.body_type, crop_type: model.crop_type ?? "full_body" });
+    setEditForm({ name: model.name, gender: model.gender, body_type: model.body_type, crop_type: (model.crop_type ?? "full_body") as "full_body" | "half_body" });
   };
 
   const handleUpdate = async () => {
@@ -208,7 +208,7 @@ export default function AdminModelsPage() {
                     <button
                       key={ct.value}
                       type="button"
-                      onClick={() => setEditForm((f) => ({ ...f, crop_type: ct.value }))}
+                      onClick={() => setEditForm((f) => ({ ...f, crop_type: ct.value as "full_body" | "half_body" }))}
                       className={cn(
                         "py-2 px-3 rounded-lg text-xs border transition-colors",
                         editForm.crop_type === ct.value
@@ -226,7 +226,7 @@ export default function AdminModelsPage() {
                   <label className="text-xs text-gray-400 block mb-1">Cinsiyet</label>
                   <select
                     value={editForm.gender}
-                    onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value }))}
+                    onChange={(e) => setEditForm((f) => ({ ...f, gender: e.target.value as "male" | "female" | "unisex" }))}
                     className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs focus:outline-none"
                     style={{ color: "white" }}
                   >
@@ -239,7 +239,7 @@ export default function AdminModelsPage() {
                   <label className="text-xs text-gray-400 block mb-1">Vücut Tipi</label>
                   <select
                     value={editForm.body_type}
-                    onChange={(e) => setEditForm((f) => ({ ...f, body_type: e.target.value }))}
+                    onChange={(e) => setEditForm((f) => ({ ...f, body_type: e.target.value as "slim" | "average" | "plus_size" }))}
                     className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs focus:outline-none"
                     style={{ color: "white" }}
                   >
