@@ -149,9 +149,19 @@ def _gemini_tryon_sync(
         ),
     )
 
-    for part in response.candidates[0].content.parts:
+    if not response.candidates:
+        raise RuntimeError("Gemini yanıt vermedi: candidates boş")
+
+    candidate = response.candidates[0]
+    finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
+    logger.info("[gemini-tryon] finish_reason=%s", finish_reason)
+
+    if candidate.content is None:
+        raise RuntimeError(f"Gemini içerik üretemedi (finish_reason={finish_reason})")
+
+    for part in candidate.content.parts:
         if part.inline_data is not None:
-            logger.info("[gemini-tryon] Gemini görsel çıktısı alındı, 2x upscale başlıyor")
+            logger.info("[gemini-tryon] Gemini görsel çıktısı alındı, 4x upscale başlıyor")
             from PIL import Image as PILImage
             img = PILImage.open(io.BytesIO(part.inline_data.data)).convert("RGB")
             w, h = img.size
@@ -161,7 +171,7 @@ def _gemini_tryon_sync(
             logger.info("[gemini-tryon] Upscale tamamlandı: %dx%d → %dx%d", w, h, w * 4, h * 4)
             return out.getvalue()
 
-    raise RuntimeError("Gemini görsel üretemedi: " + str(getattr(response, "text", "")))
+    raise RuntimeError(f"Gemini görsel üretemedi (finish_reason={finish_reason}): " + str(getattr(response, "text", "")))
 
 
 class GeminiTryonService:
