@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { tryonApi, eyewearApi, videoApi, ghostMannequinApi } from "@/lib/api";
+import { tryonApi, eyewearApi, videoApi, ghostMannequinApi, geminiTryonApi } from "@/lib/api";
 import { useStudioStore } from "@/lib/store";
 import { useAuthStore } from "@/lib/store";
 import GarmentUpload from "@/components/studio/GarmentUpload";
@@ -247,6 +247,7 @@ export default function StudioPage() {
   const isEyewear = studioMode === "eyewear";
   const isVideo   = studioMode === "video";
   const isGhost   = studioMode === "ghost";
+  const isNano    = studioMode === "nano";
 
   const canGenerate = isGhost
     ? !!ghostInputUrl
@@ -254,6 +255,8 @@ export default function StudioPage() {
     ? videoImageUrls.length > 0
     : isEyewear
     ? !!glassesUrl && !!selectedModelId
+    : isNano
+    ? !!garmentUrl && !!selectedModelId
     : isBatchMode
     ? !!garmentUrl && batchModelIds.length > 0
     : !!garmentUrl && !!selectedModelId;
@@ -261,7 +264,7 @@ export default function StudioPage() {
   const requiredCredits = isVideo ? 5 : isGhost ? 1 : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
   const hasCredits = !user || user.credits_remaining >= requiredCredits;
 
-  const handleModeSwitch = (mode: "kiyafet" | "eyewear" | "video" | "ghost") => {
+  const handleModeSwitch = (mode: "kiyafet" | "eyewear" | "video" | "ghost" | "nano") => {
     if (mode === studioMode) return;
     setStudioMode(mode);
     setShowResult(false);
@@ -320,6 +323,17 @@ export default function StudioPage() {
         setGenerationId(result.generation_id);
         toast.success("Gözlük üretimi başladı!");
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 1 });
+        setShowResult(true);
+      } else if (isNano) {
+        setRunningMessage("Nano Banana analiz ediyor...");
+        const result = await geminiTryonApi.run({
+          garment_url: garmentUrl!,
+          model_asset_id: selectedModelId!,
+          background,
+        });
+        setGenerationId(result.generation_id);
+        toast.success("Nano Banana üretimi başladı!");
+        if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 2 });
         setShowResult(true);
       } else if (isBatchMode) {
         const result = await tryonApi.runBatch({ garment_url: garmentUrl!, model_ids: batchModelIds });
@@ -387,6 +401,7 @@ export default function StudioPage() {
               generationId={generationId || undefined}
               batchJobId={batchJobId || undefined}
               mode={isEyewear ? "eyewear" : "garment"}
+              statusEndpoint={isNano ? "gemini-tryon" : undefined}
             />
           )}
         </div>
@@ -402,10 +417,11 @@ export default function StudioPage() {
       <div className="bg-white border-b border-[#e8e8e8] px-5 py-4 flex items-center justify-between sticky top-0 z-30">
         <div className="inline-flex bg-[#f3f3f3] rounded-full p-1 gap-1">
           {[
-            { mode: "kiyafet" as const, label: "Kıyafet", icon: <Package className="w-3.5 h-3.5" /> },
-            { mode: "eyewear" as const, label: "Gözlük",  icon: <Glasses className="w-3.5 h-3.5" /> },
-            { mode: "video"   as const, label: "Video",   icon: <Video className="w-3.5 h-3.5" />   },
-            { mode: "ghost"   as const, label: "Ghost",   icon: <UserX className="w-3.5 h-3.5" />   },
+            { mode: "kiyafet" as const, label: "Kıyafet",      icon: <Package className="w-3.5 h-3.5" />  },
+            { mode: "nano"    as const, label: "Nano Banana", icon: <Sparkles className="w-3.5 h-3.5" /> },
+            { mode: "eyewear" as const, label: "Gözlük",      icon: <Glasses className="w-3.5 h-3.5" />  },
+            { mode: "video"   as const, label: "Video",       icon: <Video className="w-3.5 h-3.5" />    },
+            { mode: "ghost"   as const, label: "Ghost",       icon: <UserX className="w-3.5 h-3.5" />    },
           ].map(({ mode, label, icon }) => (
             <button
               key={mode}

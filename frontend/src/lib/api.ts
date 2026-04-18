@@ -203,6 +203,22 @@ export const paymentsApi = {
     ).then((r) => r.data),
 };
 
+// Gemini Nano Banana Try-On
+export const geminiTryonApi = {
+  run: (data: { garment_url: string; model_asset_id: string; background?: string }) => {
+    const form = new FormData();
+    form.append("garment_url", data.garment_url);
+    form.append("model_asset_id", data.model_asset_id);
+    if (data.background) form.append("background", data.background);
+    return api.post<{ generation_id: string; status: string }>("/gemini-tryon/run", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
+
+  getStatus: (id: string) =>
+    api.get<import("@/types").Generation>(`/gemini-tryon/${id}/status`).then((r) => r.data),
+};
+
 // Ghost Mannequin
 export const ghostMannequinApi = {
   run: (image_url: string, garment_type: string = "set") => {

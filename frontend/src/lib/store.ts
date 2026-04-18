@@ -24,7 +24,7 @@ interface StudioState {
   isBatchMode: boolean;
   batchModelIds: string[];
   glassesUrl: string | null;
-  studioMode: "kiyafet" | "eyewear" | "video" | "ghost";
+  studioMode: "kiyafet" | "eyewear" | "video" | "ghost" | "nano";
   videoImageUrls: string[];
   videoMode: "image_to_video" | "reference_to_video";
   ghostInputUrl: string | null;
@@ -34,7 +34,7 @@ interface StudioState {
   setIsBatchMode: (batch: boolean) => void;
   toggleBatchModel: (id: string) => void;
   setGlassesUrl: (url: string | null) => void;
-  setStudioMode: (mode: "kiyafet" | "eyewear" | "video" | "ghost") => void;
+  setStudioMode: (mode: "kiyafet" | "eyewear" | "video" | "ghost" | "nano") => void;
   setVideoImageUrls: (urls: string[]) => void;
   setVideoMode: (mode: "image_to_video" | "reference_to_video") => void;
   setGhostInputUrl: (url: string | null) => void;

@@ -591,7 +591,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     else "no accessories"
                 )
 
-                # Detay fotoğrafı varsa critical_detail prompt'a eklenir (doğrulanmış bilgi)
+                # critical_detail: detay fotoğrafı yüklendiğinde FASHN prompt'una eklenir
                 detail_note = ""
                 if garment_detail_urls and analysis.critical_detail:
                     detail_note = f", {analysis.critical_detail}"

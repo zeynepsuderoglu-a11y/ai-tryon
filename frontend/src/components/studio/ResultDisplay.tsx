@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { tryonApi } from "@/lib/api";
+import { tryonApi, geminiTryonApi } from "@/lib/api";
 import type { Generation, BatchJob } from "@/types";
 import { Download, CheckCircle, XCircle, Clock } from "lucide-react";
 import GenerationWaiting from "./GenerationWaiting";
@@ -12,10 +12,11 @@ interface ResultDisplayProps {
   generationId?: string;
   batchJobId?: string;
   mode?: "garment" | "eyewear";
+  statusEndpoint?: "gemini-tryon";
   onComplete?: () => void;
 }
 
-export default function ResultDisplay({ generationId, batchJobId, mode = "garment", onComplete }: ResultDisplayProps) {
+export default function ResultDisplay({ generationId, batchJobId, mode = "garment", statusEndpoint, onComplete }: ResultDisplayProps) {
   const [generation, setGeneration] = useState<Generation | null>(null);
   const [batchJob, setBatchJob] = useState<BatchJob | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,9 @@ export default function ResultDisplay({ generationId, batchJobId, mode = "garmen
     const poll = async () => {
       try {
         if (generationId) {
-          const gen = await tryonApi.getStatus(generationId);
+          const gen = statusEndpoint === "gemini-tryon"
+            ? await geminiTryonApi.getStatus(generationId)
+            : await tryonApi.getStatus(generationId);
           setGeneration(gen);
           if (gen.status === "completed" || gen.status === "failed") {
             clearInterval(pollRef.current!);
