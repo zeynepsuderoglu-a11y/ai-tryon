@@ -85,7 +85,8 @@ async def poll_video_status(task_id: str) -> str:
             flag = info.get("successFlag", 0)
 
             if flag == 1:
-                # Başarılı — resultUrls JSON string içinde
+                # DEBUG: tam response'u logla
+                logger.info("[video] flag==1 tam response: %s", data)
                 import json
                 urls_raw = info.get("resultUrls", "[]")
                 if isinstance(urls_raw, str):
