@@ -168,7 +168,18 @@ BACKGROUND_PROMPTS: dict[str, str] = {
     "minimal_room":  "minimal bright modern white interior room, natural window light, clean Scandinavian aesthetic",
     "pink_studio":   "soft pastel pink seamless studio background, even diffused lighting, feminine aesthetic",
     "beige_outdoor": "warm sandy beige outdoor terrace background, golden hour soft sunlight, bokeh",
-    "original":      "preserve exact background and environment from model reference image, no background alteration",
+    "original":        "preserve exact background and environment from model reference image, no background alteration",
+    "istanbul_terrace": "standing on a sleek white marble terrace balcony with black metal railings and a potted olive tree, blurred Istanbul skyline with mosques and minarets in the warm golden-hour background",
+    "boho_room":        "standing in a bright boho-chic room with linen curtains, arched window, light whitewashed wooden floors, rattan furniture and a vase of dried wildflowers",
+    "wood_studio":      "standing in a modern bright studio with white walls, warm oak hardwood floors, large windows with diffused natural light and a softbox light panel on the ceiling",
+    "luxury_marble":    "standing in a luxurious boutique showroom with white Calacatta marble floors, warm beige textured walls, a round golden mirror, arched doorway with golden trim and a curved bouclé sofa",
+    "warm_studio":      "standing in an airy warm studio room with sandy textured plaster walls, golden oak hardwood floors, a white arched doorway and a cozy curved cream bouclé sofa",
+    "ottoman_cafe":     "standing inside a white vaulted archway café with terrazzo marble floors, rattan chairs, olive tree in corner, and an arched window overlooking a cobblestone Ottoman street with a minaret",
+    "industrial_room":  "standing in a sleek modern interior with white walls, polished concrete floors, a black leather sofa and a tall dark vase of pampas grass beside a large window with white curtains",
+    "garden":           "standing in an elegant outdoor garden courtyard with a lush green ivy hedge backdrop, white ceramic amphora pots with olive trees, lavender and bougainvillea flowers, sandy stone tile floor",
+    "concrete_loft":    "standing in an industrial loft space with raw exposed concrete walls, dark polished concrete floors, a tall arched steel-frame window overlooking a cobblestone Turkish street",
+    "rose_studio":      "standing in a romantic boho studio room with textured dusty rose plaster walls, a white arched alcove doorway, light whitewashed wooden floors and a vase of dried pampas and lavender flowers",
+    "arch_room":        "standing in a serene minimal room with soft off-white plaster walls, a tall white arched doorway, light whitewashed wooden floors and a vase of dried pampas and wildflowers",
 }
 
 BODY_TYPE_PROMPTS: dict[str, str] = {

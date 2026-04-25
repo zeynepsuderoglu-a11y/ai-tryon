@@ -31,7 +31,18 @@ const BACKGROUNDS = [
   { value: "outdoor_nature", label: "Doğa",     image: "/backgrounds/outdoor_nature.jpg" },
   { value: "cafe",           label: "Kafe",     image: "/backgrounds/cafe.jpg"           },
   { value: "minimal_room",   label: "Oda",      image: "/backgrounds/minimal_room.jpg"   },
-  { value: "beige_outdoor",  label: "Plaj",     image: "/backgrounds/beige_outdoor.jpg"  },
+  { value: "beige_outdoor",      label: "Plaj",         image: "/backgrounds/beige_outdoor.jpg"      },
+  { value: "istanbul_terrace",   label: "İstanbul",     image: "/backgrounds/istanbul_terrace.jpg"   },
+  { value: "boho_room",          label: "Boho",         image: "/backgrounds/boho_room.jpg"          },
+  { value: "wood_studio",        label: "Ahşap",        image: "/backgrounds/wood_studio.jpg"        },
+  { value: "luxury_marble",      label: "Mermer",       image: "/backgrounds/luxury_marble.jpg"      },
+  { value: "warm_studio",        label: "Sıcak",        image: "/backgrounds/warm_studio.jpg"        },
+  { value: "ottoman_cafe",       label: "Osmanlı",      image: "/backgrounds/ottoman_cafe.jpg"       },
+  { value: "industrial_room",    label: "Endüstriyel",  image: "/backgrounds/industrial_room.jpg"    },
+  { value: "garden",             label: "Bahçe",        image: "/backgrounds/garden.jpg"             },
+  { value: "concrete_loft",      label: "Loft",         image: "/backgrounds/concrete_loft.jpg"      },
+  { value: "rose_studio",        label: "Gül",          image: "/backgrounds/rose_studio.jpg"        },
+  { value: "arch_room",          label: "Kemerli",      image: "/backgrounds/arch_room.jpg"          },
 ];
 
 const AESTHETICS = [
