@@ -38,28 +38,36 @@ BACKGROUND_DESCS = {
     "arch_room":        "elegant arched room interior background, Mediterranean style",
 }
 
-_PRESET_PROMPT = """Generate a professional product/fashion photograph based on this reference image.
+_PRESET_PROMPT = """Place the subject from this photo into a new background: {bg_desc}.
 
-Setting: {bg_desc}
+SUBJECT PRESERVATION — CRITICAL:
+- Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression as the original — do NOT alter, smooth, or regenerate the face
+- Body: same pose, proportions, and position
+- Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
+- Accessories: keep all visible jewelry, belts, bags exactly as-is
 
-Requirements:
-- The main subject (garment, product, or person) from the reference must appear IDENTICAL — same colors, details, texture, proportions
-- Place the subject naturally in the setting with realistic lighting and shadows
-- Professional studio/editorial quality output
+BACKGROUND: Replace only what is behind the subject. New setting: {bg_desc}.
 
-Output: single photorealistic image, same framing and composition as the reference."""
+QUALITY: DSLR-quality, sharp focus on the subject, natural integration with the new background.
 
-_CUSTOM_PROMPT = """IMAGE 1: Subject reference photo.
-IMAGE 2: Background scene reference.
+Output: single photorealistic image, same crop and framing as the input."""
 
-Generate a professional photograph where the subject from IMAGE 1 is placed naturally in the scene from IMAGE 2.
+_CUSTOM_PROMPT = """IMAGE 1: Subject photo — source of person/product and their exact appearance.
+IMAGE 2: Background scene — target environment.
 
-Requirements:
-- The subject from IMAGE 1 must appear IDENTICAL — same colors, details, texture, proportions
-- Use the environment and lighting from IMAGE 2 as the setting
-- Professional photographic quality, seamless integration
+Place the subject from IMAGE 1 into the background from IMAGE 2.
 
-Output: single photorealistic image."""
+SUBJECT PRESERVATION — CRITICAL:
+- Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression from IMAGE 1 — do NOT alter or regenerate the face
+- Body: same pose, proportions, and position as IMAGE 1
+- Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
+- Accessories: keep all visible jewelry, belts, bags from IMAGE 1 exactly as-is
+
+BACKGROUND: Replace only what is behind the subject. Use the space and lighting atmosphere from IMAGE 2.
+
+QUALITY: DSLR-quality, sharp focus on the subject, same crop and framing as IMAGE 1.
+
+Output: single professional photograph."""
 
 
 def _background_replace_sync(
