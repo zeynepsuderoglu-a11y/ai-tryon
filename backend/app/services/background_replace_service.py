@@ -38,28 +38,28 @@ BACKGROUND_DESCS = {
     "arch_room":        "elegant arched room interior background, Mediterranean style",
 }
 
-_PRESET_PROMPT = """Replace the background of this photo completely with: {bg_desc}.
+_PRESET_PROMPT = """Generate a professional product/fashion photograph based on this reference image.
 
-Rules:
-- Keep the subject (person/product/object) EXACTLY as-is — same position, same size, same details
-- Only replace what is BEHIND the subject
-- Blend naturally so the subject looks like they were photographed in the new background
-- Maintain natural lighting and shadows on the subject
+Setting: {bg_desc}
 
-Output: photorealistic result."""
+Requirements:
+- The main subject (garment, product, or person) from the reference must appear IDENTICAL — same colors, details, texture, proportions
+- Place the subject naturally in the setting with realistic lighting and shadows
+- Professional studio/editorial quality output
 
-_CUSTOM_PROMPT = """IMAGE 1: Subject photo.
-IMAGE 2: Desired background scene.
+Output: single photorealistic image, same framing and composition as the reference."""
 
-Replace the background in IMAGE 1 completely with the scene from IMAGE 2.
+_CUSTOM_PROMPT = """IMAGE 1: Subject reference photo.
+IMAGE 2: Background scene reference.
 
-Rules:
-- Keep the subject from IMAGE 1 EXACTLY as-is — same position, same size, same pose
-- Only replace what is BEHIND the subject
-- Blend naturally so the subject looks like they were photographed in the IMAGE 2 environment
-- Maintain natural lighting and shadows on the subject
+Generate a professional photograph where the subject from IMAGE 1 is placed naturally in the scene from IMAGE 2.
 
-Output: photorealistic result."""
+Requirements:
+- The subject from IMAGE 1 must appear IDENTICAL — same colors, details, texture, proportions
+- Use the environment and lighting from IMAGE 2 as the setting
+- Professional photographic quality, seamless integration
+
+Output: single photorealistic image."""
 
 
 def _background_replace_sync(
