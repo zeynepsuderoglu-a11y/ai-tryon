@@ -957,6 +957,8 @@ export default function StudioPage() {
                     <div className="w-4 h-4 border-2 border-[#a3a3a3] border-t-transparent rounded-full animate-spin" />
                     {runningMessage}
                   </>
+                ) : isBgReplace ? (
+                  <><ImageIcon className="w-4 h-4" /> Arka Plan Değiştir — 1 üretim</>
                 ) : isGhost ? (
                   <><UserX className="w-4 h-4" /> Ghost Mannequin — 1 üretim</>
                 ) : isVideo ? (
