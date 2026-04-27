@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from app.core.database import create_tables, apply_migrations
 from app.core.config import settings
-from app.api.v1 import auth, tryon, models, generations, admin, eyewear, payments, video, contact, ghost_mannequin, gemini_tryon
+from app.api.v1 import auth, tryon, models, generations, admin, eyewear, payments, video, contact, ghost_mannequin, gemini_tryon, background_replace
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,6 +59,7 @@ app.include_router(video.router, prefix="/api/v1")
 app.include_router(contact.router, prefix="/api/v1")
 app.include_router(ghost_mannequin.router, prefix="/api/v1")
 app.include_router(gemini_tryon.router, prefix="/api/v1")
+app.include_router(background_replace.router, prefix="/api/v1")
 
 
 @app.get("/health")

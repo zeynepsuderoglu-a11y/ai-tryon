@@ -234,6 +234,22 @@ export const ghostMannequinApi = {
     api.get<Generation>(`/ghost-mannequin/${id}/status`).then((r) => r.data),
 };
 
+// Background Replace
+export const backgroundReplaceApi = {
+  run: (image_url: string, background: string = "white_studio", custom_bg_url: string = "") => {
+    const form = new FormData();
+    form.append("image_url", image_url);
+    form.append("background", background);
+    if (custom_bg_url) form.append("custom_bg_url", custom_bg_url);
+    return api.post<{ generation_id: string; status: string }>("/background-replace/run", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
+
+  getStatus: (id: string) =>
+    api.get<Generation>(`/background-replace/${id}/status`).then((r) => r.data),
+};
+
 // Admin
 export const adminApi = {
   stats: () => api.get<AdminStats>("/admin/stats").then((r) => r.data),
