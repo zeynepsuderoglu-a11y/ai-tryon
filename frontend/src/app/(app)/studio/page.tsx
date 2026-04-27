@@ -704,8 +704,8 @@ export default function StudioPage() {
           </>
         )}
 
-        {/* ─── BÖLÜM 1: YÜKLEME (ghost hariç) ─── */}
-        {!isGhost && (
+        {/* ─── BÖLÜM 1: YÜKLEME (ghost ve bgReplace hariç) ─── */}
+        {!isGhost && !isBgReplace && (
           <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
             <div className="px-5 pt-5 pb-1">
               <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">
@@ -786,7 +786,7 @@ export default function StudioPage() {
         )}
 
         {/* ─── BÖLÜM 2: MANKEN (kıyafet + gözlük) ─── */}
-        {!isVideo && !isGhost && (
+        {!isVideo && !isGhost && !isBgReplace && (
           <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
             <div className="px-5 pt-5 pb-1 flex items-center justify-between">
               <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Manken</p>
@@ -801,7 +801,7 @@ export default function StudioPage() {
         )}
 
         {/* ─── BÖLÜM 3: AYARLAR (sadece kıyafet) ─── */}
-        {!isVideo && !isEyewear && !isGhost && (
+        {!isVideo && !isEyewear && !isGhost && !isBgReplace && (
           <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
             <div className="px-5 pt-5 pb-1">
               <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Ayarlar</p>
