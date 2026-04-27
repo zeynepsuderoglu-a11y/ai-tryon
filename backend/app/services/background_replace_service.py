@@ -139,29 +139,38 @@ class BackgroundReplaceService:
         """
         Fotoğraf URL → arka planı değiştirilmiş Cloudinary URL
         background: preset key veya "custom" (custom_bg_url gerektirir)
+        Preset'lerde thumbnail görselini Gemini'ye reference olarak gönderir.
         """
         import httpx
 
-        urls_to_fetch = [input_image_url]
+        # Preset için thumbnail görseli reference olarak al
         if custom_bg_url:
-            urls_to_fetch.append(custom_bg_url)
+            bg_ref_url = custom_bg_url
+        else:
+            bg_ref_url = f"{settings.FRONTEND_URL}/backgrounds/{background}.jpg"
 
         async with httpx.AsyncClient(timeout=60.0) as client:
-            responses = await asyncio.gather(*[client.get(u) for u in urls_to_fetch])
+            subject_resp, bg_resp = await asyncio.gather(
+                client.get(input_image_url),
+                client.get(bg_ref_url),
+            )
 
-        for r in responses:
-            r.raise_for_status()
+        subject_resp.raise_for_status()
 
-        image_bytes = responses[0].content
-        mime_type = responses[0].headers.get("content-type", "image/jpeg").split(";")[0]
+        image_bytes = subject_resp.content
+        mime_type = subject_resp.headers.get("content-type", "image/jpeg").split(";")[0]
 
-        custom_bg_bytes = None
-        custom_bg_mime = None
-        if custom_bg_url and len(responses) > 1:
-            custom_bg_bytes = responses[1].content
-            custom_bg_mime = responses[1].headers.get("content-type", "image/jpeg").split(";")[0]
-
-        bg_desc = None if custom_bg_bytes else BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
+        # Background image — başarılı ise görsel reference, aksi hâlde text fallback
+        if bg_resp.status_code == 200:
+            custom_bg_bytes = bg_resp.content
+            custom_bg_mime = bg_resp.headers.get("content-type", "image/jpeg").split(";")[0]
+            bg_desc = None
+            logger.info("[bg-replace] Arka plan görseli alındı (%s)", bg_ref_url)
+        else:
+            custom_bg_bytes = None
+            custom_bg_mime = None
+            bg_desc = BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
+            logger.warning("[bg-replace] Arka plan görseli alınamadı (%d), text fallback", bg_resp.status_code)
 
         loop = asyncio.get_running_loop()
         result_bytes = await loop.run_in_executor(
