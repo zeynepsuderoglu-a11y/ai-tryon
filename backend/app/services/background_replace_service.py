@@ -90,27 +90,42 @@ def _background_replace_sync(
 
     logger.info("[bg-replace] Gemini isteği gönderiliyor (custom=%s)", custom_bg_bytes is not None)
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash-image",
-        contents=contents,
-        config=types.GenerateContentConfig(
-            response_modalities=["IMAGE", "TEXT"],
-        ),
-    )
+    for attempt in range(2):
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-image",
+            contents=contents,
+            config=types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"],
+            ),
+        )
 
-    for part in response.candidates[0].content.parts:
-        if part.inline_data is not None:
-            logger.info("[bg-replace] Gemini görsel çıktısı alındı, 4x upscale başlıyor")
-            from PIL import Image
-            img = Image.open(io.BytesIO(part.inline_data.data)).convert("RGB")
-            w, h = img.size
-            img_up = img.resize((w * 4, h * 4), Image.LANCZOS)
-            out = io.BytesIO()
-            img_up.save(out, format="JPEG", quality=95)
-            logger.info("[bg-replace] Upscale tamamlandı: %dx%d → %dx%d", w, h, w * 4, h * 4)
-            return out.getvalue()
+        if not response.candidates:
+            logger.warning("[bg-replace] attempt=%d candidates boş, tekrar deneniyor", attempt)
+            continue
 
-    raise RuntimeError("Gemini görsel üretemedi: " + str(getattr(response, "text", "")))
+        candidate = response.candidates[0]
+        finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
+        logger.info("[bg-replace] attempt=%d finish_reason=%s", attempt, finish_reason)
+
+        if candidate.content is None:
+            logger.warning("[bg-replace] attempt=%d content=None (finish_reason=%s), tekrar deneniyor", attempt, finish_reason)
+            continue
+
+        for part in candidate.content.parts:
+            if part.inline_data is not None:
+                logger.info("[bg-replace] Gemini görsel çıktısı alındı, 4x upscale başlıyor")
+                from PIL import Image
+                img = Image.open(io.BytesIO(part.inline_data.data)).convert("RGB")
+                w, h = img.size
+                img_up = img.resize((w * 4, h * 4), Image.LANCZOS)
+                out = io.BytesIO()
+                img_up.save(out, format="JPEG", quality=95)
+                logger.info("[bg-replace] Upscale tamamlandı: %dx%d → %dx%d", w, h, w * 4, h * 4)
+                return out.getvalue()
+
+        logger.warning("[bg-replace] attempt=%d görsel part bulunamadı", attempt)
+
+    raise RuntimeError("Gemini görsel üretemedi — lütfen farklı bir fotoğraf ile tekrar deneyin")
 
 
 class BackgroundReplaceService:
