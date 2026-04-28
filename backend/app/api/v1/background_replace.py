@@ -99,6 +99,7 @@ async def run_background_replace(
     )
     db.add(new_gen)
     await db.flush()
+    await db.commit()
 
     background_tasks.add_task(
         process_background_replace_background,
