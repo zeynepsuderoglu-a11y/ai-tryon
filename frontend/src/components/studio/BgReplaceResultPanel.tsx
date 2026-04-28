@@ -109,9 +109,9 @@ export default function BgReplaceResultPanel({
         )}
 
         {/* Sonuç Grid */}
-        <div className={results.length === 1 ? "flex justify-center" : "grid grid-cols-2 gap-4"}>
+        <div className={results.length === 1 ? "grid grid-cols-1 max-w-md mx-auto w-full" : "grid grid-cols-2 gap-4"}>
           {results.map((r, i) => (
-            <div key={r.id} className="space-y-2">
+            <div key={r.id} className="space-y-2 w-full">
               {r.status === "completed" && r.outputUrl ? (
                 <>
                   <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md bg-white">
