@@ -38,50 +38,17 @@ BACKGROUND_DESCS = {
     "arch_room":        "elegant arched room interior background, Mediterranean style",
 }
 
-_PRESET_PROMPT = """Place the subject from this photo into a new background: {bg_desc}.
+_PRESET_PROMPT = """Replace the background of this photo with: {bg_desc}.
 
-COMPOSITION — CRITICAL: The output must show the EXACT SAME portion of the body as the input photo. If the input shows only waist-up, output must also show ONLY waist-up — do NOT add legs, feet, or any body part not visible in the input. Never change zoom level, crop, or framing.
+Keep the person exactly as they are — same crop, same framing, same clothing, same shoes, same pose, same accessories.
+Only change what is behind the person. Output a single photorealistic image."""
 
-SUBJECT PRESERVATION — CRITICAL:
-- Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression — do NOT alter, smooth, or regenerate the face
-- Body: same pose, proportions, and position
-- Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
-- Footwear: shoes, sandals, slippers, boots — preserve exactly as seen in the input
-- Accessories: keep all visible jewelry, belts, bags exactly as-is
+_CUSTOM_PROMPT = """IMAGE 1: Subject photo.
+IMAGE 2: Background scene.
 
-BACKGROUND: Replace only what is behind the subject. New setting: {bg_desc}.
-- Render with full three-dimensional depth and natural spatial perspective
-- Apply natural lighting consistent with the background environment
-- Add a soft, realistic contact shadow beneath the subject on the ground
-- Subject must appear naturally grounded — no floating, correct scale for the environment
-
-QUALITY: DSLR-quality, sharp subject, photorealistic depth. Same exact crop and framing as the input.
-
-Output: single photorealistic image."""
-
-_CUSTOM_PROMPT = """IMAGE 1: Subject photo — source of person/product and their exact appearance.
-IMAGE 2: Background scene — target environment.
-
-Place the subject from IMAGE 1 into the background from IMAGE 2.
-
-COMPOSITION — CRITICAL: The output must show the EXACT SAME portion of the body as IMAGE 1. If IMAGE 1 shows only waist-up, output must also show ONLY waist-up — do NOT add legs, feet, or any body part not visible in IMAGE 1. Never change zoom level, crop, or framing.
-
-SUBJECT PRESERVATION — CRITICAL:
-- Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression from IMAGE 1 — do NOT alter or regenerate the face
-- Body: same pose, proportions, and position as IMAGE 1
-- Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
-- Footwear: shoes, sandals, slippers, boots — preserve exactly as seen in IMAGE 1
-- Accessories: keep all visible jewelry, belts, bags from IMAGE 1 exactly as-is
-
-BACKGROUND: Use the exact environment from IMAGE 2 — only replace what is behind the subject.
-- Preserve the three-dimensional depth and natural perspective from IMAGE 2
-- Apply natural lighting consistent with IMAGE 2 environment
-- Add a soft, realistic contact shadow beneath the subject on the floor of IMAGE 2
-- Subject must appear naturally grounded in the space — correct scale, no floating
-
-QUALITY: DSLR-quality, sharp subject, photorealistic. Same exact crop and framing as IMAGE 1.
-
-Output: single professional photograph."""
+Replace the background of IMAGE 1 with the scene from IMAGE 2.
+Keep the person in IMAGE 1 exactly as they are — same crop, same framing, same clothing, same shoes, same pose, same accessories.
+Only change what is behind the person. Output a single photorealistic image."""
 
 
 def _background_replace_sync(
