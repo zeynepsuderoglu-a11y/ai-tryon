@@ -6,12 +6,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Hakkımızda",
   description:
-    "StudyoİMA AI hakkında bilgi edinin. Türkiye'nin yapay zeka destekli kıyafet, ghost manken, gözlük deneme ve video üretim platformu.",
+    "StudyoİMA AI hakkında bilgi edinin. Türkiye'nin yapay zeka destekli kıyafet, ghost manken, gözlük, arka plan değiştirme ve video üretim platformu.",
   alternates: { canonical: "https://www.studyoima.com/hakkimizda" },
   openGraph: {
     title: "Hakkımızda | StudyoİMA AI",
     description:
-      "StudyoİMA AI hakkında bilgi edinin. Yapay zeka destekli kıyafet, ghost manken, gözlük ve video üretim platformu.",
+      "StudyoİMA AI hakkında bilgi edinin. Yapay zeka destekli kıyafet, ghost manken, gözlük, arka plan değiştirme ve video üretim platformu.",
     url: "https://www.studyoima.com/hakkimizda",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "StudyoİMA AI Hakkımızda" }],
   },
@@ -59,7 +59,7 @@ export default function HakkimizdaPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Ne Yapıyoruz?</h2>
               <p className="mb-3">
-                Platformumuz dört temel çözüm sunar:
+                Platformumuz beş temel çözüm sunar:
               </p>
               <ul className="space-y-2 pl-4">
                 <li className="flex gap-2">
@@ -84,6 +84,14 @@ export default function HakkimizdaPage() {
                     <strong className="text-[#1a1a1a]">Gözlük:</strong> Gözlük ürün fotoğrafından manken
                     üzerinde gerçekçi gözlük görseli oluşturma. Yüz tespiti ve AI gerçekçilik katmanı
                     ile çerçeve doğal görünümde yüze yapıştırılır.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-[#c9a96e] font-medium flex-shrink-0">·</span>
+                  <span>
+                    <strong className="text-[#1a1a1a]">Arka Plan Değiştirme:</strong> Herhangi bir fotoğrafın
+                    arka planını değiştirme. 21 hazır arka plan seçeneği veya kendi görseliniz ile kişi,
+                    kıyafet ve aksesuar korunarak profesyonel sahne oluşturma.
                   </span>
                 </li>
                 <li className="flex gap-2">

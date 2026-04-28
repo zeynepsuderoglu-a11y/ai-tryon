@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Package, Glasses, Eye, Users, Zap, ShieldCheck, Instagram, Facebook, Video, Coins, UserX } from "lucide-react";
+import { ArrowRight, Package, Glasses, Eye, Users, Zap, ShieldCheck, Instagram, Facebook, Video, Coins, UserX, ImageIcon } from "lucide-react";
 import DecorativeBg from "@/components/DecorativeBg";
 import HeroDemoSlider from "@/components/HeroDemoSlider";
 import DemoExamplesSection from "@/components/DemoExamplesSection";
@@ -30,6 +30,12 @@ const ghostSteps = [
   { num: "03", title: "Ghost Görsel Hazır", desc: "3D hacimli, içi dolu profesyonel e-ticaret ghost mannequin görseli." },
 ];
 
+const backgroundSteps = [
+  { num: "01", title: "Fotoğraf Yükle", desc: "Arka planını değiştirmek istediğiniz kişi veya ürün fotoğrafını yükleyin." },
+  { num: "02", title: "Arka Plan Seç", desc: "21 hazır arka plan seçeneğinden birini seçin ya da kendi görselinizi yükleyin." },
+  { num: "03", title: "Görsel Hazır", desc: "Yapay zeka arka planı değiştirir; kişi, kıyafet ve aksesuarlar korunur." },
+];
+
 const plans = [
   { name: "Başlangıç", credits: 5,   price: 0,    unitPrice: 0,     discount: 0,  free: true },
   { name: "Temel",     credits: 10,  price: 150,  unitPrice: 15,    discount: 0  },
@@ -39,16 +45,16 @@ const plans = [
 ];
 
 export const metadata: Metadata = {
-  title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük & Video Üretimi",
+  title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük, Arka Plan & Video Üretimi",
   description:
-    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video. Yapay zeka kıyafet, ghost manken, gözlük deneme ve AI video üretimi. E-ticaret kataloğunuzu hızlandırın.",
+    "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi, arka plan değiştirme ve video. Yapay zeka kıyafet, ghost manken, gözlük, arka plan ve AI video üretimi. E-ticaret kataloğunuzu hızlandırın.",
   alternates: {
     canonical: "https://www.studyoima.com",
   },
   openGraph: {
-    title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük & Video Üretimi",
+    title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük, Arka Plan & Video Üretimi",
     description:
-      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video. Yapay zeka kıyafet, ghost manken, gözlük deneme ve AI video üretimi.",
+      "Ürün fotoğrafından saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi, arka plan değiştirme ve video. Yapay zeka kıyafet, ghost manken, gözlük, arka plan ve AI video üretimi.",
     url: "https://www.studyoima.com",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "StudyoİMA AI" }],
   },
@@ -128,10 +134,11 @@ export default function LandingPage() {
   ];
 
   const creditUsage = [
-    { icon: <Glasses className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük",  cost: "1 üretim" },
-    { icon: <UserX   className="w-4 h-4 text-[#c9a96e]" />, label: "Ghost Manken",   cost: "1 üretim" },
-    { icon: <Package className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet", cost: "2 üretim" },
-    { icon: <Video   className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",  cost: "5 üretim" },
+    { icon: <Glasses   className="w-4 h-4 text-[#c9a96e]" />, label: "Gözlük",           cost: "1 üretim" },
+    { icon: <UserX     className="w-4 h-4 text-[#c9a96e]" />, label: "Ghost Manken",      cost: "1 üretim" },
+    { icon: <ImageIcon className="w-4 h-4 text-[#c9a96e]" />, label: "Arka Plan",         cost: "1 üretim" },
+    { icon: <Package   className="w-4 h-4 text-[#c9a96e]" />, label: "Kıyafet",           cost: "2 üretim" },
+    { icon: <Video     className="w-4 h-4 text-[#c9a96e]" />, label: "Video Üretimi",     cost: "5 üretim" },
   ];
 
   return (
@@ -172,12 +179,12 @@ export default function LandingPage() {
               <h1 className="text-5xl sm:text-7xl xl:text-8xl font-bold tracking-[-0.03em] leading-[0.93] mb-10">
                 Yapay Zeka ile<br />
                 Kıyafet, Gözlük,<br />
-                Ghost Manken<br />
+                Ghost, Arka Plan<br />
                 <span className="text-[#c9a96e] opacity-80">&amp; Video Üretimi</span>
               </h1>
               <p className="text-lg text-[#737373] mb-12 max-w-lg leading-relaxed">
-                Katalog çekimi olmadan saniyeler içinde profesyonel manken görseli, ghost mannequin çekimi ve video.
-                Kıyafet, gözlük, ghost manken ve video üretimi — tek platformda.
+                Katalog çekimi olmadan saniyeler içinde profesyonel manken görseli, ghost mannequin, arka plan değiştirme ve video.
+                Kıyafet, gözlük, ghost manken, arka plan ve video üretimi — tek platformda.
               </p>
               <div className="flex items-center gap-5 flex-wrap">
                 <Link
@@ -208,9 +215,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-4">Çözümlerimiz</p>
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em] text-white">Dört ürün, tek platform</h2>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em] text-white">Beş ürün, tek platform</h2>
           </div>
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
             {/* Kıyafet */}
             <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
@@ -308,6 +315,34 @@ export default function LandingPage() {
               </div>
             </div>
 
+            {/* Arka Plan Değiştirme */}
+            <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
+              <div className="flex items-center gap-3 mb-7">
+                <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
+                  <ImageIcon className="w-5 h-5 text-[#c9a96e]" />
+                </div>
+                <h3 className="text-white font-semibold text-lg">Arka Plan</h3>
+              </div>
+              <p className="text-white/50 text-sm leading-relaxed mb-8">
+                Herhangi bir fotoğrafın arka planını değiştirin. Stüdyo, dış mekan, şehir veya özel görsel — kişi ve kıyafet olduğu gibi korunur.
+              </p>
+              <div className="space-y-5">
+                {[
+                  { title: "21 Hazır Arka Plan", desc: "Beyaz stüdyo, kafe, İstanbul, doğa ve daha fazlası — anında seçin ve uygulayın." },
+                  { title: "Özel Görsel Desteği", desc: "Kendi arka plan görselinizi yükleyin, yapay zeka sahneye entegre eder." },
+                  { title: "Yüz & Kıyafet Koruması", desc: "Arka plan değişirken kişi, kıyafet, aksesuar ve ifade birebir korunur." },
+                ].map((f) => (
+                  <div key={f.title} className="flex items-start gap-4">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[6px] flex-shrink-0" />
+                    <div>
+                      <p className="text-white text-sm font-medium mb-0.5">{f.title}</p>
+                      <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -318,10 +353,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto relative">
           <div className="text-center mb-20">
             <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-4">Nasıl Çalışır?</p>
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em]">3 adımda görsel, video & ghost</h2>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em]">3 adımda görsel, video, ghost & arka plan</h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-14">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-14">
             {/* Kıyafet Adımları */}
             <div>
               <div className="flex items-center gap-2 mb-10">
@@ -405,6 +440,27 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
+
+            {/* Arka Plan Adımları */}
+            <div>
+              <div className="flex items-center gap-2 mb-10">
+                <ImageIcon className="w-4 h-4 text-[#c9a96e]" />
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#0f0f0f]">Arka Plan</p>
+              </div>
+              <div className="space-y-10">
+                {backgroundSteps.map((s) => (
+                  <div key={s.num} className="flex gap-6 items-start">
+                    <span className="text-5xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
+                      {s.num}
+                    </span>
+                    <div className="pt-2">
+                      <h4 className="font-semibold text-[#0f0f0f] mb-2">{s.title}</h4>
+                      <p className="text-[#737373] text-sm leading-relaxed">{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -422,7 +478,7 @@ export default function LandingPage() {
           </div>
 
           {/* Kredi kullanım tablosu */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-10">
             {creditUsage.map((item) => (
               <div key={item.label} className="flex flex-col items-center gap-2 py-5 bg-[#f8f8f8] rounded-2xl border border-[#e8e8e8]">
                 {item.icon}

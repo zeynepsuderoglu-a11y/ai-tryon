@@ -70,9 +70,9 @@ export default function SatisSozlesmesiPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Madde 3 — Hizmet Tanımı ve Fiyatları</h2>
               <p className="mb-4">
-                Platform üzerinden kıyafet, ghost manken, gözlük ve video üretimi hizmetleri sunulmaktadır.
+                Platform üzerinden kıyafet, ghost manken, gözlük, arka plan değiştirme ve video üretimi hizmetleri sunulmaktadır.
                 Üretim hakları tüm hizmet türlerinde ortak havuzdan kullanılır; işlem türüne göre harcanan miktar değişir
-                (Gözlük: 1 üretim · Ghost Manken: 1 üretim · Kıyafet: 2 üretim · Video: 5 üretim).
+                (Gözlük: 1 üretim · Ghost Manken: 1 üretim · Arka Plan: 1 üretim · Kıyafet: 2 üretim · Video: 5 üretim).
               </p>
 
               <div className="overflow-hidden border border-[#e5e5e5] rounded-xl mb-4">
