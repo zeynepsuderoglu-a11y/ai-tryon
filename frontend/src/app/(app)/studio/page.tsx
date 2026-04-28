@@ -15,7 +15,7 @@ import GenerationWaiting from "@/components/studio/GenerationWaiting";
 import BgReplaceResultPanel from "@/components/studio/BgReplaceResultPanel";
 import {
   Wand2, ChevronLeft, Layers, Sparkles, Glasses, Package,
-  ShoppingCart, Video, Upload, X, ImageIcon, UserX, Check,
+  ShoppingCart, Video, Upload, X, ImageIcon, UserX, Check, Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -50,6 +50,31 @@ const AESTHETICS = [
   { value: "no_accessories",   label: "Aksesuarsız", emoji: "✨", desc: "Sade üretim"      },
   { value: "with_accessories", label: "Aksesuarlı",  emoji: "👜", desc: "Çanta, gözlük"    },
 ];
+
+/* ── Arka Plan İşi Tipi ── */
+type BgJob = {
+  id: string;
+  inputUrl: string | null;
+  inputPreview: string | null;
+  inputUploading: boolean;
+  background: string;
+  customBgUrl: string | null;
+  customBgPreview: string | null;
+  customBgUploading: boolean;
+};
+
+function createBgJob(): BgJob {
+  return {
+    id: Date.now().toString() + Math.random().toString(36).slice(2),
+    inputUrl: null,
+    inputPreview: null,
+    inputUploading: false,
+    background: "white_studio",
+    customBgUrl: null,
+    customBgPreview: null,
+    customBgUploading: false,
+  };
+}
 
 /* ── Ghost Mannequin Upload Bileşeni ── */
 function GhostUpload() {
@@ -235,7 +260,6 @@ export default function StudioPage() {
     glassesUrl, studioMode, setStudioMode,
     videoImageUrls, setVideoImageUrls, videoMode, setVideoMode,
     ghostInputUrl, setGhostInputUrl,
-    bgReplaceInputUrl, setBgReplaceInputUrl,
   } = useStudioStore();
 
   const [bodyType, setBodyType]         = useState("standard");
@@ -247,10 +271,11 @@ export default function StudioPage() {
   }, [selectedModelId]);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
-  const [bgSelectedBackgrounds, setBgSelectedBackgrounds] = useState<string[]>(["white_studio"]);
-  const [bgCustomItems, setBgCustomItems] = useState<{ id: string; url: string; preview: string }[]>([]);
-  const [bgReplaceUploading, setBgReplaceUploading] = useState(false);
+  const [bgJobs, setBgJobs] = useState<BgJob[]>([createBgJob()]);
   const [bgReplaceGenerationIds, setBgReplaceGenerationIds] = useState<string[]>([]);
+
+  const updateBgJob = (id: string, changes: Partial<BgJob>) =>
+    setBgJobs(prev => prev.map(j => j.id === id ? { ...j, ...changes } : j));
   const [running, setRunning]           = useState(false);
   const [runningMessage, setRunningMessage] = useState("Başlatılıyor...");
   const [generationId, setGenerationId]     = useState<string | null>(null);
@@ -267,10 +292,8 @@ export default function StudioPage() {
   const isNano      = studioMode === "nano";
   const isBgReplace = studioMode === "background";
 
-  const bgTotalSelected = bgSelectedBackgrounds.length + bgCustomItems.length;
-
   const canGenerate = isBgReplace
-    ? !!bgReplaceInputUrl && bgTotalSelected > 0
+    ? bgJobs.length > 0 && bgJobs.every(j => !!j.inputUrl && (j.background !== "custom" || !!j.customBgUrl))
     : isGhost
     ? !!ghostInputUrl
     : isVideo
@@ -283,7 +306,7 @@ export default function StudioPage() {
     ? !!garmentUrl && batchModelIds.length > 0
     : !!garmentUrl && !!selectedModelId;
 
-  const requiredCredits = isVideo ? 5 : isGhost ? 1 : isBgReplace ? bgTotalSelected : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
+  const requiredCredits = isVideo ? 5 : isGhost ? 1 : isBgReplace ? bgJobs.length : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
   const hasCredits = !user || user.credits_remaining >= requiredCredits;
 
   const handleModeSwitch = (mode: "kiyafet" | "eyewear" | "video" | "ghost" | "nano" | "background") => {
@@ -328,13 +351,13 @@ export default function StudioPage() {
     setRunningMessage("Başlatılıyor...");
     try {
       if (isBgReplace) {
-        setRunningMessage(`${bgTotalSelected} arka plan değiştiriliyor...`);
-        const jobs = [
-          ...bgSelectedBackgrounds.map((bg) => ({ background: bg, customUrl: "" })),
-          ...bgCustomItems.map((item) => ({ background: "custom", customUrl: item.url })),
-        ];
+        setRunningMessage(`${bgJobs.length} fotoğraf işleniyor...`);
         const results = await Promise.all(
-          jobs.map((job) => backgroundReplaceApi.run(bgReplaceInputUrl!, job.background, job.customUrl))
+          bgJobs.map((job) => backgroundReplaceApi.run(
+            job.inputUrl!,
+            job.background,
+            job.background === "custom" ? (job.customBgUrl || "") : "",
+          ))
         );
         const ids = results.map((r) => r.generation_id);
         setBgReplaceGenerationIds(ids);
@@ -402,6 +425,7 @@ export default function StudioPage() {
     setVideoGenerationId(null);
     setGhostGenerationId(null);
     setBgReplaceGenerationIds([]);
+    setBgJobs([createBgJob()]);
     if (isVideo) setVideoImageUrls([]);
     if (isGhost) setGhostInputUrl(null);
   };
@@ -508,146 +532,41 @@ export default function StudioPage() {
         {/* ─── ARKA PLAN DEĞİŞTİR MODU ─── */}
         {isBgReplace && (
           <>
-            {/* Fotoğraf Yükleme */}
-            <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-              <div className="px-5 pt-5 pb-1">
-                <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Fotoğraf</p>
-              </div>
-              <div className="p-5 pt-3">
-                {/* Upload alanı — GhostUpload pattern */}
-                {bgReplaceInputUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-[#f5f5f5] max-w-xs mx-auto">
-                    <div className="aspect-[3/4] relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={bgReplaceInputUrl} alt="Yüklenen fotoğraf" className="w-full h-full object-contain p-4" />
-                    </div>
+            {/* Her fotoğraf için bir slot kartı */}
+            {bgJobs.map((job, index) => (
+              <div key={job.id} className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+                <div className="px-5 pt-4 pb-0 flex items-center justify-between">
+                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">
+                    Fotoğraf {index + 1}
+                  </p>
+                  {bgJobs.length > 1 && (
                     <button
-                      onClick={() => setBgReplaceInputUrl(null)}
-                      className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-50"
+                      onClick={() => setBgJobs(prev => prev.filter(j => j.id !== job.id))}
+                      className="p-1 hover:bg-[#f5f5f5] rounded-lg transition-colors"
                     >
-                      <X className="w-4 h-4 text-[#737373]" />
+                      <X className="w-3.5 h-3.5 text-[#a3a3a3]" />
                     </button>
-                  </div>
-                ) : (
-                  <label className={cn(
-                    "flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed",
-                    "border-[#e5e5e5] bg-[#fafafa] p-10 cursor-pointer",
-                    "hover:border-[#0f0f0f] hover:bg-[#f5f5f5] transition-all",
-                    bgReplaceUploading && "opacity-60 pointer-events-none"
-                  )}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setBgReplaceUploading(true);
-                        try {
-                          const result = await tryonApi.uploadGarment(file);
-                          setBgReplaceInputUrl(result.url);
-                          toast.success("Fotoğraf yüklendi!");
-                        } catch {
-                          toast.error("Yükleme başarısız");
-                        } finally {
-                          setBgReplaceUploading(false);
-                        }
-                      }}
-                    />
-                    {bgReplaceUploading ? (
-                      <div className="w-8 h-8 border-2 border-[#0f0f0f] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Upload className="w-8 h-8 text-[#a3a3a3]" />
-                    )}
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-[#0f0f0f]">Fotoğraf yükle</p>
-                      <p className="text-xs text-[#a3a3a3] mt-0.5">Ürün, model veya herhangi bir fotoğraf</p>
-                    </div>
-                  </label>
-                )}
-              </div>
-            </div>
-
-            {/* Arka Plan Seçimi */}
-            <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-              <div className="px-5 pt-5 pb-1 flex items-center justify-between">
-                <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Arka Plan</p>
-                <span className="text-xs text-[#737373]">
-                  {bgTotalSelected} / 5 seçildi
-                </span>
-              </div>
-              <div className="p-5 pt-3">
-                {/* Preset grid — çok seçimli */}
-                <div className="grid grid-cols-5 gap-2">
-                  {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => {
-                    const isSelected = bgSelectedBackgrounds.includes(bg.value);
-                    const canSelect = isSelected || bgTotalSelected < 5;
-                    return (
-                      <button
-                        key={bg.value}
-                        onClick={() => {
-                          if (isSelected) {
-                            setBgSelectedBackgrounds(prev => prev.filter(b => b !== bg.value));
-                          } else if (canSelect) {
-                            setBgSelectedBackgrounds(prev => [...prev, bg.value]);
-                          }
-                        }}
-                        className={cn(
-                          "relative flex flex-col items-center gap-1 rounded-xl overflow-hidden border-2 transition-all",
-                          isSelected
-                            ? "border-[#0f0f0f]"
-                            : canSelect
-                            ? "border-transparent hover:border-[#e8e8e8]"
-                            : "border-transparent opacity-40 cursor-not-allowed"
-                        )}
-                      >
-                        {/* Seçim işareti */}
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 z-10 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center shadow">
-                            <Check className="w-2.5 h-2.5 text-white" />
-                          </div>
-                        )}
-                        {bg.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={bg.image} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
-                        ) : (
-                          <div className="w-full aspect-square bg-[#f3f3f3] rounded-lg flex items-center justify-center">
-                            <ImageIcon className="w-5 h-5 text-[#a3a3a3]" />
-                          </div>
-                        )}
-                        <span className="text-[10px] text-[#737373] pb-1 truncate w-full text-center">{bg.label}</span>
-                      </button>
-                    );
-                  })}
+                  )}
                 </div>
 
-                {/* Özel yüklenen arka planlar */}
-                {bgCustomItems.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {bgCustomItems.map((item, i) => (
-                      <div key={item.id} className="relative w-16 h-16 rounded-xl overflow-hidden border-2 border-[#0f0f0f] flex-shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={item.preview} alt={`Özel ${i + 1}`} className="w-full h-full object-cover" />
-                        <div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center shadow">
-                          <Check className="w-2.5 h-2.5 text-white" />
-                        </div>
-                        <button
-                          onClick={() => setBgCustomItems(prev => prev.filter(c => c.id !== item.id))}
-                          className="absolute bottom-0.5 left-0.5 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center"
-                        >
-                          <X className="w-2.5 h-2.5 text-white" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Özel arka plan yükleme (slot varsa göster) */}
-                {bgTotalSelected < 5 && (
-                  <div className="mt-3">
+                <div className="p-5 pt-3 space-y-4">
+                  {/* Fotoğraf yükleme */}
+                  {job.inputUrl ? (
+                    <div className="flex items-center gap-3 rounded-xl bg-[#f5f5f5] p-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={job.inputPreview || job.inputUrl} alt="" className="w-14 h-14 object-cover rounded-lg flex-shrink-0" />
+                      <span className="text-xs text-[#737373] flex-1">Fotoğraf yüklendi</span>
+                      <button
+                        onClick={() => updateBgJob(job.id, { inputUrl: null, inputPreview: null })}
+                        className="p-1 hover:bg-white rounded-lg"
+                      >
+                        <X className="w-4 h-4 text-[#737373]" />
+                      </button>
+                    </div>
+                  ) : (
                     <label className={cn(
                       "flex items-center gap-3 rounded-xl border-2 border-dashed border-[#e5e5e5] bg-[#fafafa] p-4 cursor-pointer hover:border-[#0f0f0f] transition-all",
-                      bgReplaceUploading && "opacity-60 pointer-events-none"
+                      job.inputUploading && "opacity-60 pointer-events-none"
                     )}>
                       <input
                         type="file"
@@ -656,43 +575,128 @@ export default function StudioPage() {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          if (bgTotalSelected >= 5) return;
-                          setBgReplaceUploading(true);
+                          updateBgJob(job.id, { inputUploading: true });
                           try {
                             const preview = URL.createObjectURL(file);
                             const result = await tryonApi.uploadGarment(file);
-                            setBgCustomItems(prev => [...prev, {
-                              id: Date.now().toString(),
-                              url: result.url,
-                              preview,
-                            }]);
-                            toast.success("Özel arka plan eklendi!");
+                            updateBgJob(job.id, { inputUrl: result.url, inputPreview: preview, inputUploading: false });
+                            toast.success("Fotoğraf yüklendi!");
                           } catch {
                             toast.error("Yükleme başarısız");
-                          } finally {
-                            setBgReplaceUploading(false);
+                            updateBgJob(job.id, { inputUploading: false });
                           }
                         }}
                       />
-                      {bgReplaceUploading ? (
+                      {job.inputUploading ? (
                         <div className="w-5 h-5 border-2 border-[#0f0f0f] border-t-transparent rounded-full animate-spin flex-shrink-0" />
                       ) : (
                         <Upload className="w-5 h-5 text-[#a3a3a3] flex-shrink-0" />
                       )}
                       <div>
-                        <p className="text-xs font-medium text-[#0f0f0f]">Özel arka plan yükle</p>
-                        <p className="text-xs text-[#a3a3a3]">JPG, PNG, WEBP · {5 - bgTotalSelected} slot kaldı</p>
+                        <p className="text-xs font-medium text-[#0f0f0f]">Fotoğraf yükle</p>
+                        <p className="text-xs text-[#a3a3a3]">Ürün, model veya herhangi bir fotoğraf</p>
                       </div>
                     </label>
+                  )}
+
+                  {/* Arka plan seçimi — yatay kaydırmalı */}
+                  <div>
+                    <p className="text-[11px] text-[#a3a3a3] font-medium uppercase tracking-wider mb-2">Arka Plan</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
+                      {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => (
+                        <button
+                          key={bg.value}
+                          onClick={() => updateBgJob(job.id, { background: bg.value, customBgUrl: null, customBgPreview: null })}
+                          title={bg.label}
+                          className={cn(
+                            "relative flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden border-2 transition-all",
+                            job.background === bg.value
+                              ? "border-[#0f0f0f]"
+                              : "border-transparent hover:border-[#e8e8e8]"
+                          )}
+                        >
+                          {job.background === bg.value && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/25 z-10">
+                              <Check className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                          {bg.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={bg.image} alt={bg.label} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-[#f3f3f3]" />
+                          )}
+                        </button>
+                      ))}
+                      {/* Özel arka plan yükleme */}
+                      <label className={cn(
+                        "relative flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden border-2 cursor-pointer transition-all",
+                        job.background === "custom"
+                          ? "border-[#0f0f0f]"
+                          : "border-dashed border-[#d4d4d4] hover:border-[#a3a3a3]",
+                        job.customBgUploading && "opacity-60 pointer-events-none"
+                      )}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            updateBgJob(job.id, { customBgUploading: true });
+                            try {
+                              const preview = URL.createObjectURL(file);
+                              const result = await tryonApi.uploadGarment(file);
+                              updateBgJob(job.id, {
+                                background: "custom",
+                                customBgUrl: result.url,
+                                customBgPreview: preview,
+                                customBgUploading: false,
+                              });
+                            } catch {
+                              toast.error("Yükleme başarısız");
+                              updateBgJob(job.id, { customBgUploading: false });
+                            }
+                          }}
+                        />
+                        {job.customBgUploading ? (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-[#0f0f0f] border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        ) : job.background === "custom" && job.customBgPreview ? (
+                          <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={job.customBgPreview} alt="Özel" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                              <Check className="w-3 h-3 text-white" />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-[#f8f8f8]">
+                            <Upload className="w-4 h-4 text-[#a3a3a3]" />
+                          </div>
+                        )}
+                      </label>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            ))}
+
+            {/* Fotoğraf Ekle butonu */}
+            {bgJobs.length < 5 && (
+              <button
+                onClick={() => setBgJobs(prev => [...prev, createBgJob()])}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-dashed border-[#d4d4d4] text-[#737373] text-sm hover:border-[#0f0f0f] hover:text-[#0f0f0f] transition-all"
+              >
+                <Plus className="w-4 h-4" /> Fotoğraf Ekle ({bgJobs.length}/5)
+              </button>
+            )}
 
             {/* Bilgi kutusu */}
             <div className="bg-[#f8f8f8] rounded-xl px-4 py-3 text-xs text-[#737373]">
-              <p className="font-medium text-[#0f0f0f] mb-1">Arka Plan Değiştirme — {bgTotalSelected} kredi</p>
-              <p>Her seçili arka plan için ayrı bir üretim yapılır. Tümü aynı anda işlenir.</p>
+              <p className="font-medium text-[#0f0f0f] mb-1">Arka Plan Değiştirme — {bgJobs.length} kredi</p>
+              <p>Her fotoğraf için farklı arka plan seçebilirsiniz. Tümü aynı anda işlenir.</p>
             </div>
           </>
         )}
@@ -1009,7 +1013,7 @@ export default function StudioPage() {
                     {runningMessage}
                   </>
                 ) : isBgReplace ? (
-                  <><ImageIcon className="w-4 h-4" /> Arka Plan Değiştir — {bgTotalSelected} üretim</>
+                  <><ImageIcon className="w-4 h-4" /> Arka Plan Değiştir — {bgJobs.length} üretim</>
                 ) : isGhost ? (
                   <><UserX className="w-4 h-4" /> Ghost Mannequin — 1 üretim</>
                 ) : isVideo ? (
