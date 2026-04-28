@@ -606,38 +606,41 @@ export default function StudioPage() {
               </div>
             </div>
 
-            {/* ── Arka Plan Seçimi (fotoğraf yüklendikten sonra göster) ── */}
-            {bgPhotos.length > 0 && (
-              <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-                <div className="px-5 pt-5 pb-1 flex items-center justify-between">
-                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Arka Plan Seç</p>
-                  <span className={cn(
-                    "text-xs font-medium",
-                    bgSelectionsValid ? "text-green-600" : "text-[#737373]"
-                  )}>
-                    {bgSelections.length}/{bgPhotos.length} seçildi
-                    {bgSelections.length === 1 && bgPhotos.length > 1 && " · tüm fotoğraflara"}
-                    {bgSelections.length === bgPhotos.length && bgPhotos.length > 1 && " · her birine ayrı"}
-                  </span>
-                </div>
-                <div className="px-5 pb-1 pt-2">
-                  <p className="text-xs text-[#a3a3a3]">
-                    {bgSelections.length === 0
-                      ? `1 arka plan seçin (tüm fotoğraflara) veya ${bgPhotos.length} seçin (her birine ayrı).`
-                      : bgSelections.length === 1
-                      ? `1 arka plan seçildi — ${bgPhotos.length} fotoğrafın hepsine uygulanacak.`
-                      : bgSelections.length === bgPhotos.length
-                      ? "Her fotoğrafa ayrı arka plan — numara fotoğraf sırasıyla eşleşir."
-                      : `${bgPhotos.length} seçim için devam edin veya 1'de kalıp herkese uygulayın.`
-                    }
-                  </p>
-                </div>
-                <div className="p-5 pt-3">
-                  <div className="grid grid-cols-5 gap-2">
-                    {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => {
-                      const selIdx = bgSelections.findIndex(s => s.background === bg.value);
-                      const isSelected = selIdx !== -1;
-                      const canSelectMore = bgSelections.length < bgPhotos.length;
+            {/* ── Arka Plan Seçimi ── */}
+            <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+              <div className="px-5 pt-5 pb-1 flex items-center justify-between">
+                <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Arka Plan Seç</p>
+                <span className={cn(
+                  "text-xs font-medium",
+                  bgSelectionsValid ? "text-green-600" : "text-[#737373]"
+                )}>
+                  {bgSelections.length > 0
+                    ? bgPhotos.length > 0
+                      ? `${bgSelections.length}/${bgPhotos.length} seçildi${bgSelections.length === 1 && bgPhotos.length > 1 ? " · tüm fotoğraflara" : bgSelections.length === bgPhotos.length && bgPhotos.length > 1 ? " · her birine ayrı" : ""}`
+                      : `${bgSelections.length} seçildi`
+                    : "Seçilmedi"}
+                </span>
+              </div>
+              <div className="px-5 pb-1 pt-2">
+                <p className="text-xs text-[#a3a3a3]">
+                  {bgPhotos.length === 0
+                    ? "Arka plan seçin, ardından fotoğraf yükleyin."
+                    : bgSelections.length === 0
+                    ? `1 arka plan seçin (tüm fotoğraflara) veya ${bgPhotos.length} seçin (her birine ayrı).`
+                    : bgSelections.length === 1
+                    ? `1 arka plan seçildi — ${bgPhotos.length} fotoğrafın hepsine uygulanacak.`
+                    : bgSelections.length === bgPhotos.length
+                    ? "Her fotoğrafa ayrı arka plan — numara fotoğraf sırasıyla eşleşir."
+                    : `${bgPhotos.length} seçim için devam edin veya 1'de kalıp herkese uygulayın.`
+                  }
+                </p>
+              </div>
+              <div className="p-5 pt-3">
+                <div className="grid grid-cols-5 gap-2">
+                  {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => {
+                    const selIdx = bgSelections.findIndex(s => s.background === bg.value);
+                    const isSelected = selIdx !== -1;
+                    const canSelectMore = bgSelections.length < (bgPhotos.length > 0 ? bgPhotos.length : 5);
                       return (
                         <button
                           key={bg.value}
@@ -678,7 +681,7 @@ export default function StudioPage() {
                   </div>
 
                   {/* Özel arka plan yükleme */}
-                  {bgSelections.length < bgPhotos.length && (
+                  {bgSelections.length < (bgPhotos.length > 0 ? bgPhotos.length : 5) && (
                     <div className="mt-3">
                       <label className={cn(
                         "flex items-center gap-3 rounded-xl border-2 border-dashed border-[#e5e5e5] bg-[#fafafa] p-3 cursor-pointer hover:border-[#0f0f0f] transition-all",
@@ -736,7 +739,6 @@ export default function StudioPage() {
                   )}
                 </div>
               </div>
-            )}
 
             {/* Bilgi kutusu */}
             <div className="bg-[#f8f8f8] rounded-xl px-4 py-3 text-xs text-[#737373]">
