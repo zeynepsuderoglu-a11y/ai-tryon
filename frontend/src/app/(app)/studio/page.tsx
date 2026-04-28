@@ -12,9 +12,10 @@ import ModelSelector from "@/components/studio/ModelSelector";
 import ResultDisplay from "@/components/studio/ResultDisplay";
 import VideoResult from "@/components/studio/VideoResult";
 import GenerationWaiting from "@/components/studio/GenerationWaiting";
+import BgReplaceResultPanel from "@/components/studio/BgReplaceResultPanel";
 import {
   Wand2, ChevronLeft, Layers, Sparkles, Glasses, Package,
-  ShoppingCart, Video, Upload, X, ImageIcon, UserX,
+  ShoppingCart, Video, Upload, X, ImageIcon, UserX, Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -246,9 +247,10 @@ export default function StudioPage() {
   }, [selectedModelId]);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
-  const [bgReplaceBackground, setBgReplaceBackground] = useState("white_studio");
-  const [bgReplaceCustomUrl, setBgReplaceCustomUrl] = useState<string | null>(null);
+  const [bgSelectedBackgrounds, setBgSelectedBackgrounds] = useState<string[]>(["white_studio"]);
+  const [bgCustomItems, setBgCustomItems] = useState<{ id: string; url: string; preview: string }[]>([]);
   const [bgReplaceUploading, setBgReplaceUploading] = useState(false);
+  const [bgReplaceGenerationIds, setBgReplaceGenerationIds] = useState<string[]>([]);
   const [running, setRunning]           = useState(false);
   const [runningMessage, setRunningMessage] = useState("Başlatılıyor...");
   const [generationId, setGenerationId]     = useState<string | null>(null);
@@ -265,8 +267,10 @@ export default function StudioPage() {
   const isNano      = studioMode === "nano";
   const isBgReplace = studioMode === "background";
 
+  const bgTotalSelected = bgSelectedBackgrounds.length + bgCustomItems.length;
+
   const canGenerate = isBgReplace
-    ? !!bgReplaceInputUrl && (bgReplaceBackground !== "custom" || !!bgReplaceCustomUrl)
+    ? !!bgReplaceInputUrl && bgTotalSelected > 0
     : isGhost
     ? !!ghostInputUrl
     : isVideo
@@ -279,7 +283,7 @@ export default function StudioPage() {
     ? !!garmentUrl && batchModelIds.length > 0
     : !!garmentUrl && !!selectedModelId;
 
-  const requiredCredits = isVideo ? 5 : isGhost ? 1 : isBgReplace ? 1 : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
+  const requiredCredits = isVideo ? 5 : isGhost ? 1 : isBgReplace ? bgTotalSelected : isEyewear ? 1 : isBatchMode ? batchModelIds.length * 2 : 2;
   const hasCredits = !user || user.credits_remaining >= requiredCredits;
 
   const handleModeSwitch = (mode: "kiyafet" | "eyewear" | "video" | "ghost" | "nano" | "background") => {
@@ -324,15 +328,18 @@ export default function StudioPage() {
     setRunningMessage("Başlatılıyor...");
     try {
       if (isBgReplace) {
-        setRunningMessage("Arka plan değiştiriliyor...");
-        const result = await backgroundReplaceApi.run(
-          bgReplaceInputUrl!,
-          bgReplaceBackground,
-          bgReplaceBackground === "custom" ? (bgReplaceCustomUrl || "") : "",
+        setRunningMessage(`${bgTotalSelected} arka plan değiştiriliyor...`);
+        const jobs = [
+          ...bgSelectedBackgrounds.map((bg) => ({ background: bg, customUrl: "" })),
+          ...bgCustomItems.map((item) => ({ background: "custom", customUrl: item.url })),
+        ];
+        const results = await Promise.all(
+          jobs.map((job) => backgroundReplaceApi.run(bgReplaceInputUrl!, job.background, job.customUrl))
         );
-        setGenerationId(result.generation_id);
-        toast.success("Arka plan değiştirme başladı!");
-        if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 1 });
+        const ids = results.map((r) => r.generation_id);
+        setBgReplaceGenerationIds(ids);
+        toast.success(`${ids.length} arka plan değiştirme başladı!`);
+        if (user) setUser({ ...user, credits_remaining: user.credits_remaining - ids.length });
         setShowResult(true);
       } else if (isGhost) {
         setRunningMessage("Ghost mannequin hazırlanıyor...");
@@ -394,6 +401,7 @@ export default function StudioPage() {
     setBatchJobId(null);
     setVideoGenerationId(null);
     setGhostGenerationId(null);
+    setBgReplaceGenerationIds([]);
     if (isVideo) setVideoImageUrls([]);
     if (isGhost) setGhostInputUrl(null);
   };
@@ -403,6 +411,16 @@ export default function StudioPage() {
     return (
       <GhostResultPanel
         generationId={ghostGenerationId}
+        onNew={handleNewGeneration}
+      />
+    );
+  }
+
+  /* ── Arka Plan Değiştirme Sonuç Ekranı ── */
+  if (showResult && isBgReplace && bgReplaceGenerationIds.length > 0) {
+    return (
+      <BgReplaceResultPanel
+        generationIds={bgReplaceGenerationIds}
         onNew={handleNewGeneration}
       />
     );
@@ -552,87 +570,120 @@ export default function StudioPage() {
 
             {/* Arka Plan Seçimi */}
             <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-              <div className="px-5 pt-5 pb-1">
+              <div className="px-5 pt-5 pb-1 flex items-center justify-between">
                 <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Arka Plan</p>
+                <span className="text-xs text-[#737373]">
+                  {bgTotalSelected} / 5 seçildi
+                </span>
               </div>
               <div className="p-5 pt-3">
+                {/* Preset grid — çok seçimli */}
                 <div className="grid grid-cols-5 gap-2">
-                  {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => (
-                    <button
-                      key={bg.value}
-                      onClick={() => setBgReplaceBackground(bg.value)}
-                      className={cn(
-                        "flex flex-col items-center gap-1 rounded-xl overflow-hidden border-2 transition-all",
-                        bgReplaceBackground === bg.value
-                          ? "border-[#0f0f0f]"
-                          : "border-transparent hover:border-[#e8e8e8]"
-                      )}
-                    >
-                      {bg.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={bg.image} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
-                      ) : (
-                        <div className="w-full aspect-square bg-[#f3f3f3] rounded-lg flex items-center justify-center">
-                          <ImageIcon className="w-5 h-5 text-[#a3a3a3]" />
-                        </div>
-                      )}
-                      <span className="text-[10px] text-[#737373] pb-1 truncate w-full text-center">{bg.label}</span>
-                    </button>
-                  ))}
-                  {/* Özel arka plan seçeneği */}
-                  <button
-                    onClick={() => setBgReplaceBackground("custom")}
-                    className={cn(
-                      "flex flex-col items-center gap-1 rounded-xl overflow-hidden border-2 transition-all",
-                      bgReplaceBackground === "custom"
-                        ? "border-[#0f0f0f]"
-                        : "border-transparent hover:border-[#e8e8e8]"
-                    )}
-                  >
-                    <div className="w-full aspect-square bg-[#f3f3f3] rounded-lg flex items-center justify-center">
-                      <Upload className="w-5 h-5 text-[#a3a3a3]" />
-                    </div>
-                    <span className="text-[10px] text-[#737373] pb-1">Özel</span>
-                  </button>
+                  {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => {
+                    const isSelected = bgSelectedBackgrounds.includes(bg.value);
+                    const canSelect = isSelected || bgTotalSelected < 5;
+                    return (
+                      <button
+                        key={bg.value}
+                        onClick={() => {
+                          if (isSelected) {
+                            setBgSelectedBackgrounds(prev => prev.filter(b => b !== bg.value));
+                          } else if (canSelect) {
+                            setBgSelectedBackgrounds(prev => [...prev, bg.value]);
+                          }
+                        }}
+                        className={cn(
+                          "relative flex flex-col items-center gap-1 rounded-xl overflow-hidden border-2 transition-all",
+                          isSelected
+                            ? "border-[#0f0f0f]"
+                            : canSelect
+                            ? "border-transparent hover:border-[#e8e8e8]"
+                            : "border-transparent opacity-40 cursor-not-allowed"
+                        )}
+                      >
+                        {/* Seçim işareti */}
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 z-10 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center shadow">
+                            <Check className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        )}
+                        {bg.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={bg.image} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
+                        ) : (
+                          <div className="w-full aspect-square bg-[#f3f3f3] rounded-lg flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-[#a3a3a3]" />
+                          </div>
+                        )}
+                        <span className="text-[10px] text-[#737373] pb-1 truncate w-full text-center">{bg.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Özel arka plan yükleme alanı */}
-                {bgReplaceBackground === "custom" && (
-                  <div className="mt-3">
-                    {bgReplaceCustomUrl ? (
-                      <div className="relative rounded-xl overflow-hidden bg-[#f5f5f5] flex items-center gap-3 p-3">
+                {/* Özel yüklenen arka planlar */}
+                {bgCustomItems.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {bgCustomItems.map((item, i) => (
+                      <div key={item.id} className="relative w-16 h-16 rounded-xl overflow-hidden border-2 border-[#0f0f0f] flex-shrink-0">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={bgReplaceCustomUrl} alt="Özel arka plan" className="w-14 h-14 object-cover rounded-lg" />
-                        <span className="text-xs text-[#737373] flex-1">Özel arka plan yüklendi</span>
-                        <button onClick={() => setBgReplaceCustomUrl(null)} className="p-1 hover:bg-white rounded-lg">
-                          <X className="w-4 h-4 text-[#737373]" />
+                        <img src={item.preview} alt={`Özel ${i + 1}`} className="w-full h-full object-cover" />
+                        <div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center shadow">
+                          <Check className="w-2.5 h-2.5 text-white" />
+                        </div>
+                        <button
+                          onClick={() => setBgCustomItems(prev => prev.filter(c => c.id !== item.id))}
+                          className="absolute bottom-0.5 left-0.5 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center"
+                        >
+                          <X className="w-2.5 h-2.5 text-white" />
                         </button>
                       </div>
-                    ) : (
-                      <label className="flex items-center gap-3 rounded-xl border-2 border-dashed border-[#e5e5e5] bg-[#fafafa] p-4 cursor-pointer hover:border-[#0f0f0f] transition-all">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            try {
-                              const result = await tryonApi.uploadGarment(file);
-                              setBgReplaceCustomUrl(result.url);
-                              toast.success("Özel arka plan yüklendi!");
-                            } catch {
-                              toast.error("Yükleme başarısız");
-                            }
-                          }}
-                        />
+                    ))}
+                  </div>
+                )}
+
+                {/* Özel arka plan yükleme (slot varsa göster) */}
+                {bgTotalSelected < 5 && (
+                  <div className="mt-3">
+                    <label className={cn(
+                      "flex items-center gap-3 rounded-xl border-2 border-dashed border-[#e5e5e5] bg-[#fafafa] p-4 cursor-pointer hover:border-[#0f0f0f] transition-all",
+                      bgReplaceUploading && "opacity-60 pointer-events-none"
+                    )}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (bgTotalSelected >= 5) return;
+                          setBgReplaceUploading(true);
+                          try {
+                            const preview = URL.createObjectURL(file);
+                            const result = await tryonApi.uploadGarment(file);
+                            setBgCustomItems(prev => [...prev, {
+                              id: Date.now().toString(),
+                              url: result.url,
+                              preview,
+                            }]);
+                            toast.success("Özel arka plan eklendi!");
+                          } catch {
+                            toast.error("Yükleme başarısız");
+                          } finally {
+                            setBgReplaceUploading(false);
+                          }
+                        }}
+                      />
+                      {bgReplaceUploading ? (
+                        <div className="w-5 h-5 border-2 border-[#0f0f0f] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                      ) : (
                         <Upload className="w-5 h-5 text-[#a3a3a3] flex-shrink-0" />
-                        <div>
-                          <p className="text-xs font-medium text-[#0f0f0f]">Özel arka plan yükle</p>
-                          <p className="text-xs text-[#a3a3a3]">JPG, PNG, WEBP</p>
-                        </div>
-                      </label>
-                    )}
+                      )}
+                      <div>
+                        <p className="text-xs font-medium text-[#0f0f0f]">Özel arka plan yükle</p>
+                        <p className="text-xs text-[#a3a3a3]">JPG, PNG, WEBP · {5 - bgTotalSelected} slot kaldı</p>
+                      </div>
+                    </label>
                   </div>
                 )}
               </div>
@@ -640,8 +691,8 @@ export default function StudioPage() {
 
             {/* Bilgi kutusu */}
             <div className="bg-[#f8f8f8] rounded-xl px-4 py-3 text-xs text-[#737373]">
-              <p className="font-medium text-[#0f0f0f] mb-1">Arka Plan Değiştirme — 1 kredi</p>
-              <p>Ürün veya model fotoğrafınızın arka planını değiştirin. Özne olduğu gibi korunur.</p>
+              <p className="font-medium text-[#0f0f0f] mb-1">Arka Plan Değiştirme — {bgTotalSelected} kredi</p>
+              <p>Her seçili arka plan için ayrı bir üretim yapılır. Tümü aynı anda işlenir.</p>
             </div>
           </>
         )}
@@ -958,7 +1009,7 @@ export default function StudioPage() {
                     {runningMessage}
                   </>
                 ) : isBgReplace ? (
-                  <><ImageIcon className="w-4 h-4" /> Arka Plan Değiştir — 1 üretim</>
+                  <><ImageIcon className="w-4 h-4" /> Arka Plan Değiştir — {bgTotalSelected} üretim</>
                 ) : isGhost ? (
                   <><UserX className="w-4 h-4" /> Ghost Mannequin — 1 üretim</>
                 ) : isVideo ? (
