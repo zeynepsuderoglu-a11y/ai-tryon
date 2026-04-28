@@ -46,14 +46,12 @@ SUBJECT PRESERVATION — CRITICAL:
 - Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
 - Accessories: keep all visible jewelry, belts, bags exactly as-is
 
-BACKGROUND & LIGHTING INTEGRATION:
-- Environment: {bg_desc} — render it with full three-dimensional depth and natural perspective
-- Lighting: illuminate the subject with the light direction and color temperature appropriate for this setting
-- Shadow: add a soft, realistic contact shadow beneath the subject's feet where they meet the ground
-- The subject must appear physically present — correct scale, natural grounding, no floating effect
-- Subtle ambient light from the environment should softly color the edges of the subject
+BACKGROUND: Replace only what is behind the subject. New setting: {bg_desc}.
+- Render with full three-dimensional depth and natural spatial perspective
+- Add a soft, realistic contact shadow beneath the subject's feet on the ground
+- Subject must appear naturally grounded — no floating, correct scale for the environment
 
-QUALITY: DSLR-quality, sharp focus on subject with natural background depth and bokeh. Photorealistic compositing — indistinguishable from a real on-location photograph. Same crop and framing as the input.
+QUALITY: DSLR-quality, sharp subject, photorealistic depth. Same exact crop and framing as the input.
 
 Output: single photorealistic image."""
 
@@ -68,14 +66,12 @@ SUBJECT PRESERVATION — CRITICAL:
 - Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
 - Accessories: keep all visible jewelry, belts, bags from IMAGE 1 exactly as-is
 
-BACKGROUND & LIGHTING INTEGRATION:
-- Use the exact environment from IMAGE 2 — preserve its three-dimensional depth, perspective, and spatial feel
-- Match the light source direction, color temperature, and intensity from IMAGE 2 — the subject is lit by the same light
-- Add a soft, natural contact shadow beneath the subject where they meet the ground/floor of IMAGE 2
-- The subject must appear physically present in the space — correct scale and perspective relative to IMAGE 2
-- Subtle color spill from IMAGE 2's ambient light onto the edges of the subject
+BACKGROUND: Use the exact environment from IMAGE 2 — only replace what is behind the subject.
+- Preserve the three-dimensional depth and natural perspective from IMAGE 2
+- Add a soft, realistic contact shadow beneath the subject's feet on the floor of IMAGE 2
+- Subject must appear naturally grounded in the space — correct scale, no floating
 
-QUALITY: DSLR-quality photorealistic compositing — indistinguishable from a real photograph taken in that location. Sharp subject, natural depth of field matching IMAGE 2. Same crop and framing as IMAGE 1.
+QUALITY: DSLR-quality, sharp subject, photorealistic. Same exact crop and framing as IMAGE 1.
 
 Output: single professional photograph."""
 
