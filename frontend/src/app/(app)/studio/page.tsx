@@ -476,12 +476,12 @@ export default function StudioPage() {
       <div className="bg-white border-b border-[#e8e8e8] px-5 py-4 flex items-center justify-between sticky top-0 z-30">
         <div className="inline-flex bg-[#f3f3f3] rounded-full p-1 gap-1">
           {[
-            { mode: "kiyafet" as const, label: "Kıyafet",      icon: <Package className="w-3.5 h-3.5" />  },
-            { mode: "nano"    as const, label: "Nano Banana", icon: <Sparkles className="w-3.5 h-3.5" /> },
-            { mode: "eyewear" as const, label: "Gözlük",      icon: <Glasses className="w-3.5 h-3.5" />  },
-            { mode: "video"   as const, label: "Video",       icon: <Video className="w-3.5 h-3.5" />    },
-            { mode: "ghost"      as const, label: "Ghost",       icon: <UserX className="w-3.5 h-3.5" />    },
-            { mode: "background" as const, label: "Arka Plan",   icon: <ImageIcon className="w-3.5 h-3.5" /> },
+            { mode: "kiyafet"    as const, label: "Kıyafet-1", icon: <Package className="w-3.5 h-3.5" />   },
+            { mode: "nano"       as const, label: "Kıyafet-2", icon: <Sparkles className="w-3.5 h-3.5" /> },
+            { mode: "background" as const, label: "Arka Plan", icon: <ImageIcon className="w-3.5 h-3.5" /> },
+            { mode: "ghost"      as const, label: "Ghost",     icon: <UserX className="w-3.5 h-3.5" />    },
+            { mode: "eyewear"    as const, label: "Gözlük",    icon: <Glasses className="w-3.5 h-3.5" />  },
+            { mode: "video"      as const, label: "Video",     icon: <Video className="w-3.5 h-3.5" />    },
           ].map(({ mode, label, icon }) => (
             <button
               key={mode}
