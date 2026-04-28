@@ -28,12 +28,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // Ödeme sonuç sayfaları auth gerektirmez (iyzico redirect sonrası token kaybolabilir)
     if (pathname === "/credits/success" || pathname === "/credits/fail") return;
     if (!isAuthenticated()) { router.push("/login"); return; }
-    if (!user) {
-      authApi.me().then(setUser).catch(() => {
-        clearTokens();
-        router.push("/login");
-      });
-    }
+    authApi.me().then(setUser).catch(() => {
+      clearTokens();
+      router.push("/login");
+    });
   }, [pathname]);
 
   const handleLogout = () => {
