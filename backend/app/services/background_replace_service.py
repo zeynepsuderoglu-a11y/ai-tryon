@@ -40,15 +40,19 @@ BACKGROUND_DESCS = {
 
 _PRESET_PROMPT = """Place the subject from this photo into a new background: {bg_desc}.
 
+COMPOSITION — CRITICAL: The output must show the EXACT SAME portion of the body as the input photo. If the input shows only waist-up, output must also show ONLY waist-up — do NOT add legs, feet, or any body part not visible in the input. Never change zoom level, crop, or framing.
+
 SUBJECT PRESERVATION — CRITICAL:
-- Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression as the original — do NOT alter, smooth, or regenerate the face
+- Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression — do NOT alter, smooth, or regenerate the face
 - Body: same pose, proportions, and position
 - Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
+- Footwear: shoes, sandals, slippers, boots — preserve exactly as seen in the input
 - Accessories: keep all visible jewelry, belts, bags exactly as-is
 
 BACKGROUND: Replace only what is behind the subject. New setting: {bg_desc}.
 - Render with full three-dimensional depth and natural spatial perspective
-- Add a soft, realistic contact shadow beneath the subject's feet on the ground
+- Apply natural lighting consistent with the background environment
+- Add a soft, realistic contact shadow beneath the subject on the ground
 - Subject must appear naturally grounded — no floating, correct scale for the environment
 
 QUALITY: DSLR-quality, sharp subject, photorealistic depth. Same exact crop and framing as the input.
@@ -60,15 +64,19 @@ IMAGE 2: Background scene — target environment.
 
 Place the subject from IMAGE 1 into the background from IMAGE 2.
 
+COMPOSITION — CRITICAL: The output must show the EXACT SAME portion of the body as IMAGE 1. If IMAGE 1 shows only waist-up, output must also show ONLY waist-up — do NOT add legs, feet, or any body part not visible in IMAGE 1. Never change zoom level, crop, or framing.
+
 SUBJECT PRESERVATION — CRITICAL:
 - Face: maintain the same facial features, skin tone, hair color/style, makeup, and expression from IMAGE 1 — do NOT alter or regenerate the face
 - Body: same pose, proportions, and position as IMAGE 1
 - Clothing: reproduce every detail faithfully — fabric texture, color, pattern, drape, fit, neckline, buttons, stitching
+- Footwear: shoes, sandals, slippers, boots — preserve exactly as seen in IMAGE 1
 - Accessories: keep all visible jewelry, belts, bags from IMAGE 1 exactly as-is
 
 BACKGROUND: Use the exact environment from IMAGE 2 — only replace what is behind the subject.
 - Preserve the three-dimensional depth and natural perspective from IMAGE 2
-- Add a soft, realistic contact shadow beneath the subject's feet on the floor of IMAGE 2
+- Apply natural lighting consistent with IMAGE 2 environment
+- Add a soft, realistic contact shadow beneath the subject on the floor of IMAGE 2
 - Subject must appear naturally grounded in the space — correct scale, no floating
 
 QUALITY: DSLR-quality, sharp subject, photorealistic. Same exact crop and framing as IMAGE 1.
