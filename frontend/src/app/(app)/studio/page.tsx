@@ -271,8 +271,13 @@ export default function StudioPage() {
   const isNano      = studioMode === "nano";
   const isBgReplace = studioMode === "background";
 
+  const bgSelectionsValid =
+    bgPhotos.length > 0 &&
+    (bgSelections.length === 1 || bgSelections.length === bgPhotos.length) &&
+    bgSelections.every(s => s.background !== "custom" || !!s.customUrl);
+
   const canGenerate = isBgReplace
-    ? bgPhotos.length > 0 && bgSelections.length === bgPhotos.length && bgSelections.every(s => s.background !== "custom" || !!s.customUrl)
+    ? bgSelectionsValid
     : isGhost
     ? !!ghostInputUrl
     : isVideo
@@ -332,11 +337,14 @@ export default function StudioPage() {
       if (isBgReplace) {
         setRunningMessage(`${bgPhotos.length} fotoğraf işleniyor...`);
         const results = await Promise.all(
-          bgPhotos.map((photo, i) => backgroundReplaceApi.run(
-            photo.url,
-            bgSelections[i].background,
-            bgSelections[i].background === "custom" ? (bgSelections[i].customUrl || "") : "",
-          ))
+          bgPhotos.map((photo, i) => {
+            const sel = bgSelections.length === 1 ? bgSelections[0] : bgSelections[i];
+            return backgroundReplaceApi.run(
+              photo.url,
+              sel.background,
+              sel.background === "custom" ? (sel.customUrl || "") : "",
+            );
+          })
         );
         const ids = results.map((r) => r.generation_id);
         setBgReplaceGenerationIds(ids);
@@ -603,11 +611,25 @@ export default function StudioPage() {
               <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
                 <div className="px-5 pt-5 pb-1 flex items-center justify-between">
                   <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">Arka Plan Seç</p>
-                  <span className="text-xs text-[#737373]">{bgSelections.length}/{bgPhotos.length} seçildi</span>
+                  <span className={cn(
+                    "text-xs font-medium",
+                    bgSelectionsValid ? "text-green-600" : "text-[#737373]"
+                  )}>
+                    {bgSelections.length}/{bgPhotos.length} seçildi
+                    {bgSelections.length === 1 && bgPhotos.length > 1 && " · tüm fotoğraflara"}
+                    {bgSelections.length === bgPhotos.length && bgPhotos.length > 1 && " · her birine ayrı"}
+                  </span>
                 </div>
                 <div className="px-5 pb-1 pt-2">
                   <p className="text-xs text-[#a3a3a3]">
-                    {bgPhotos.length} fotoğraf için sırayla {bgPhotos.length} arka plan seçin — numara fotoğraf sırasıyla eşleşir.
+                    {bgSelections.length === 0
+                      ? `1 arka plan seçin (tüm fotoğraflara) veya ${bgPhotos.length} seçin (her birine ayrı).`
+                      : bgSelections.length === 1
+                      ? `1 arka plan seçildi — ${bgPhotos.length} fotoğrafın hepsine uygulanacak.`
+                      : bgSelections.length === bgPhotos.length
+                      ? "Her fotoğrafa ayrı arka plan — numara fotoğraf sırasıyla eşleşir."
+                      : `${bgPhotos.length} seçim için devam edin veya 1'de kalıp herkese uygulayın.`
+                    }
                   </p>
                 </div>
                 <div className="p-5 pt-3">
