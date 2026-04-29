@@ -211,31 +211,31 @@ export default function LandingPage() {
       </section>
 
       {/* İki Çözüm — Koyu Şerit */}
-      <section className="bg-[#0f0f0f] py-28 px-8">
+      <section className="bg-[#0f0f0f] py-16 px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-4">Çözümlerimiz</p>
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em] text-white">Beş ürün, tek platform</h2>
+          <div className="text-center mb-8">
+            <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-3">Çözümlerimiz</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-[-0.03em] text-white">Beş ürün, tek platform</h2>
           </div>
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
 
             {/* Kıyafet */}
-            <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
-              <div className="flex items-center gap-3 mb-7">
-                <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
-                  <Package className="w-5 h-5 text-[#c9a96e]" />
+            <div className="border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
+                  <Package className="w-4 h-4 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Kıyafet</h3>
+                <h3 className="text-white font-semibold text-base">Kıyafet</h3>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-8">
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
                 Ürün fotoğrafından yapay zeka ile profesyonel manken görseli. Tişörtten elbiseye, monttan pantolona her kategori.
               </p>
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {clothingFeatures.map((f) => (
-                  <div key={f.title} className="flex items-start gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[6px] flex-shrink-0" />
+                  <div key={f.title} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[5px] flex-shrink-0" />
                     <div>
-                      <p className="text-white text-sm font-medium mb-0.5">{f.title}</p>
+                      <p className="text-white text-xs font-medium mb-0.5">{f.title}</p>
                       <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
@@ -244,22 +244,22 @@ export default function LandingPage() {
             </div>
 
             {/* Gözlük */}
-            <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
-              <div className="flex items-center gap-3 mb-7">
-                <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
-                  <Glasses className="w-5 h-5 text-[#c9a96e]" />
+            <div className="border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
+                  <Glasses className="w-4 h-4 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Gözlük</h3>
+                <h3 className="text-white font-semibold text-base">Gözlük</h3>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-8">
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
                 Gözlük ürün fotoğrafından gerçekçi manken görseli. 468 yüz noktası ile matematiksel hizalama, AI gerçekçilik katmanı.
               </p>
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {eyewearFeatures.map((f) => (
-                  <div key={f.title} className="flex items-start gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[6px] flex-shrink-0" />
+                  <div key={f.title} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[5px] flex-shrink-0" />
                     <div>
-                      <p className="text-white text-sm font-medium mb-0.5">{f.title}</p>
+                      <p className="text-white text-xs font-medium mb-0.5">{f.title}</p>
                       <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
@@ -268,22 +268,22 @@ export default function LandingPage() {
             </div>
 
             {/* Video */}
-            <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
-              <div className="flex items-center gap-3 mb-7">
-                <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
-                  <Video className="w-5 h-5 text-[#c9a96e]" />
+            <div className="border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
+                  <Video className="w-4 h-4 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Video Üretimi</h3>
+                <h3 className="text-white font-semibold text-base">Video Üretimi</h3>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-8">
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
                 Ürün fotoğraflarından yapay zeka ile kısa video üretimi. Sosyal medya ve katalog için dakikalar içinde yayına hazır içerik.
               </p>
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {videoFeatures.map((f) => (
-                  <div key={f.title} className="flex items-start gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[6px] flex-shrink-0" />
+                  <div key={f.title} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[5px] flex-shrink-0" />
                     <div>
-                      <p className="text-white text-sm font-medium mb-0.5">{f.title}</p>
+                      <p className="text-white text-xs font-medium mb-0.5">{f.title}</p>
                       <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
@@ -292,22 +292,22 @@ export default function LandingPage() {
             </div>
 
             {/* Ghost Manken */}
-            <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
-              <div className="flex items-center gap-3 mb-7">
-                <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
-                  <UserX className="w-5 h-5 text-[#c9a96e]" />
+            <div className="border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
+                  <UserX className="w-4 h-4 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Ghost Manken</h3>
+                <h3 className="text-white font-semibold text-base">Ghost Manken</h3>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-8">
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
                 Ürün fotoğrafından profesyonel ghost mannequin çekimi. Askıdaki, modeldeki veya düz zemindeki kıyafeti e-ticaret standardına taşıyın.
               </p>
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {ghostFeatures.map((f) => (
-                  <div key={f.title} className="flex items-start gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[6px] flex-shrink-0" />
+                  <div key={f.title} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[5px] flex-shrink-0" />
                     <div>
-                      <p className="text-white text-sm font-medium mb-0.5">{f.title}</p>
+                      <p className="text-white text-xs font-medium mb-0.5">{f.title}</p>
                       <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
@@ -316,26 +316,26 @@ export default function LandingPage() {
             </div>
 
             {/* Arka Plan Değiştirme */}
-            <div className="border border-white/10 rounded-3xl p-8 hover:border-white/20 transition-colors">
-              <div className="flex items-center gap-3 mb-7">
-                <div className="w-11 h-11 rounded-2xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
-                  <ImageIcon className="w-5 h-5 text-[#c9a96e]" />
+            <div className="border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-[#c9a96e]/15 border border-[#c9a96e]/25 flex items-center justify-center">
+                  <ImageIcon className="w-4 h-4 text-[#c9a96e]" />
                 </div>
-                <h3 className="text-white font-semibold text-lg">Arka Plan</h3>
+                <h3 className="text-white font-semibold text-base">Arka Plan</h3>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-8">
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
                 Herhangi bir fotoğrafın arka planını değiştirin. Stüdyo, dış mekan, şehir veya özel görsel — kişi ve kıyafet olduğu gibi korunur.
               </p>
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {[
                   { title: "21 Hazır Arka Plan", desc: "Beyaz stüdyo, kafe, İstanbul, doğa ve daha fazlası — anında seçin ve uygulayın." },
                   { title: "Özel Görsel Desteği", desc: "Kendi arka plan görselinizi yükleyin, yapay zeka sahneye entegre eder." },
                   { title: "Yüz & Kıyafet Koruması", desc: "Arka plan değişirken kişi, kıyafet, aksesuar ve ifade birebir korunur." },
                 ].map((f) => (
-                  <div key={f.title} className="flex items-start gap-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[6px] flex-shrink-0" />
+                  <div key={f.title} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#c9a96e] mt-[5px] flex-shrink-0" />
                     <div>
-                      <p className="text-white text-sm font-medium mb-0.5">{f.title}</p>
+                      <p className="text-white text-xs font-medium mb-0.5">{f.title}</p>
                       <p className="text-white/40 text-xs leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
@@ -348,30 +348,30 @@ export default function LandingPage() {
       </section>
 
       {/* Nasıl Çalışır */}
-      <section className="py-32 px-8 relative overflow-hidden">
+      <section className="py-16 px-8 relative overflow-hidden">
         <DecorativeBg rings={false} />
         <div className="max-w-7xl mx-auto relative">
-          <div className="text-center mb-20">
-            <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-4">Nasıl Çalışır?</p>
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-[-0.03em]">3 adımda görsel, video, ghost & arka plan</h2>
+          <div className="text-center mb-8">
+            <p className="text-xs font-medium text-[#c9a96e] uppercase tracking-[0.25em] mb-3">Nasıl Çalışır?</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-[-0.03em]">3 adımda görsel, video, ghost & arka plan</h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-14">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-8">
             {/* Kıyafet Adımları */}
             <div>
-              <div className="flex items-center gap-2 mb-10">
+              <div className="flex items-center gap-2 mb-5">
                 <Package className="w-4 h-4 text-[#c9a96e]" />
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#0f0f0f]">Kıyafet</p>
               </div>
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {clothingSteps.map((s) => (
-                  <div key={s.num} className="flex gap-6 items-start">
-                    <span className="text-5xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
+                  <div key={s.num} className="flex gap-4 items-start">
+                    <span className="text-3xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
                       {s.num}
                     </span>
-                    <div className="pt-2">
-                      <h4 className="font-semibold text-[#0f0f0f] mb-2">{s.title}</h4>
-                      <p className="text-[#737373] text-sm leading-relaxed">{s.desc}</p>
+                    <div>
+                      <h4 className="font-semibold text-[#0f0f0f] mb-1 text-sm">{s.title}</h4>
+                      <p className="text-[#737373] text-xs leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -380,19 +380,19 @@ export default function LandingPage() {
 
             {/* Gözlük Adımları */}
             <div>
-              <div className="flex items-center gap-2 mb-10">
+              <div className="flex items-center gap-2 mb-5">
                 <Glasses className="w-4 h-4 text-[#c9a96e]" />
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#0f0f0f]">Gözlük</p>
               </div>
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {eyewearSteps.map((s) => (
-                  <div key={s.num} className="flex gap-6 items-start">
-                    <span className="text-5xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
+                  <div key={s.num} className="flex gap-4 items-start">
+                    <span className="text-3xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
                       {s.num}
                     </span>
-                    <div className="pt-2">
-                      <h4 className="font-semibold text-[#0f0f0f] mb-2">{s.title}</h4>
-                      <p className="text-[#737373] text-sm leading-relaxed">{s.desc}</p>
+                    <div>
+                      <h4 className="font-semibold text-[#0f0f0f] mb-1 text-sm">{s.title}</h4>
+                      <p className="text-[#737373] text-xs leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -401,19 +401,19 @@ export default function LandingPage() {
 
             {/* Video Adımları */}
             <div>
-              <div className="flex items-center gap-2 mb-10">
+              <div className="flex items-center gap-2 mb-5">
                 <Video className="w-4 h-4 text-[#c9a96e]" />
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#0f0f0f]">Video</p>
               </div>
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {videoSteps.map((s) => (
-                  <div key={s.num} className="flex gap-6 items-start">
-                    <span className="text-5xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
+                  <div key={s.num} className="flex gap-4 items-start">
+                    <span className="text-3xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
                       {s.num}
                     </span>
-                    <div className="pt-2">
-                      <h4 className="font-semibold text-[#0f0f0f] mb-2">{s.title}</h4>
-                      <p className="text-[#737373] text-sm leading-relaxed">{s.desc}</p>
+                    <div>
+                      <h4 className="font-semibold text-[#0f0f0f] mb-1 text-sm">{s.title}</h4>
+                      <p className="text-[#737373] text-xs leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -422,19 +422,19 @@ export default function LandingPage() {
 
             {/* Ghost Manken Adımları */}
             <div>
-              <div className="flex items-center gap-2 mb-10">
+              <div className="flex items-center gap-2 mb-5">
                 <UserX className="w-4 h-4 text-[#c9a96e]" />
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#0f0f0f]">Ghost Manken</p>
               </div>
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {ghostSteps.map((s) => (
-                  <div key={s.num} className="flex gap-6 items-start">
-                    <span className="text-5xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
+                  <div key={s.num} className="flex gap-4 items-start">
+                    <span className="text-3xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
                       {s.num}
                     </span>
-                    <div className="pt-2">
-                      <h4 className="font-semibold text-[#0f0f0f] mb-2">{s.title}</h4>
-                      <p className="text-[#737373] text-sm leading-relaxed">{s.desc}</p>
+                    <div>
+                      <h4 className="font-semibold text-[#0f0f0f] mb-1 text-sm">{s.title}</h4>
+                      <p className="text-[#737373] text-xs leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -443,19 +443,19 @@ export default function LandingPage() {
 
             {/* Arka Plan Adımları */}
             <div>
-              <div className="flex items-center gap-2 mb-10">
+              <div className="flex items-center gap-2 mb-5">
                 <ImageIcon className="w-4 h-4 text-[#c9a96e]" />
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-[#0f0f0f]">Arka Plan</p>
               </div>
-              <div className="space-y-10">
+              <div className="space-y-6">
                 {backgroundSteps.map((s) => (
-                  <div key={s.num} className="flex gap-6 items-start">
-                    <span className="text-5xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
+                  <div key={s.num} className="flex gap-4 items-start">
+                    <span className="text-3xl font-bold tracking-tighter text-[#efefef] flex-shrink-0 leading-none select-none">
                       {s.num}
                     </span>
-                    <div className="pt-2">
-                      <h4 className="font-semibold text-[#0f0f0f] mb-2">{s.title}</h4>
-                      <p className="text-[#737373] text-sm leading-relaxed">{s.desc}</p>
+                    <div>
+                      <h4 className="font-semibold text-[#0f0f0f] mb-1 text-sm">{s.title}</h4>
+                      <p className="text-[#737373] text-xs leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
                 ))}
