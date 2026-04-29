@@ -19,11 +19,13 @@ class CreditService:
         description: str = "Generation credit usage",
     ) -> User:
         # Atomik UPDATE: hem kontrol hem düşme tek sorguda — race condition yok
+        # synchronize_session=False: ORM session'daki eski değerin commit'te geri yazılmasını engeller
         stmt = (
             update(User)
             .where(User.id == user_id, User.credits_remaining >= amount)
             .values(credits_remaining=User.credits_remaining - amount)
             .returning(User)
+            .execution_options(synchronize_session=False)
         )
         result = await db.execute(stmt)
         user = result.scalar_one_or_none()
