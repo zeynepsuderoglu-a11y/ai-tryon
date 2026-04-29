@@ -49,8 +49,7 @@ async def apply_migrations():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS eyewear_credits INTEGER NOT NULL DEFAULT 0",
         "UPDATE users SET clothing_credits = credits_remaining WHERE clothing_credits = 0 AND credits_remaining > 0",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS video_credits INTEGER NOT NULL DEFAULT 0",
-        # Tek havuz migrasyonu: tüm ayrı kredileri credits_remaining'e topla
-        "UPDATE users SET credits_remaining = clothing_credits + eyewear_credits + video_credits WHERE clothing_credits + eyewear_credits + video_credits > credits_remaining",
+        # Tek havuz migrasyonu zaten uygulandı — her restart'ta çalışmamalı (credits_remaining resetleniyordu)
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS billing_profile JSONB",
         "ALTER TYPE garmentcategory ADD VALUE IF NOT EXISTS 'ghost_mannequin'",
         "ALTER TABLE model_assets ADD COLUMN IF NOT EXISTS tags VARCHAR(100)",
