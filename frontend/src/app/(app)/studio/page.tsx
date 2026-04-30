@@ -378,7 +378,7 @@ export default function StudioPage() {
           background,
         });
         setGenerationId(result.generation_id);
-        toast.success("Nano Banana üretimi başladı!");
+        toast.success("Üretim Başladı!");
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 2 });
         setShowResult(true);
       } else if (isBatchMode) {
