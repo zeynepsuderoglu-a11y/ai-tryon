@@ -154,13 +154,24 @@ class GeminiTryonService:
         logger.info("[gemini-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_running_loop()
-        result_bytes = await loop.run_in_executor(
-            None,
-            _gemini_tryon_sync,
-            model_bytes, model_mime,
-            garment_bytes, garment_mime,
-            prompt,
-        )
+        last_err: Exception | None = None
+        for attempt in range(1, 4):
+            try:
+                result_bytes = await loop.run_in_executor(
+                    None,
+                    _gemini_tryon_sync,
+                    model_bytes, model_mime,
+                    garment_bytes, garment_mime,
+                    prompt,
+                )
+                break
+            except RuntimeError as e:
+                last_err = e
+                logger.warning("[gemini-tryon] Deneme %d başarısız: %s", attempt, e)
+                if attempt < 3:
+                    await asyncio.sleep(2)
+        else:
+            raise last_err
 
         url_result = await loop.run_in_executor(
             None,
