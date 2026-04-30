@@ -35,8 +35,8 @@ async def run_fashn_tryon(
         handler = fal_client.submit(
             "fal-ai/fashn/tryon/v1.5",
             arguments={
-                "model_image_url": model_image_url,
-                "garment_image_url": garment_image_url,
+                "model_image": model_image_url,
+                "garment_image": garment_image_url,
                 "category": category,
                 "mode": mode,
                 "garment_photo_type": "auto",

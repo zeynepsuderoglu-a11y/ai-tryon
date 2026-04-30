@@ -26,13 +26,16 @@ class FashnService:
         segmentation_free: bool = True,
     ) -> dict:
         payload = {
-            "model_image": model_image_url,
-            "garment_image": garment_image_url,
-            "category": category,
-            "mode": mode,
-            "num_samples": num_samples,
-            "garment_photo_type": garment_photo_type,
-            "segmentation_free": segmentation_free,
+            "model_name": "tryon-v1.6",
+            "inputs": {
+                "model_image": model_image_url,
+                "garment_image": garment_image_url,
+                "category": category,
+                "mode": mode,
+                "num_samples": num_samples,
+                "garment_photo_type": garment_photo_type,
+                "segmentation_free": segmentation_free,
+            },
         }
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
