@@ -500,34 +500,145 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 output_urls = [output_url]
 
             else:
-                # ── FASHN v1.6 run_tryon (direkt virtual try-on) ─────────────
-                logger.info("[%s] FASHN v1.6 run_tryon başlıyor", generation_id)
+                # ── FASHN product-to-model + background-removed garment ───────
+                logger.info("[%s] FASHN product-to-model | background=%s body_type=%s",
+                            generation_id, background, body_type)
 
-                # Kategori tespiti
-                analysis = await analyze_garment(garment_url, "auto", garment_detail_urls or [])
-                logger.info("[%s] Garment: %s | category=%s", generation_id, analysis.garment_type, analysis.category)
+                # Kıyafet analizi — 2 geçiş paralel (garment + trend)
+                logger.info("[%s] Garment analysis (2 geçiş paralel) başlıyor", generation_id)
+                aesthetic_override = None if aesthetic == "auto" else aesthetic
+                analysis, trend = await asyncio.gather(
+                    analyze_garment(garment_url, "auto", garment_detail_urls or []),
+                    analyze_trend_styling(garment_url, aesthetic_override),
+                )
+                logger.info("[%s] Garment: %s | category=%s | is_closed=%s",
+                            generation_id, analysis.garment_type, analysis.category,
+                            analysis.is_closed_front)
+                logger.info("[%s] Trend: %s (%s)", generation_id, trend["aesthetic"], trend["reason"])
 
-                # Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme
+                background_desc = BACKGROUND_PROMPTS.get(background, BACKGROUND_PROMPTS["white_studio"])
+
+                # Çerçeve — tam boy veya yarım boy
+                crop_frame = (
+                    "upper body shot from head to mid-thigh, model centered in frame"
+                    if crop_type == "half_body"
+                    else "full body shot, complete figure from top of head to feet, both feet fully visible, model centered, do NOT cut off any part of the body"
+                )
+
+                # ── Garment tipi tespiti ──────────────────────────────────────
+                _gt = analysis.garment_type.lower()
+                _ph = analysis.proportion_hint.lower()
+                _is_jacket = any(k in _gt for k in ("blazer", "jacket", "coat", "ceket", "kaban", "palto", "cardigan", "vest", "yelek"))
+
+                # Açık/kapalı durum — yalnızca gerçek ceket/blazer türü kıyafetlerde kullanılır
+                if _is_jacket:
+                    closure_rule = (
+                        "blazer closed, all buttons fastened"
+                        if analysis.is_closed_front
+                        else "blazer worn open"
+                    )
+                else:
+                    closure_rule = ""
+
+                # ── Garment silhouette locks (proportion_hint'ten otomatik) ──────
+                # FASHN'ın eğitim verisinin kıyafet detaylarını ezmesini engeller.
+                # proportion_hint'te Claude ne gördüyse → FASHN'a kesin kural olarak iletilir.
+                _sleeve_lock = ""
+                _bottom_lock = ""
+
+                # Kol uzunluğu kilidi
+                if "spaghetti" in _gt or ("sleeveless" in _ph and ("strap" in _gt or "tank" in _gt)):
+                    _sleeve_lock = "sleeveless spaghetti-strap — NO sleeves"
+                elif "sleeveless" in _ph or "sleeveless" in _gt:
+                    _sleeve_lock = "sleeveless — do NOT add sleeves"
+                elif ("short" in _ph and "sleeve" in _ph) or "short sleeve" in _gt or "short-sleeve" in _gt:
+                    _sleeve_lock = "SHORT sleeves — do NOT extend to wrist"
+                elif "3/4" in _ph or "mid-forearm" in _ph:
+                    _sleeve_lock = "3/4-length sleeves to mid-forearm — do NOT extend to wrist"
+                # tam kol → kilide gerek yok (varsayılan)
+
+                # Alt parça uzunluğu kilidi (one-pieces + bottoms)
+                if analysis.category in ("one-pieces", "bottoms"):
+                    if "short" in _ph or "shorts" in _gt or "hot pants" in _ph:
+                        _bottom_lock = "SHORT shorts ending at mid-thigh — NOT long pants"
+                    elif any(k in _ph for k in ("palazzo", "wide-leg", "wide leg", "culotte")):
+                        _bottom_lock = "WIDE-LEG palazzo pants — do NOT narrow or taper the leg"
+                    elif "maxi" in _ph or ("floor" in _ph and "length" in _ph):
+                        _bottom_lock = "maxi-length to floor — do NOT shorten"
+                    elif "midi" in _ph:
+                        _bottom_lock = "midi-length — do NOT shorten to mini"
+                    elif "ankle" in _ph or ("full" in _ph and "length" in _ph and "pant" in _ph):
+                        _bottom_lock = "full-length pants to ankle — do NOT shorten"
+
+                # Kilitleri birleştir (boş olanlar atlanır)
+                _locks = ", ".join(x for x in [_sleeve_lock, _bottom_lock] if x)
+
+                logger.info("[%s] Garment locks: sleeve=%r bottom=%r",
+                            generation_id, _sleeve_lock or "none", _bottom_lock or "none")
+
+                # ── Kombin tamamlama ──────────────────────────────────────────
+                if analysis.category == "tops":
+                    if _is_jacket and not analysis.is_closed_front:
+                        outfit_completion = (
+                            f"slim straight trousers (not leggings), "
+                            f"white inner top visible at neckline, {analysis.footwear}"
+                        )
+                    elif _is_jacket and analysis.is_closed_front:
+                        outfit_completion = (
+                            f"slim straight trousers (not leggings), {analysis.footwear}"
+                        )
+                    else:
+                        outfit_completion = (
+                            f"slim straight trousers or skirt (not leggings), {analysis.footwear}"
+                        )
+                elif analysis.category == "bottoms":
+                    outfit_completion = f"fitted top, {analysis.footwear}"
+                else:
+                    outfit_completion = f"{analysis.footwear}"
+
+                accessories_note = (
+                    "minimal accessories"
+                    if trend["aesthetic"] == "with_accessories"
+                    else "no accessories"
+                )
+
+                # critical_detail: detay fotoğrafı yüklendiğinde FASHN prompt'una eklenir
+                detail_note = ""
+                if garment_detail_urls and analysis.critical_detail:
+                    detail_note = f", {analysis.critical_detail}"
+                    logger.info("[%s] critical_detail eklendi: %s", generation_id, analysis.critical_detail)
+
+                base_prompt = (
+                    f"{closure_rule + ', ' if closure_rule else ''}"
+                    f"{_locks + ', ' if _locks else ''}"
+                    f"{outfit_completion}, {accessories_note}, "
+                    f"single model only, preserve pose, {crop_frame}, {background_desc}, "
+                    f"photorealistic{detail_note}"
+                )
+
+                # ── Ürün fotoğrafı ön işleme: iç yaka etiketi temizleme ─────
                 logger.info("[%s] Garment preprocessing başlıyor", generation_id)
                 garment_url_clean = await clean_garment_image(garment_url)
                 if garment_url_clean != garment_url:
                     logger.info("[%s] Etiket temizlendi, temiz URL kullanılıyor", generation_id)
 
                 # ── FASHN.ai → fallback: fal.ai FASHN VTON ──────────────────
-                logger.info("[%s] FASHN v1.6 çağrısı yapılıyor | category=%s", generation_id, analysis.category)
+                logger.info("[%s] FASHN çağrısı yapılıyor", generation_id)
+                logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
 
                 try:
-                    run_result = await fashn_service.run_tryon(
-                        model_image_url=model_image_url,
-                        garment_image_url=garment_url_clean,
-                        category=analysis.category,
-                        mode="quality",
-                        garment_photo_type=analysis.photo_type if analysis.photo_type in ("flat-lay", "model") else "auto",
-                        segmentation_free=True,
+                    _fashn_aspect = "2:3" if crop_type == "full_body" else "3:4"
+                    run_result = await fashn_service.run_product_to_model(
+                        product_image_url=garment_url_clean,
+                        model_image_url=_cloudinary_crop_3x4(model_image_url),
+                        prompt=base_prompt,
+                        resolution="1k",
+                        aspect_ratio=_fashn_aspect,
+                        num_images=1,
                     )
                     prediction_id = run_result.get("id")
                     if not prediction_id:
-                        raise RuntimeError(f"FASHN run_tryon prediction id gelmedi: {run_result}")
+                        raise RuntimeError(f"FASHN product-to-model prediction id gelmedi: {run_result}")
 
                     final = await fashn_service.poll_until_complete(prediction_id)
                     raw_output = final.get("output", [])
@@ -535,7 +646,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     output_urls = output_urls[:1]
 
                     if not output_urls:
-                        raise RuntimeError("FASHN run_tryon boş çıktı döndürdü")
+                        raise RuntimeError("FASHN product-to-model boş çıktı döndürdü")
 
                     logger.info("[%s] FASHN.ai tamamlandı", generation_id)
 
@@ -564,9 +675,12 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 logger.info("[%s] FASHN tamamlandı, kullanıcıya gösterilecek", generation_id)
 
+                # Hafıza verisi — üretim metadatası DB'ye kaydedilecek
                 _generation_metadata = {
                     "garment_type": analysis.garment_type,
                     "category": analysis.category,
+                    "trend": trend.get("aesthetic"),
+                    "is_closed_front": analysis.is_closed_front,
                 }
 
 
