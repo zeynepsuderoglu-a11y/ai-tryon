@@ -38,64 +38,14 @@ def _build_tryon_prompt(
     background_desc: str,
     crop_frame: str,
 ) -> str:
-    lines = [
-        "IMAGE 1: Garment product photo — the clothing to place on the model.",
-        "IMAGE 2: Fashion model — use this person's appearance, pose, and styling as the base.",
-        "",
-        f"TASK: Create a fashion photo showing the model from IMAGE 2 wearing the {garment_type} from IMAGE 1.",
-        "Keep the model's overall appearance consistent with IMAGE 2.",
-        "",
-        "MODEL CONSISTENCY (from IMAGE 2):",
-        "- Maintain the same general appearance, hair color/style, and skin tone as IMAGE 2.",
-        "- Keep the same natural standing pose and body orientation.",
-        "- Maintain consistent facial features and natural expression.",
-        "",
-        "FOOTWEAR — CRITICAL RULE:",
-        "- Look carefully at IMAGE 2 and identify the exact shoes the model is wearing.",
-        "- Those shoes must appear in the output UNCHANGED — same style, color, material, and sole.",
-        "- Do NOT swap, remove, or replace footwear. Do NOT make the model barefoot if she has shoes in IMAGE 2.",
-        "- If model is barefoot in IMAGE 2, keep barefoot in output.",
-        "",
-        "ACCESSORIES (from IMAGE 2):",
-        "- Keep any visible jewelry, belts, or other accessories from IMAGE 2.",
-        "- Do NOT add or remove accessories.",
-        "",
-        f"GARMENT (from IMAGE 1 — {garment_type}):",
-        "- Reproduce the garment from IMAGE 1 faithfully on the model's body.",
-        "- Preserve all garment details exactly:",
-        "  • Neckline shape and construction (must match IMAGE 1 — no simplification)",
-        "  • Collar, stitching, and seam details",
-        "  • Fabric texture, weight, drape, and color",
-        "  • Button/closure count and placement",
-        "  • Sleeve length and cuff style",
-        "  • Hem, trim, and any piping",
-        "  • Pattern and print accuracy",
-    ]
-    if critical_detail:
-        lines.append(f"- {critical_detail}")
-    if sleeve_lock:
-        lines.append(f"- Sleeve: {sleeve_lock}")
-    if bottom_lock:
-        lines.append(f"- Bottom: {bottom_lock}")
-    lines += [
-        f"- Silhouette: {proportion_hint}",
-        f"- Details: {texture_prompt}",
-        "",
-        "BACKGROUND — MANDATORY CHANGE:",
-        f"- Replace the background completely with: {background_desc}",
-        "- Do NOT keep the original background from IMAGE 2.",
-        "- The model must appear in the new background, not her original setting.",
-        "",
-        "COMPOSITION & QUALITY:",
-        f"- {crop_frame}",
-        "- Centered framing, clothing as visual priority.",
-        "- Photorealistic, DSLR quality — 85mm lens, f/2.8, soft natural light.",
-        "- Sharp garment details, no AI artifacts.",
-        "",
-        "Do NOT alter the garment design, color, pattern, neckline, or sleeve length from IMAGE 1.",
-        "Do NOT change or remove footwear from IMAGE 2.",
-    ]
-    return "\n".join(lines)
+    return f"""IMAGE 1: Garment product photo — the clothing to dress on the model.
+IMAGE 2: Fashion model photo.
+
+Dress the model from IMAGE 2 in the exact garment shown in IMAGE 1.
+Preserve every detail of the garment exactly as shown in IMAGE 1: fabric, color, pattern, neckline, sleeve length, buttons, and trim.
+Keep the model's appearance, pose, hair, and footwear from IMAGE 2 unchanged.
+Replace the background with: {background_desc}
+Output a single photorealistic fashion photo."""
 
 
 def _gemini_tryon_sync(
