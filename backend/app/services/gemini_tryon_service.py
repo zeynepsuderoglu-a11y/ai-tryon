@@ -40,7 +40,7 @@ def _build_tryon_prompt(
 ) -> str:
     detail_line = f"\nCRITICAL — reproduce EXACTLY these garment details: {critical_detail}" if critical_detail else ""
     if background_desc.startswith("keep the original"):
-        bg_line = "Do NOT change the background — keep it exactly as it appears in IMAGE 2."
+        bg_line = "Only change the clothing — keep the background, room, furniture, lighting, and everything else in IMAGE 2 completely identical."
     else:
         bg_line = f"Replace the background with: {background_desc}"
     return f"""IMAGE 1: Garment product photo — the clothing to put on the model.
