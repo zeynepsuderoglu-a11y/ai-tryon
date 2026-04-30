@@ -38,7 +38,11 @@ def _build_tryon_prompt(
     background_desc: str,
     crop_frame: str,
 ) -> str:
-    detail_line = f"\nPay special attention to these garment details: {critical_detail}" if critical_detail else ""
+    detail_line = f"\nCRITICAL — reproduce EXACTLY these garment details: {critical_detail}" if critical_detail else ""
+    if background_desc.startswith("keep the original"):
+        bg_line = "Do NOT change the background — keep it exactly as it appears in IMAGE 2."
+    else:
+        bg_line = f"Replace the background with: {background_desc}"
     return f"""IMAGE 1: Garment product photo — the clothing to put on the model.
 IMAGE 2: Fashion model photo — base person.
 
@@ -46,7 +50,7 @@ Take the model from IMAGE 2 and dress them in the exact garment from IMAGE 1.
 The model's current clothing in IMAGE 2 must be completely replaced by the garment in IMAGE 1.
 Copy every detail from IMAGE 1's garment precisely: color, fabric, pattern, neckline, sleeve length, buttons, and trim — do not change any of these.{detail_line}
 Keep the model's appearance, pose, hair style, and footwear from IMAGE 2 unchanged.
-Background: {background_desc}
+{bg_line}
 Output a single photorealistic fashion photo."""
 
 
