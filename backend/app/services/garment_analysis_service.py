@@ -383,7 +383,7 @@ async def verify_garment_details(garment_url: str) -> dict:
 
         client = _get_async_client()
         message = await client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=1024,
             messages=[{
                 "role": "user",
@@ -660,7 +660,7 @@ async def analyze_garment(garment_url: str, category: str = "tops", detail_urls:
         logger.info("analyze_garment: Claude'a gönderiliyor (ana+%d detay)", len(detail_images))
         client = _get_async_client()
         message = await client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=1200,
             messages=[
                 {
@@ -693,7 +693,7 @@ def analyze_garment_sync(garment_url: str, category: str = "tops") -> GarmentAna
 
         client = _get_sync_client()
         message = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=1024,
             messages=[
                 {
@@ -758,7 +758,7 @@ async def check_generation_quality(product_url: str, result_url: str) -> dict:
     try:
         client = _get_async_client()
         msg = await client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-opus-4-6",
             max_tokens=512,
             messages=[{
                 "role": "user",
