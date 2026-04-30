@@ -38,13 +38,14 @@ def _build_tryon_prompt(
     background_desc: str,
     crop_frame: str,
 ) -> str:
-    return f"""IMAGE 1: Garment product photo — the clothing to dress on the model.
-IMAGE 2: Fashion model photo.
+    return f"""IMAGE 1: Garment product photo — the clothing to put on the model.
+IMAGE 2: Fashion model photo — base person.
 
-Dress the model from IMAGE 2 in the exact garment shown in IMAGE 1.
-Preserve every detail of the garment exactly as shown in IMAGE 1: fabric, color, pattern, neckline, sleeve length, buttons, and trim.
-Keep the model's appearance, pose, hair, and footwear from IMAGE 2 unchanged.
-Replace the background with: {background_desc}
+Take the model from IMAGE 2 and dress them in the exact garment from IMAGE 1.
+The model's current clothing in IMAGE 2 must be completely replaced by the garment in IMAGE 1.
+Copy every detail from IMAGE 1's garment precisely: color, fabric, pattern, neckline, sleeve length, buttons, and trim — do not change any of these.
+Keep the model's face, hair, pose, and footwear from IMAGE 2.
+Background: {background_desc}
 Output a single photorealistic fashion photo."""
 
 
