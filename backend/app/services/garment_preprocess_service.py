@@ -231,9 +231,10 @@ async def split_composite_if_needed(image_url: str) -> str:
         w, h = img.size
         logger.info("[composite] Görsel boyutu: %dx%d (w/h=%.2f)", w, h, w / h if h else 0)
 
-        # 3:4 portrait bekliyoruz (w/h ≈ 0.75). 0.85'ten geniş ise composite sayılır.
-        if w <= h * 0.85:
-            return image_url  # normal portrait, composite değil
+        # Gerçek composite (yan yana 2 görsel) ≈ 2:1 oranındadır.
+        # 1.6'dan geniş değilse (kare, portrait, landscape) doğrudan döndür.
+        if w <= h * 1.6:
+            return image_url  # normal görsel, composite değil
 
         logger.info("[composite] Geniş çıktı tespit edildi (%dx%d, w/h=%.2f) — sol yarı crop ediliyor", w, h, w / h)
         half_w = w // 2
