@@ -44,7 +44,7 @@ IMAGE 2: Fashion model photo — base person.
 Take the model from IMAGE 2 and dress them in the exact garment from IMAGE 1.
 The model's current clothing in IMAGE 2 must be completely replaced by the garment in IMAGE 1.
 Copy every detail from IMAGE 1's garment precisely: color, fabric, pattern, neckline, sleeve length, buttons, and trim — do not change any of these.
-Keep the model's face, hair, pose, and footwear from IMAGE 2.
+Keep the model's appearance, pose, hair style, and footwear from IMAGE 2 unchanged.
 Background: {background_desc}
 Output a single photorealistic fashion photo."""
 
