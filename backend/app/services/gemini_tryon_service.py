@@ -37,19 +37,12 @@ def _build_tryon_prompt(
     bottom_lock: str,
     background_desc: str,
     crop_frame: str,
-    category: str = "tops",
 ) -> str:
-    is_set = category == "one-pieces"
-    task_line = (
-        f"TASK: Create a fashion photo showing the model from IMAGE 2 wearing the COMPLETE OUTFIT (top AND bottom) from IMAGE 1."
-        if is_set else
-        f"TASK: Create a fashion photo showing the model from IMAGE 2 wearing the {garment_type} from IMAGE 1."
-    )
     lines = [
         "IMAGE 1: Garment product photo — the clothing to place on the model.",
         "IMAGE 2: Fashion model — use this person's appearance, pose, and styling as the base.",
         "",
-        task_line,
+        f"TASK: Create a fashion photo showing the model from IMAGE 2 wearing the {garment_type} from IMAGE 1.",
         "Keep the model's overall appearance consistent with IMAGE 2.",
         "",
         "MODEL CONSISTENCY (from IMAGE 2):",
@@ -68,13 +61,6 @@ def _build_tryon_prompt(
         "- Do NOT add or remove accessories.",
         "",
         f"GARMENT (from IMAGE 1 — {garment_type}):",
-        *(
-            [
-                "- IMAGE 1 shows a matching top AND bottom/shorts as a coordinated set. Look carefully at both pieces and dress the model in both.",
-                "- The model's current bottom (pants, shorts, or skirt) must be replaced with the bottom piece from IMAGE 1.",
-            ]
-            if is_set else []
-        ),
         "- Reproduce the garment from IMAGE 1 faithfully on the model's body.",
         "- Preserve all garment details exactly:",
         "  • Neckline shape and construction (must match IMAGE 1 — no simplification)",
@@ -178,7 +164,6 @@ class GeminiTryonService:
         bottom_lock: str,
         background: str,
         crop_frame: str,
-        category: str = "tops",
     ) -> str:
         """
         Manken URL + Ürün URL → try-on Cloudinary URL
@@ -208,7 +193,6 @@ class GeminiTryonService:
             bottom_lock=bottom_lock,
             background_desc=background_desc,
             crop_frame=crop_frame,
-            category=category,
         )
 
         logger.info("[gemini-tryon] Prompt:\n%s", prompt)
