@@ -68,7 +68,7 @@ CRITICAL RULES:
 - texture_prompt must be generation-ready: short, dense with visual keywords, no filler words.
 - Never skip hardware (zippers, buttons, buckles) — they define the garment's character.
 - If the image shows BOTH a top and bottom garment as a coordinated matching set (tracksuit, co-ord, suit set, pajama set), ALWAYS use category "one-pieces" so the full outfit is shown from head to toe.
-- CRITICAL — SEPARATE HANGERS / SIDE-BY-SIDE PHOTOS: If the image shows two garment pieces photographed separately (e.g. a top on one hanger and pants/skirt on another hanger, hanging side by side or on a door/wall), AND the two pieces share the same fabric, color, and clearly form a matching set — treat them as a SINGLE "one-pieces" coordinated set. Describe BOTH pieces together as a complete outfit. Do NOT analyze only the top piece.
+- CRITICAL — SEPARATE HANGERS / STACKED OR SIDE-BY-SIDE PHOTOS: If the image shows two garment pieces photographed separately — whether hanging side by side OR stacked vertically (top piece on one hanger above, bottom piece on a second hanger below) — AND the two pieces share the same fabric, color, and clearly form a matching set — treat them as a SINGLE "one-pieces" coordinated set. Describe BOTH pieces together as a complete outfit. Do NOT analyze only the top piece.
 - In proportion_hint for two-piece sets, describe BOTH the top length AND the pants/skirt length explicitly.
 - ALWAYS describe sleeve length relative to the arm: full-length (wrist), 3/4 (mid-forearm), elbow, short (mid-bicep), cap. Never omit this — it anchors arm-to-body ratio in generation."""
 

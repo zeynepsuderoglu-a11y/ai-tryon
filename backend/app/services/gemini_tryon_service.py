@@ -70,8 +70,8 @@ def _build_tryon_prompt(
         f"GARMENT (from IMAGE 1 — {garment_type}):",
         *(
             [
-                "- CRITICAL: This is a TWO-PIECE SET (top + bottom). You MUST replace BOTH the top AND the bottom the model is currently wearing.",
-                "- Do NOT keep the model's original pants, shorts, or skirt. Replace the entire outfit.",
+                "- IMAGE 1 shows a matching top AND bottom/shorts as a coordinated set. Look carefully at both pieces and dress the model in both.",
+                "- The model's current bottom (pants, shorts, or skirt) must be replaced with the bottom piece from IMAGE 1.",
             ]
             if is_set else []
         ),
