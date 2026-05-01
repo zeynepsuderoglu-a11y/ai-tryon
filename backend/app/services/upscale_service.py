@@ -63,6 +63,7 @@ def upscale_pil(img: "PIL.Image.Image") -> "PIL.Image.Image":
 
 
 def _lanczos(img: "PIL.Image.Image") -> "PIL.Image.Image":
-    from PIL import Image
+    from PIL import Image, ImageFilter
     w, h = img.size
-    return img.resize((w * 4, h * 4), Image.LANCZOS)
+    img_up = img.resize((w * 4, h * 4), Image.LANCZOS)
+    return img_up.filter(ImageFilter.UnsharpMask(radius=1.5, percent=150, threshold=3))
