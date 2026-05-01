@@ -94,12 +94,12 @@ def _gemini_tryon_sync(
         if part.inline_data is not None:
             logger.info("[gemini-tryon] Gemini görsel çıktısı alındı, 4x upscale başlıyor")
             from PIL import Image as PILImage
+            from app.services.upscale_service import upscale_pil
             img = PILImage.open(io.BytesIO(part.inline_data.data)).convert("RGB")
-            w, h = img.size
-            img_up = img.resize((w * 4, h * 4), PILImage.LANCZOS)
+            img_up = upscale_pil(img)
             out = io.BytesIO()
             img_up.save(out, format="JPEG", quality=97)
-            logger.info("[gemini-tryon] Upscale tamamlandı: %dx%d → %dx%d", w, h, w * 4, h * 4)
+            logger.info("[gemini-tryon] Upscale tamamlandı")
             return out.getvalue()
 
     raise RuntimeError(f"Gemini görsel üretemedi (finish_reason={finish_reason}): " + str(getattr(response, "text", "")))

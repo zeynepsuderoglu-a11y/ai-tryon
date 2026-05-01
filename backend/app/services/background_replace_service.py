@@ -104,12 +104,12 @@ def _background_replace_sync(
             if part.inline_data is not None:
                 logger.info("[bg-replace] Gemini görsel çıktısı alındı, 4x upscale başlıyor")
                 from PIL import Image
+                from app.services.upscale_service import upscale_pil
                 img = Image.open(io.BytesIO(part.inline_data.data)).convert("RGB")
-                w, h = img.size
-                img_up = img.resize((w * 4, h * 4), Image.LANCZOS)
+                img_up = upscale_pil(img)
                 out = io.BytesIO()
                 img_up.save(out, format="JPEG", quality=95)
-                logger.info("[bg-replace] Upscale tamamlandı: %dx%d → %dx%d", w, h, w * 4, h * 4)
+                logger.info("[bg-replace] Upscale tamamlandı")
                 return out.getvalue()
 
         logger.warning("[bg-replace] attempt=%d görsel part bulunamadı", attempt)

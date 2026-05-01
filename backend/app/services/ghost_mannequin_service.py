@@ -88,15 +88,15 @@ def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg", gar
         if part.inline_data is not None:
             logger.info("[ghost] Gemini görsel çıktısı alındı, 4x upscale başlıyor")
             from PIL import Image
+            from app.services.upscale_service import upscale_pil
             img = Image.open(io.BytesIO(part.inline_data.data)).convert("RGBA")
-            w, h = img.size
-            img_up = img.resize((w * 4, h * 4), Image.LANCZOS)
+            img_up = upscale_pil(img)
             # Beyaz arka plan üzerine yapıştır, PNG olarak kaydet (lossless)
             bg = Image.new("RGBA", img_up.size, (255, 255, 255, 255))
             bg.paste(img_up, mask=img_up.split()[3])
             out = io.BytesIO()
             bg.convert("RGB").save(out, format="PNG", optimize=False)
-            logger.info("[ghost] Upscale tamamlandı: %dx%d → %dx%d", w, h, w * 4, h * 4)
+            logger.info("[ghost] Upscale tamamlandı")
             return out.getvalue()
 
     raise RuntimeError("Gemini görsel üretemedi: " + str(response.text if hasattr(response, "text") else ""))
