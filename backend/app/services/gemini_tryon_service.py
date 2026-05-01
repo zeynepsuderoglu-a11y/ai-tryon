@@ -81,14 +81,14 @@ def _gemini_tryon_sync(
     )
 
     if not response.candidates:
-        raise RuntimeError("Gemini yanıt vermedi: candidates boş")
+        raise RuntimeError("Görsel üretilemedi, lütfen tekrar deneyin")
 
     candidate = response.candidates[0]
     finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
     logger.info("[gemini-tryon] finish_reason=%s", finish_reason)
 
     if candidate.content is None:
-        raise RuntimeError(f"Gemini içerik üretemedi (finish_reason={finish_reason})")
+        raise RuntimeError("Görsel üretilemedi, lütfen farklı bir fotoğraf ile tekrar deneyin")
 
     for part in candidate.content.parts:
         if part.inline_data is not None:
@@ -102,7 +102,7 @@ def _gemini_tryon_sync(
             logger.info("[gemini-tryon] Upscale tamamlandı")
             return out.getvalue()
 
-    raise RuntimeError(f"Gemini görsel üretemedi (finish_reason={finish_reason}): " + str(getattr(response, "text", "")))
+    raise RuntimeError("Görsel üretilemedi, lütfen farklı bir fotoğraf ile tekrar deneyin")
 
 
 class GeminiTryonService:

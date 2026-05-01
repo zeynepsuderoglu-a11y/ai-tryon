@@ -114,7 +114,7 @@ def _background_replace_sync(
 
         logger.warning("[bg-replace] attempt=%d görsel part bulunamadı", attempt)
 
-    raise RuntimeError("Gemini görsel üretemedi — lütfen farklı bir fotoğraf ile tekrar deneyin")
+    raise RuntimeError("Görsel üretilemedi, lütfen farklı bir fotoğraf ile tekrar deneyin")
 
 
 class BackgroundReplaceService:

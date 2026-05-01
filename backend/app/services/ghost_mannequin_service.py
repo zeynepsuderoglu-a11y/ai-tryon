@@ -99,7 +99,7 @@ def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg", gar
             logger.info("[ghost] Upscale tamamlandı")
             return out.getvalue()
 
-    raise RuntimeError("Gemini görsel üretemedi: " + str(response.text if hasattr(response, "text") else ""))
+    raise RuntimeError("Görsel üretilemedi, lütfen farklı bir fotoğraf ile tekrar deneyin")
 
 
 class GhostMannequinService:
