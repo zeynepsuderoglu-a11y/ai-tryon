@@ -40,18 +40,15 @@ def _build_tryon_prompt(
 ) -> str:
     detail_line = f"\nReproduce EXACTLY: {critical_detail}" if critical_detail else ""
     if background_desc.startswith("keep the original"):
-        bg_line = "Keep the setting, background, lighting, and environment from IMAGE 2 exactly as is."
+        bg_line = "Keep the original background from IMAGE 2."
     else:
-        bg_line = f"IMPORTANT — Replace the background completely with: {background_desc}. Remove the original background entirely."
+        bg_line = f"Background: {background_desc}"
     return f"""IMAGE 1: Fashion garment.
 IMAGE 2: Fashion model.
 
-Produce a fashion editorial photo of the model from IMAGE 2 styled in the garment from IMAGE 1.
-Match every detail of the garment in IMAGE 1 exactly: color, fabric, pattern, neckline, sleeve length, buttons, and trim.{detail_line}
-Preserve the model's exact body type, size, and figure from IMAGE 2 — including plus-size or curvy proportions. Do NOT slim down, reshape, or alter the body in any way.
-Preserve the model's styling, pose, hair, makeup, and footwear from IMAGE 2.
+Dress the model from IMAGE 2 in the garment from IMAGE 1. Preserve the model's appearance, pose, and proportions exactly.
 {bg_line}
-Output one fashion editorial photo."""
+Output one photorealistic fashion photo."""
 
 
 def _gemini_tryon_sync(
