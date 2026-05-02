@@ -250,6 +250,7 @@ export default function StudioPage() {
   }, [selectedModelId]);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
+  const [garmentCategory, setGarmentCategory] = useState("tops");
   const [bgPhotos, setBgPhotos] = useState<BgPhoto[]>([]);
   const [bgSelections, setBgSelections] = useState<BgSelection[]>([]);
   const [bgPhotosUploading, setBgPhotosUploading] = useState(false);
@@ -390,7 +391,7 @@ export default function StudioPage() {
       } else {
         const result = await tryonApi.run({
           garment_url: garmentUrl!, model_asset_id: selectedModelId!,
-          body_type: bodyType, provider: "fashn", background, aesthetic,
+          category: garmentCategory, body_type: bodyType, provider: "fashn", background, aesthetic,
           ...(garmentDetailUrls.length > 0 ? { garment_detail_urls: garmentDetailUrls } : {}),
         });
         setGenerationId(result.generation_id);
@@ -912,6 +913,36 @@ export default function StudioPage() {
             </div>
             <div className="p-5 pt-3 space-y-6">
 
+              {/* Kıyafet Kategorisi — sadece Kıyafet-1 */}
+              {!isNano && (
+                <div>
+                  <label className="block text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Kıyafet Kategorisi</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: "tops",       label: "Üst Parça",    desc: "Gömlek, bluz, ceket..." },
+                      { value: "bottoms",    label: "Alt Parça",    desc: "Pantolon, etek..."      },
+                      { value: "one-pieces", label: "Elbise / Set", desc: "Elbise, tulum, takım"   },
+                    ].map((cat) => (
+                      <button
+                        key={cat.value}
+                        onClick={() => setGarmentCategory(cat.value)}
+                        className={cn(
+                          "flex flex-col items-start gap-0.5 p-3 rounded-xl border text-left transition-all",
+                          garmentCategory === cat.value
+                            ? "border-[#0f0f0f] bg-[#0f0f0f] text-white"
+                            : "border-[#e8e8e8] bg-white text-[#0f0f0f] hover:border-[#0f0f0f]"
+                        )}
+                      >
+                        <span className="text-xs font-semibold">{cat.label}</span>
+                        <span className={cn("text-[10px]", garmentCategory === cat.value ? "text-white/50" : "text-[#a3a3a3]")}>
+                          {cat.desc}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Trend Estetiği */}
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">
@@ -968,26 +999,37 @@ export default function StudioPage() {
                 </div>
               </div>
 
-              {/* Manken Tipi */}
-              <div>
-                <label className="block text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Manken Tipi</label>
-                <div className="flex gap-2">
-                  {[{ value: "standard", label: "Standart" }, { value: "plus", label: "Büyük Beden" }].map((bt) => (
-                    <button
-                      key={bt.value}
-                      onClick={() => setBodyType(bt.value)}
-                      className={cn(
-                        "flex-1 py-2.5 rounded-full text-xs font-medium border transition-all",
-                        bodyType === bt.value
-                          ? "bg-[#0f0f0f] text-white border-[#0f0f0f]"
-                          : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#0f0f0f] hover:text-[#0f0f0f]"
-                      )}
-                    >
-                      {bt.label}
-                    </button>
-                  ))}
+              {/* Manken Tipi — Nano modda gösterilmez */}
+              {!isNano && (
+                <div>
+                  <label className="block text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Manken Tipi</label>
+                  <div className="flex gap-2">
+                    {[{ value: "standard", label: "Standart" }, { value: "plus", label: "Büyük Beden" }].map((bt) => (
+                      <button
+                        key={bt.value}
+                        onClick={() => setBodyType(bt.value)}
+                        className={cn(
+                          "flex-1 py-2.5 rounded-full text-xs font-medium border transition-all",
+                          bodyType === bt.value
+                            ? "bg-[#0f0f0f] text-white border-[#0f0f0f]"
+                            : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#0f0f0f] hover:text-[#0f0f0f]"
+                        )}
+                      >
+                        {bt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+              {isNano && (
+                <div className="bg-[#fff8ec] border border-[#f5d48a] rounded-xl px-4 py-3">
+                  <p className="text-xs font-semibold text-[#a07020] mb-1">Kıyafet-2 Bilgisi</p>
+                  <p className="text-xs text-[#b08030] leading-relaxed">
+                    Büyük beden çalışmaları için <strong>Kıyafet-1</strong> sekmesini kullanın.
+                    Kıyafet-2, standart beden mankenlerle optimize edilmiştir.
+                  </p>
+                </div>
+              )}
 
             </div>
           </div>
