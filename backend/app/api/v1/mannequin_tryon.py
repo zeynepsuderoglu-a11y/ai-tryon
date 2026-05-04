@@ -41,7 +41,7 @@ def _compute_locks(proportion_hint: str, garment_type: str, category: str) -> tu
         sleeve_lock = "sleeveless spaghetti-strap — NO sleeves"
     elif "sleeveless" in _ph or "sleeveless" in _gt:
         sleeve_lock = "sleeveless — do NOT add sleeves"
-    elif ("short" in _ph and "sleeve" in _ph) or "short sleeve" in _gt or "short-sleeve" in _gt:
+    elif "short sleeve" in _ph or "short-sleeve" in _ph or "mid-bicep" in _ph or "elbow-length" in _ph or "short sleeve" in _gt or "short-sleeve" in _gt:
         sleeve_lock = "SHORT sleeves — do NOT extend to wrist"
     elif "3/4" in _ph or "mid-forearm" in _ph:
         sleeve_lock = "3/4-length sleeves to mid-forearm — do NOT extend to wrist"
