@@ -19,10 +19,7 @@ const MANNEQUINS = [
   { id: 7, label: "Manken 7" },
 ];
 
-const STATIC_BASE =
-  typeof window === "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
-    : "";
+const STATIC_BASE = "/static/mannequins";
 
 export default function MannequinPage() {
   const { user, setUser } = useAuthStore();
@@ -135,7 +132,7 @@ export default function MannequinPage() {
                   }`}
                 >
                   <img
-                    src={`${STATIC_BASE}/static/mannequins/${m.id}.png`}
+                    src={`${STATIC_BASE}/${m.id}.jpg`}
                     alt={m.label}
                     className="w-full h-full object-cover object-top"
                   />
