@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { tryonApi, mannequinTryonApi } from "@/lib/api";
+import { tryonApi, mannequinTryonApi, authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
 import { Wand2, Upload, X, Download, RotateCcw, ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -25,7 +25,7 @@ const STATIC_BASE =
     : "";
 
 export default function MannequinPage() {
-  const { user, refreshUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   const [selectedMannequin, setSelectedMannequin] = useState<number | null>(null);
   const [garmentUrl, setGarmentUrl] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export default function MannequinPage() {
             clearInterval(pollRef.current!);
             setResultUrl(status.output_urls?.[0] ?? null);
             setGenerating(false);
-            await refreshUser();
+            try { const me = await authApi.me(); setUser(me); } catch {}
           } else if (status.status === "failed") {
             clearInterval(pollRef.current!);
             setGenerating(false);
