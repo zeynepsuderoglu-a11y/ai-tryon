@@ -20,15 +20,15 @@ MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
 
 def _build_prompt(critical_detail: str, is_sleepwear: bool) -> str:
-    detail_line = f"\nReproduce EXACTLY: {critical_detail}" if critical_detail else ""
+    detail_block = f"CRITICAL GARMENT DETAIL — reproduce this exactly: {critical_detail}\n\n" if critical_detail else ""
     footwear_line = "\nThe model must be barefoot with no shoes." if is_sleepwear else ""
 
     return f"""IMAGE 1: Fashion model face reference.
 IMAGE 2: Fashion garment.
 
-Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
-The garment must be reproduced exactly as shown in IMAGE 2 — every color, fabric, pattern, neckline, sleeve length, button, trim, and detail must remain unchanged. Never add, remove, or alter any part of the garment.{detail_line}{footwear_line}
-The complete figure from head to feet must be fully visible in the frame — do not crop any part of the body.
+{detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
+Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
+The complete figure from head to feet must be fully visible — do not crop.
 White background, soft studio lighting, attractive e-commerce pose.
 Output one fashion photo."""
 
@@ -55,6 +55,7 @@ def _run_sync(
         ],
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE", "TEXT"],
+            temperature=0.5,
         ),
     )
 
