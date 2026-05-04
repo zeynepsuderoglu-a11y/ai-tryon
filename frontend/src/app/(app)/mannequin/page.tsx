@@ -30,6 +30,7 @@ export default function MannequinPage() {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ── Ürün yükleme ── */
@@ -88,6 +89,25 @@ export default function MannequinPage() {
       setGenerating(false);
       if (err?.response?.status === 402) toast.error("Yetersiz kredi");
       else toast.error("Bir hata oluştu");
+    }
+  }
+
+  async function handleDownload() {
+    if (!resultUrl) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(resultUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "manken-giydirme.jpg";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("İndirme başarısız");
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -228,15 +248,13 @@ export default function MannequinPage() {
                 />
               </div>
               <div className="flex gap-3">
-                <a
-                  href={resultUrl}
-                  download
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                <button
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors disabled:opacity-50"
                 >
-                  <Download className="w-4 h-4" /> İndir
-                </a>
+                  <Download className="w-4 h-4" /> {downloading ? "İndiriliyor..." : "İndir"}
+                </button>
                 <button
                   onClick={handleReset}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"

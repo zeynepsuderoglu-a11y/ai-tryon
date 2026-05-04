@@ -23,8 +23,9 @@ IMAGE 2: Product garment.
 
 Dress the person from IMAGE 1 wearing the garment from IMAGE 2.
 Keep all garment details exactly as shown — same color, fabric, pattern, and style.
-If the garment is a top (shirt, blouse, t-shirt, jacket), add a complementary bottom (pants, jeans, or skirt) and appropriate footwear that match the style and season.
-If the garment is a full outfit (dress, suit, tracksuit set), add appropriate footwear only.
+If the garment is pajamas, nightwear, sleepwear, or loungewear: the model must be barefoot with NO shoes and NO footwear of any kind.
+If the garment is a top (shirt, blouse, t-shirt, jacket): add a complementary bottom (pants, jeans, or skirt) and appropriate footwear that match the style and season.
+If the garment is a full outfit (dress, suit, tracksuit set): add appropriate footwear only.
 Generate a full body fashion catalog photo, white background, soft professional studio lighting, confident standing pose."""
 
 
