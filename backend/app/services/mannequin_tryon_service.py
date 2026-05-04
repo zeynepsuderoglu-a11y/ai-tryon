@@ -105,10 +105,11 @@ class MannequinTryonService:
 
         # Cloudinary'e yükle
         loop2 = asyncio.get_event_loop()
-        output_url = await loop2.run_in_executor(
+        result = await loop2.run_in_executor(
             None,
             lambda: cloudinary_service.upload_file(img_bytes, folder="tryon/mannequin/output"),
         )
+        output_url = result["secure_url"]
 
         return output_url
 
