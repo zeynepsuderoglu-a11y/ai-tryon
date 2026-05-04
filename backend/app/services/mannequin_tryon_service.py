@@ -19,38 +19,17 @@ logger = logging.getLogger(__name__)
 MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
 
-def _build_prompt(
-    texture_prompt: str,
-    proportion_hint: str,
-    critical_detail: str,
-    sleeve_lock: str,
-    bottom_lock: str,
-    is_sleepwear: bool,
-) -> str:
-    locks = []
-    if sleeve_lock:
-        locks.append(sleeve_lock)
-    if bottom_lock:
-        locks.append(bottom_lock)
-    lock_line = (", ".join(locks) + " — ") if locks else ""
+def _build_prompt(critical_detail: str, is_sleepwear: bool) -> str:
+    detail_line = f"\nReproduce EXACTLY: {critical_detail}" if critical_detail else ""
+    footwear_line = "\nThe model must be barefoot with no shoes." if is_sleepwear else ""
 
-    detail_line = f" Reproduce exactly: {critical_detail}." if critical_detail else ""
-
-    footwear = "barefoot, no shoes" if is_sleepwear else "add natural matching footwear"
-
-    return f"""IMAGE 1 is the model face and body reference.
-IMAGE 2 is the product garment.
+    return f"""IMAGE 1: Fashion model face reference.
+IMAGE 2: Fashion garment.
 
 Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
-
-Garment details to reproduce exactly: {texture_prompt} {proportion_hint}.{detail_line}
-{lock_line}do not alter any garment detail.
-
-Footwear: {footwear}.
-
-Pose: choose a natural, attractive e-commerce pose that shows the garment clearly — confident standing, slight hip tilt, or relaxed arms. The full body must be visible.
-
-White background, soft professional studio lighting, sharp focus on face and garment."""
+Match every detail of the garment in IMAGE 2 exactly: color, fabric, pattern, neckline, sleeve length, buttons, and trim. Do not add, remove, or change any detail.{detail_line}{footwear_line}
+White background, soft studio lighting, full body, attractive e-commerce pose.
+Output one fashion photo."""
 
 
 def _run_sync(
@@ -100,11 +79,7 @@ class MannequinTryonService:
         self,
         mannequin_id: int,
         garment_url: str,
-        texture_prompt: str,
-        proportion_hint: str,
         critical_detail: str,
-        sleeve_lock: str,
-        bottom_lock: str,
         is_sleepwear: bool,
     ) -> str:
         # Yüz fotoğrafı — PNG varsa 1024px JPEG'e çevir (RGBA→RGB dahil)
@@ -138,14 +113,7 @@ class MannequinTryonService:
 
         logger.info("[mannequin-tryon] manken=%d garment=%s", mannequin_id, garment_url)
 
-        prompt = _build_prompt(
-            texture_prompt=texture_prompt,
-            proportion_hint=proportion_hint,
-            critical_detail=critical_detail,
-            sleeve_lock=sleeve_lock,
-            bottom_lock=bottom_lock,
-            is_sleepwear=is_sleepwear,
-        )
+        prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear)
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()

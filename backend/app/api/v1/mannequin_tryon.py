@@ -92,11 +92,7 @@ async def _process_background(
             output_url = await mannequin_tryon_service.run(
                 mannequin_id=mannequin_id,
                 garment_url=garment_url,
-                texture_prompt=analysis.texture_prompt,
-                proportion_hint=analysis.proportion_hint,
                 critical_detail=analysis.critical_detail,
-                sleeve_lock=sleeve_lock,
-                bottom_lock=bottom_lock,
                 is_sleepwear=sleepwear,
             )
             logger.info("[mannequin-tryon/%s] Tamamlandı: %s", generation_id, output_url)
