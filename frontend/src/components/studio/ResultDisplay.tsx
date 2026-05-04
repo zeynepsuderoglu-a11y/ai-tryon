@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { tryonApi, geminiTryonApi, backgroundReplaceApi } from "@/lib/api";
+import { tryonApi, geminiTryonApi, backgroundReplaceApi, mannequinTryonApi } from "@/lib/api";
 import type { Generation, BatchJob } from "@/types";
 import { Download, CheckCircle, XCircle, Clock } from "lucide-react";
 import GenerationWaiting from "./GenerationWaiting";
@@ -12,7 +12,7 @@ interface ResultDisplayProps {
   generationId?: string;
   batchJobId?: string;
   mode?: "garment" | "eyewear";
-  statusEndpoint?: "gemini-tryon" | "background-replace";
+  statusEndpoint?: "gemini-tryon" | "background-replace" | "mannequin-tryon";
   onComplete?: () => void;
 }
 
@@ -33,6 +33,8 @@ export default function ResultDisplay({ generationId, batchJobId, mode = "garmen
             ? await geminiTryonApi.getStatus(generationId)
             : statusEndpoint === "background-replace"
             ? await backgroundReplaceApi.getStatus(generationId)
+            : statusEndpoint === "mannequin-tryon"
+            ? await mannequinTryonApi.getStatus(generationId)
             : await tryonApi.getStatus(generationId);
           setGeneration(gen);
           if (gen.status === "completed" || gen.status === "failed") {
