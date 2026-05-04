@@ -297,13 +297,13 @@ function MannequinGarmentSection({
 
 /* ── Studio Sekmeleri ── */
 const STUDIO_TABS = [
-  { mode: "mannequin"  as const, label: "Kıyafet",   icon: User      },
-  { mode: "kiyafet"   as const, label: "Kıyafet-1",  icon: Package   },
-  { mode: "nano"      as const, label: "Kıyafet-2",  icon: Sparkles  },
-  { mode: "background"as const, label: "Arka Plan",  icon: ImageIcon },
-  { mode: "ghost"     as const, label: "Ghost",      icon: UserX     },
-  { mode: "eyewear"   as const, label: "Gözlük",     icon: Glasses   },
-  { mode: "video"     as const, label: "Video",      icon: Video     },
+  { mode: "mannequin"  as const, label: "AI Stil Oluştur",    icon: User      },
+  { mode: "kiyafet"   as const, label: "Model Seç & Giydir", icon: Package   },
+  { mode: "nano"      as const, label: "AI Giydir Pro",       icon: Sparkles  },
+  { mode: "background"as const, label: "Arka Plan",           icon: ImageIcon },
+  { mode: "ghost"     as const, label: "Ghost",               icon: UserX     },
+  { mode: "eyewear"   as const, label: "Gözlük",              icon: Glasses   },
+  { mode: "video"     as const, label: "Video",               icon: Video     },
 ];
 
 /* ── Ana Sayfa ── */
