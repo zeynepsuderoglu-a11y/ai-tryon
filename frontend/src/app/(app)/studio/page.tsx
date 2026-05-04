@@ -683,10 +683,41 @@ export default function StudioPage() {
           {/* ─── MANKEN GİYDİRME MODU ─── */}
           {isMannequin && (
             <>
+              {/* Ürün Fotoğrafı */}
+              <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+                <div className="px-5 pt-5 pb-1">
+                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">1. Ürün Fotoğrafı</p>
+                </div>
+                <div className="p-5 pt-3">
+                  <MannequinGarmentSection
+                    url={mannequinGarmentUrl}
+                    preview={mannequinGarmentPreview}
+                    uploading={mannequinUploading}
+                    onUpload={async (file: File) => {
+                      setMannequinGarmentPreview(URL.createObjectURL(file));
+                      setMannequinUploading(true);
+                      try {
+                        const result = await tryonApi.uploadGarment(file);
+                        setMannequinGarmentUrl(result.url);
+                      } catch {
+                        toast.error("Yükleme başarısız");
+                        setMannequinGarmentPreview(null);
+                      } finally {
+                        setMannequinUploading(false);
+                      }
+                    }}
+                    onClear={() => {
+                      setMannequinGarmentUrl(null);
+                      setMannequinGarmentPreview(null);
+                    }}
+                  />
+                </div>
+              </div>
+
               {/* Manken Seç */}
               <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
                 <div className="px-5 pt-5 pb-1">
-                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">1. Manken Seç</p>
+                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">2. Manken Seç</p>
                 </div>
                 <div className="p-5 pt-3 grid grid-cols-4 gap-3">
                   {[1, 2, 3, 4, 5, 6, 7].map((id) => (
@@ -715,37 +746,6 @@ export default function StudioPage() {
                       )}
                     </button>
                   ))}
-                </div>
-              </div>
-
-              {/* Ürün Fotoğrafı */}
-              <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
-                <div className="px-5 pt-5 pb-1">
-                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">2. Ürün Fotoğrafı</p>
-                </div>
-                <div className="p-5 pt-3">
-                  <MannequinGarmentSection
-                    url={mannequinGarmentUrl}
-                    preview={mannequinGarmentPreview}
-                    uploading={mannequinUploading}
-                    onUpload={async (file: File) => {
-                      setMannequinGarmentPreview(URL.createObjectURL(file));
-                      setMannequinUploading(true);
-                      try {
-                        const result = await tryonApi.uploadGarment(file);
-                        setMannequinGarmentUrl(result.url);
-                      } catch {
-                        toast.error("Yükleme başarısız");
-                        setMannequinGarmentPreview(null);
-                      } finally {
-                        setMannequinUploading(false);
-                      }
-                    }}
-                    onClear={() => {
-                      setMannequinGarmentUrl(null);
-                      setMannequinGarmentPreview(null);
-                    }}
-                  />
                 </div>
               </div>
             </>
