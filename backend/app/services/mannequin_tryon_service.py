@@ -27,8 +27,9 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool) -> str:
 IMAGE 2: Fashion garment.
 
 Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
-Match every detail of the garment in IMAGE 2 exactly: color, fabric, pattern, neckline, sleeve length, buttons, and trim. Do not add, remove, or change any detail.{detail_line}{footwear_line}
-White background, soft studio lighting, full body, attractive e-commerce pose.
+The garment must be reproduced exactly as shown in IMAGE 2 — every color, fabric, pattern, neckline, sleeve length, button, trim, and detail must remain unchanged. Never add, remove, or alter any part of the garment.{detail_line}{footwear_line}
+The complete figure from head to feet must be fully visible in the frame — do not crop any part of the body.
+White background, soft studio lighting, attractive e-commerce pose.
 Output one fashion photo."""
 
 
