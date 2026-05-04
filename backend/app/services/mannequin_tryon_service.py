@@ -18,15 +18,23 @@ logger = logging.getLogger(__name__)
 
 MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
-PROMPT_OUTFIT = """IMAGE 1: Mannequin face reference.
-IMAGE 2: Product garment.
+PROMPT_OUTFIT = """IMAGE 1: Model face and body reference.
+IMAGE 2: Exact product garment.
 
-Dress the person from IMAGE 1 wearing the garment from IMAGE 2.
-Keep all garment details exactly as shown — same color, fabric, pattern, and style.
-If the garment is pajamas, nightwear, sleepwear, or loungewear: the model must be barefoot with NO shoes and NO footwear of any kind.
-If the garment is a top (shirt, blouse, t-shirt, jacket): add a complementary bottom (pants, jeans, or skirt) and appropriate footwear that match the style and season.
-If the garment is a full outfit (dress, suit, tracksuit set): add appropriate footwear only.
-Generate a full body fashion catalog photo, white background, soft professional studio lighting, confident standing pose."""
+Generate a full body fashion catalog photo of the person from IMAGE 1 wearing the garment from IMAGE 2.
+
+GARMENT — COPY EXACTLY FROM IMAGE 2 (most important rule):
+- Color: must be identical — same exact shade, do NOT lighten or darken
+- Pattern/print: must be identical — copy every detail of the print, texture, graphic
+- Style and cut: must be identical — same neckline, sleeves, hem length, buttons, collar, pockets
+- Do NOT reinterpret or approximate the garment in any way
+
+FOOTWEAR:
+- Pajamas / nightwear / sleepwear / loungewear → barefoot, absolutely NO shoes
+- Top only (shirt, blouse, t-shirt, jacket) → add complementary bottom + appropriate shoes
+- Full outfit (dress, suit, tracksuit, co-ord set) → add shoes only
+
+PHOTO: white background, soft studio lighting, confident standing pose, photorealistic, high resolution."""
 
 
 def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_mime: str) -> bytes:
@@ -91,16 +99,17 @@ class MannequinTryonService:
             timeout=180,
         )
 
-        # 2x upscale
+        # 4x upscale
         try:
             from PIL import Image
 
             img = Image.open(io.BytesIO(img_bytes))
             w, h = img.size
-            img = img.resize((w * 2, h * 2), Image.LANCZOS)
+            img = img.resize((w * 4, h * 4), Image.LANCZOS)
             buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=95)
+            img.save(buf, format="JPEG", quality=97)
             img_bytes = buf.getvalue()
+            logger.info("[mannequin-tryon] Upscale: %dx%d → %dx%d, %dKB", w, h, w*4, h*4, len(img_bytes)//1024)
         except Exception as e:
             logger.warning("[mannequin-tryon] Upscale başarısız: %s", e)
 
