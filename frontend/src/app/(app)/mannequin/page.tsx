@@ -111,7 +111,7 @@ export default function MannequinPage() {
         <div className="h-4 w-px bg-gray-200" />
         <h1 className="font-semibold text-gray-800">Manken ile Giydirme</h1>
         <div className="ml-auto text-sm text-gray-500">
-          Kalan kredi: <span className="font-semibold text-gray-800">{user?.credits ?? 0}</span>
+          Kalan kredi: <span className="font-semibold text-gray-800">{user?.credits_remaining ?? 0}</span>
         </div>
       </div>
 
