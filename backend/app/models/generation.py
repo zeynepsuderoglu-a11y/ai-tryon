@@ -21,6 +21,7 @@ class GarmentCategory(str, enum.Enum):
     eyewear = "eyewear"
     ghost_mannequin = "ghost_mannequin"
     background_replace = "background_replace"
+    mannequin_tryon = "mannequin_tryon"
 
 
 class Generation(Base):

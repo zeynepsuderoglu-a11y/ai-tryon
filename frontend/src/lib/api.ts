@@ -250,6 +250,20 @@ export const backgroundReplaceApi = {
     api.get<Generation>(`/background-replace/${id}/status`).then((r) => r.data),
 };
 
+// Mannequin Try-On
+export const mannequinTryonApi = {
+  run: (garment_url: string, mannequin_id: number) => {
+    const form = new FormData();
+    form.append("garment_url", garment_url);
+    form.append("mannequin_id", String(mannequin_id));
+    return api.post<{ generation_id: string; status: string }>("/mannequin-tryon/run", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
+  getStatus: (id: string) =>
+    api.get<Generation>(`/mannequin-tryon/${id}/status`).then((r) => r.data),
+};
+
 // Admin
 export const adminApi = {
   stats: () => api.get<AdminStats>("/admin/stats").then((r) => r.data),
