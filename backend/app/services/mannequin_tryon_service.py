@@ -28,7 +28,7 @@ If the garment is a full outfit (dress, suit, tracksuit set), add appropriate fo
 Generate a full body fashion catalog photo, white background, soft professional studio lighting, confident standing pose."""
 
 
-def _run_sync(face_bytes: bytes, garment_bytes: bytes, garment_mime: str) -> bytes:
+def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_mime: str) -> bytes:
     from google import genai
     from google.genai import types
 
@@ -37,7 +37,7 @@ def _run_sync(face_bytes: bytes, garment_bytes: bytes, garment_mime: str) -> byt
     response = client.models.generate_content(
         model="gemini-2.5-flash-image",
         contents=[
-            types.Part.from_bytes(data=face_bytes, mime_type="image/png"),
+            types.Part.from_bytes(data=face_bytes, mime_type=face_mime),
             types.Part.from_bytes(data=garment_bytes, mime_type=garment_mime),
             PROMPT_OUTFIT,
         ],
@@ -65,11 +65,14 @@ def _run_sync(face_bytes: bytes, garment_bytes: bytes, garment_mime: str) -> byt
 
 class MannequinTryonService:
     async def run(self, mannequin_id: int, garment_url: str) -> str:
-        # Yüz fotoğrafını oku
-        face_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
+        # Yüz fotoğrafını oku — JPG (thumbnail) daha hızlı, PNG yoksa JPG kullan
+        jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
+        png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
+        face_path = jpg_path if jpg_path.exists() else png_path
         if not face_path.exists():
             raise FileNotFoundError(f"Manken {mannequin_id} bulunamadı")
         face_bytes = face_path.read_bytes()
+        face_mime = "image/jpeg" if face_path.suffix == ".jpg" else "image/png"
 
         # Ürün fotoğrafını indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -79,12 +82,12 @@ class MannequinTryonService:
             ct = resp.headers.get("content-type", "image/jpeg")
             garment_mime = ct.split(";")[0].strip() or "image/jpeg"
 
-        logger.info("[mannequin-tryon] manken=%d garment=%s", mannequin_id, garment_url)
+        logger.info("[mannequin-tryon] manken=%d face_size=%d garment=%s", mannequin_id, len(face_bytes), garment_url)
 
         loop = asyncio.get_event_loop()
         img_bytes = await asyncio.wait_for(
-            loop.run_in_executor(None, _run_sync, face_bytes, garment_bytes, garment_mime),
-            timeout=120,
+            loop.run_in_executor(None, _run_sync, face_bytes, face_mime, garment_bytes, garment_mime),
+            timeout=180,
         )
 
         # 2x upscale
