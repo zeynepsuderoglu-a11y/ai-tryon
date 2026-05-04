@@ -74,14 +74,29 @@ def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_m
 
 class MannequinTryonService:
     async def run(self, mannequin_id: int, garment_url: str) -> str:
-        # Yüz fotoğrafını oku — JPG (thumbnail) daha hızlı, PNG yoksa JPG kullan
-        jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
+        # Yüz fotoğrafını oku — PNG varsa 1024px'e resize edip JPEG olarak gönder
+        # (5MB ham PNG çok yavaş, 500px JPG thumbnail çok küçük — 1024px optimum)
         png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
-        face_path = jpg_path if jpg_path.exists() else png_path
-        if not face_path.exists():
+        jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
+
+        if png_path.exists():
+            from PIL import Image as PILImage
+            img = PILImage.open(png_path)
+            w, h = img.size
+            # 1024px genişliğe oransal küçültme
+            new_w = 1024
+            new_h = int(h * new_w / w)
+            img = img.resize((new_w, new_h), PILImage.LANCZOS)
+            buf = io.BytesIO()
+            img.save(buf, format="JPEG", quality=95)
+            face_bytes = buf.getvalue()
+            logger.info("[mannequin-tryon] face PNG→JPEG 1024px: %dKB", len(face_bytes)//1024)
+        elif jpg_path.exists():
+            face_bytes = jpg_path.read_bytes()
+            logger.info("[mannequin-tryon] face JPG thumbnail: %dKB", len(face_bytes)//1024)
+        else:
             raise FileNotFoundError(f"Manken {mannequin_id} bulunamadı")
-        face_bytes = face_path.read_bytes()
-        face_mime = "image/jpeg" if face_path.suffix == ".jpg" else "image/png"
+        face_mime = "image/jpeg"
 
         # Ürün fotoğrafını indir
         async with httpx.AsyncClient(timeout=30) as client:
