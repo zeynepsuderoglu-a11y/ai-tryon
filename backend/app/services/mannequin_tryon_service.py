@@ -18,23 +18,15 @@ logger = logging.getLogger(__name__)
 
 MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
-PROMPT_OUTFIT = """IMAGE 1: Model face and body reference.
-IMAGE 2: Exact product garment.
+PROMPT_OUTFIT = """IMAGE 1 is the model. IMAGE 2 is the clothing item.
 
-Generate a full body fashion catalog photo of the person from IMAGE 1 wearing the garment from IMAGE 2.
+Show the model from IMAGE 1 wearing the exact clothing from IMAGE 2. Reproduce the clothing exactly as it appears in IMAGE 2 — same colors, same pattern, same fabric, same cut, same details. Do not change anything about the clothing.
 
-GARMENT — COPY EXACTLY FROM IMAGE 2 (most important rule):
-- Color: must be identical — same exact shade, do NOT lighten or darken
-- Pattern/print: must be identical — copy every detail of the print, texture, graphic
-- Style and cut: must be identical — same neckline, sleeves, hem length, buttons, collar, pockets
-- Do NOT reinterpret or approximate the garment in any way
+If the clothing is pajamas or sleepwear, the model should be barefoot with no shoes.
+If the clothing is only a top, add matching pants or a skirt and appropriate shoes.
+If the clothing is a complete outfit, add only shoes.
 
-FOOTWEAR:
-- Pajamas / nightwear / sleepwear / loungewear → barefoot, absolutely NO shoes
-- Top only (shirt, blouse, t-shirt, jacket) → add complementary bottom + appropriate shoes
-- Full outfit (dress, suit, tracksuit, co-ord set) → add shoes only
-
-PHOTO: white background, soft studio lighting, confident standing pose, photorealistic, high resolution."""
+White background, soft studio lighting, full body, professional fashion photo."""
 
 
 def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_mime: str) -> bytes:
@@ -81,9 +73,8 @@ class MannequinTryonService:
 
         if png_path.exists():
             from PIL import Image as PILImage
-            img = PILImage.open(png_path)
+            img = PILImage.open(png_path).convert("RGB")  # RGBA→RGB (JPEG uyumu)
             w, h = img.size
-            # 1024px genişliğe oransal küçültme
             new_w = 1024
             new_h = int(h * new_w / w)
             img = img.resize((new_w, new_h), PILImage.LANCZOS)
@@ -114,17 +105,17 @@ class MannequinTryonService:
             timeout=180,
         )
 
-        # 4x upscale
+        # 4x upscale → PNG (kayıpsız, yüksek kalite)
         try:
             from PIL import Image
 
-            img = Image.open(io.BytesIO(img_bytes))
+            img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
             w, h = img.size
             img = img.resize((w * 4, h * 4), Image.LANCZOS)
             buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=97)
+            img.save(buf, format="PNG")
             img_bytes = buf.getvalue()
-            logger.info("[mannequin-tryon] Upscale: %dx%d → %dx%d, %dKB", w, h, w*4, h*4, len(img_bytes)//1024)
+            logger.info("[mannequin-tryon] Upscale: %dx%d → %dx%d PNG, %dKB", w, h, w*4, h*4, len(img_bytes)//1024)
         except Exception as e:
             logger.warning("[mannequin-tryon] Upscale başarısız: %s", e)
 
