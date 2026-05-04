@@ -1,6 +1,6 @@
 """
-MannequinTryonService — Yüz referansı + Ürün fotoğrafı → Tam boy katalog görseli
-Mevcut sisteme bağımlılığı yok, tamamen bağımsız servis.
+MannequinTryonService — Yüz referansı + Ürün analizi → E-ticaret katalog görseli
+Garment analysis (Claude) → Gemini image generation
 """
 from __future__ import annotations
 
@@ -18,29 +18,60 @@ logger = logging.getLogger(__name__)
 
 MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
-PROMPT_OUTFIT = """IMAGE 1 is the model. IMAGE 2 is the clothing item.
 
-Show the model from IMAGE 1 wearing the exact clothing from IMAGE 2. Reproduce the clothing exactly as it appears in IMAGE 2 — same colors, same pattern, same fabric, same cut, same details. Do not change anything about the clothing.
+def _build_prompt(
+    texture_prompt: str,
+    proportion_hint: str,
+    critical_detail: str,
+    sleeve_lock: str,
+    bottom_lock: str,
+    is_sleepwear: bool,
+) -> str:
+    locks = []
+    if sleeve_lock:
+        locks.append(sleeve_lock)
+    if bottom_lock:
+        locks.append(bottom_lock)
+    lock_line = (", ".join(locks) + " — ") if locks else ""
 
-If the clothing is pajamas or sleepwear, the model should be barefoot with no shoes.
-If the clothing is only a top, add matching pants or a skirt and appropriate shoes.
-If the clothing is a complete outfit, add only shoes.
+    detail_line = f" Reproduce exactly: {critical_detail}." if critical_detail else ""
 
-White background, soft studio lighting, full body, professional fashion photo."""
+    footwear = "barefoot, no shoes" if is_sleepwear else "add natural matching footwear"
+
+    return f"""IMAGE 1 is the model face and body reference.
+IMAGE 2 is the product garment.
+
+Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
+
+Garment details to reproduce exactly: {texture_prompt} {proportion_hint}.{detail_line}
+{lock_line}do not alter any garment detail.
+
+Footwear: {footwear}.
+
+Pose: choose a natural, attractive e-commerce pose that shows the garment clearly — confident standing, slight hip tilt, or relaxed arms. The full body must be visible.
+
+White background, soft professional studio lighting, sharp focus on face and garment."""
 
 
-def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_mime: str) -> bytes:
+def _run_sync(
+    face_bytes: bytes,
+    face_mime: str,
+    garment_bytes: bytes,
+    garment_mime: str,
+    prompt: str,
+) -> bytes:
     from google import genai
     from google.genai import types
 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
+    logger.info("[mannequin-tryon] Gemini isteği gönderiliyor")
     response = client.models.generate_content(
         model="gemini-2.5-flash-image",
         contents=[
             types.Part.from_bytes(data=face_bytes, mime_type=face_mime),
             types.Part.from_bytes(data=garment_bytes, mime_type=garment_mime),
-            PROMPT_OUTFIT,
+            prompt,
         ],
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE", "TEXT"],
@@ -48,7 +79,7 @@ def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_m
     )
 
     if not response.candidates:
-        raise RuntimeError("Görsel üretilemedi, lütfen tekrar deneyin")
+        raise RuntimeError("Görsel üretilemedi")
 
     candidate = response.candidates[0]
     finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
@@ -65,26 +96,34 @@ def _run_sync(face_bytes: bytes, face_mime: str, garment_bytes: bytes, garment_m
 
 
 class MannequinTryonService:
-    async def run(self, mannequin_id: int, garment_url: str) -> str:
-        # Yüz fotoğrafını oku — PNG varsa 1024px'e resize edip JPEG olarak gönder
-        # (5MB ham PNG çok yavaş, 500px JPG thumbnail çok küçük — 1024px optimum)
+    async def run(
+        self,
+        mannequin_id: int,
+        garment_url: str,
+        texture_prompt: str,
+        proportion_hint: str,
+        critical_detail: str,
+        sleeve_lock: str,
+        bottom_lock: str,
+        is_sleepwear: bool,
+    ) -> str:
+        # Yüz fotoğrafı — PNG varsa 1024px JPEG'e çevir (RGBA→RGB dahil)
         png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
         jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
 
         if png_path.exists():
             from PIL import Image as PILImage
-            img = PILImage.open(png_path).convert("RGB")  # RGBA→RGB (JPEG uyumu)
+            img = PILImage.open(png_path).convert("RGB")
             w, h = img.size
-            new_w = 1024
-            new_h = int(h * new_w / w)
-            img = img.resize((new_w, new_h), PILImage.LANCZOS)
+            new_h = int(h * 1024 / w)
+            img = img.resize((1024, new_h), PILImage.LANCZOS)
             buf = io.BytesIO()
             img.save(buf, format="JPEG", quality=95)
             face_bytes = buf.getvalue()
-            logger.info("[mannequin-tryon] face PNG→JPEG 1024px: %dKB", len(face_bytes)//1024)
+            logger.info("[mannequin-tryon] face 1024px JPEG: %dKB", len(face_bytes) // 1024)
         elif jpg_path.exists():
             face_bytes = jpg_path.read_bytes()
-            logger.info("[mannequin-tryon] face JPG thumbnail: %dKB", len(face_bytes)//1024)
+            logger.info("[mannequin-tryon] face thumbnail JPG: %dKB", len(face_bytes) // 1024)
         else:
             raise FileNotFoundError(f"Manken {mannequin_id} bulunamadı")
         face_mime = "image/jpeg"
@@ -97,37 +136,56 @@ class MannequinTryonService:
             ct = resp.headers.get("content-type", "image/jpeg")
             garment_mime = ct.split(";")[0].strip() or "image/jpeg"
 
-        logger.info("[mannequin-tryon] manken=%d face_size=%d garment=%s", mannequin_id, len(face_bytes), garment_url)
+        logger.info("[mannequin-tryon] manken=%d garment=%s", mannequin_id, garment_url)
+
+        prompt = _build_prompt(
+            texture_prompt=texture_prompt,
+            proportion_hint=proportion_hint,
+            critical_detail=critical_detail,
+            sleeve_lock=sleeve_lock,
+            bottom_lock=bottom_lock,
+            is_sleepwear=is_sleepwear,
+        )
+        logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()
-        img_bytes = await asyncio.wait_for(
-            loop.run_in_executor(None, _run_sync, face_bytes, face_mime, garment_bytes, garment_mime),
-            timeout=180,
-        )
 
-        # 4x upscale → PNG (kayıpsız, yüksek kalite)
+        # 3 deneme (Nano Banana gibi)
+        last_err: Exception | None = None
+        for attempt in range(1, 4):
+            try:
+                img_bytes = await asyncio.wait_for(
+                    loop.run_in_executor(None, _run_sync, face_bytes, face_mime, garment_bytes, garment_mime, prompt),
+                    timeout=180,
+                )
+                break
+            except Exception as e:
+                last_err = e
+                logger.warning("[mannequin-tryon] Deneme %d başarısız: %s", attempt, e)
+                if attempt < 3:
+                    await asyncio.sleep(2)
+        else:
+            raise last_err
+
+        # 4x upscale → PNG
         try:
             from PIL import Image
-
             img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
             w, h = img.size
             img = img.resize((w * 4, h * 4), Image.LANCZOS)
             buf = io.BytesIO()
             img.save(buf, format="PNG")
             img_bytes = buf.getvalue()
-            logger.info("[mannequin-tryon] Upscale: %dx%d → %dx%d PNG, %dKB", w, h, w*4, h*4, len(img_bytes)//1024)
+            logger.info("[mannequin-tryon] Upscale: %dx%d → %dx%d PNG, %dKB", w, h, w * 4, h * 4, len(img_bytes) // 1024)
         except Exception as e:
             logger.warning("[mannequin-tryon] Upscale başarısız: %s", e)
 
         # Cloudinary'e yükle
-        loop2 = asyncio.get_event_loop()
-        result = await loop2.run_in_executor(
+        result = await loop.run_in_executor(
             None,
             lambda: cloudinary_service.upload_file(img_bytes, folder="tryon/mannequin/output"),
         )
-        output_url = result["secure_url"]
-
-        return output_url
+        return result["secure_url"]
 
 
 mannequin_tryon_service = MannequinTryonService()
