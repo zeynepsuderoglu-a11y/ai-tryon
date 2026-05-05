@@ -21,13 +21,13 @@ interface AdminGeneration {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  tops: "Üst Giysi",
-  bottoms: "Alt Giysi",
-  "one-pieces": "Tek Parça",
-  eyewear: "Gözlük",
-  ghost_mannequin: "Ghost Manken",
-  background_replace: "Arka Plan",
-  mannequin_tryon: "AI Stil",
+  mannequin_tryon:   "AI Stil Oluştur",
+  tops:              "Model Seç & Giydir",
+  bottoms:           "Model Seç & Giydir (Alt)",
+  "one-pieces":      "Model Seç & Giydir (Tek Parça)",
+  background_replace:"Arka Plan",
+  ghost_mannequin:   "Ghost",
+  eyewear:           "Gözlük",
 };
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
@@ -38,14 +38,14 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
 };
 
 const CATEGORIES = [
-  { value: "", label: "Tümü" },
-  { value: "tops", label: "Üst Giysi" },
-  { value: "bottoms", label: "Alt Giysi" },
-  { value: "one-pieces", label: "Tek Parça" },
-  { value: "mannequin_tryon", label: "AI Stil" },
-  { value: "background_replace", label: "Arka Plan" },
-  { value: "ghost_mannequin", label: "Ghost Manken" },
-  { value: "eyewear", label: "Gözlük" },
+  { value: "",                 label: "Tümü" },
+  { value: "mannequin_tryon",  label: "AI Stil Oluştur" },
+  { value: "tops",             label: "Model Seç & Giydir" },
+  { value: "bottoms",          label: "Model Seç & Giydir (Alt)" },
+  { value: "one-pieces",       label: "Model Seç & Giydir (Tek Parça)" },
+  { value: "background_replace",label: "Arka Plan" },
+  { value: "ghost_mannequin",  label: "Ghost" },
+  { value: "eyewear",          label: "Gözlük" },
 ];
 
 const STATUSES = [
