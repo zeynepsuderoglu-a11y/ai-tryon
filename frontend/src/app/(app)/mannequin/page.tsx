@@ -1,29 +1,18 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { tryonApi, mannequinTryonApi, authApi } from "@/lib/api";
+import { tryonApi, mannequinTryonApi, mannequinsApi, authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
 import { Wand2, Upload, X, Download, RotateCcw, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-const MANNEQUINS = [
-  { id: 1, label: "Manken 1" },
-  { id: 2, label: "Manken 2" },
-  { id: 3, label: "Manken 3" },
-  { id: 4, label: "Manken 4" },
-  { id: 5, label: "Manken 5" },
-  { id: 6, label: "Manken 6" },
-  { id: 7, label: "Manken 7" },
-];
-
-const STATIC_BASE = "/static/mannequins";
-
 export default function MannequinPage() {
   const { user, setUser } = useAuthStore();
 
+  const [mannequinList, setMannequinList] = useState<{ id: string; name: string; image_url: string }[]>([]);
   const [selectedMannequin, setSelectedMannequin] = useState<string | null>(null);
   const [garmentUrl, setGarmentUrl] = useState<string | null>(null);
   const [garmentPreview, setGarmentPreview] = useState<string | null>(null);
@@ -32,6 +21,10 @@ export default function MannequinPage() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    mannequinsApi.list().then(setMannequinList).catch(() => {});
+  }, []);
 
   /* ── Ürün yükleme ── */
   const onDrop = useCallback(async (files: File[]) => {
@@ -141,7 +134,7 @@ export default function MannequinPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <h2 className="font-semibold text-gray-800 mb-4">1. Manken Seç</h2>
             <div className="grid grid-cols-4 gap-3">
-              {MANNEQUINS.map((m) => (
+              {mannequinList.map((m) => (
                 <button
                   key={m.id}
                   onClick={() => setSelectedMannequin(m.id)}
@@ -151,9 +144,10 @@ export default function MannequinPage() {
                       : "border-gray-200 hover:border-purple-300"
                   }`}
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`${STATIC_BASE}/${m.id}.jpg`}
-                    alt={m.label}
+                    src={m.image_url}
+                    alt={m.name}
                     className="w-full h-full object-cover object-top"
                   />
                   {selectedMannequin === m.id && (
