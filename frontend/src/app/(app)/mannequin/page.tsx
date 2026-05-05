@@ -24,7 +24,7 @@ const STATIC_BASE = "/static/mannequins";
 export default function MannequinPage() {
   const { user, setUser } = useAuthStore();
 
-  const [selectedMannequin, setSelectedMannequin] = useState<number | null>(null);
+  const [selectedMannequin, setSelectedMannequin] = useState<string | null>(null);
   const [garmentUrl, setGarmentUrl] = useState<string | null>(null);
   const [garmentPreview, setGarmentPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
