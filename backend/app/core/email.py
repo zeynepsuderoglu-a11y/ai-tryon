@@ -61,6 +61,25 @@ async def send_contact_email(
     await send_email("support@studyoima.com", f"İletişim Formu: {name} {surname}", html)
 
 
+async def send_verification_email(to: str, code: str) -> None:
+    html = f"""
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
+      <h2 style="color:#1a1a1a;font-size:20px;margin-bottom:8px">E-posta Doğrulama</h2>
+      <p style="color:#737373;font-size:14px;margin-bottom:24px">
+        StudyoİMA AI hesabınızı oluşturmak için aşağıdaki doğrulama kodunu girin.
+      </p>
+      <div style="background:#f5f5f5;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
+        <p style="color:#737373;font-size:12px;margin:0 0 8px 0;text-transform:uppercase;letter-spacing:0.1em">Doğrulama Kodu</p>
+        <p style="color:#1a1a1a;font-size:36px;font-weight:700;letter-spacing:0.3em;margin:0">{code}</p>
+      </div>
+      <p style="color:#a3a3a3;font-size:12px;margin:0">
+        Bu kod 10 dakika geçerlidir. Talebi siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.
+      </p>
+    </div>
+    """
+    await send_email(to, "Doğrulama Kodunuz — StudyoİMA AI", html)
+
+
 async def send_password_reset_email(to: str, reset_url: str) -> None:
     html = f"""
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">

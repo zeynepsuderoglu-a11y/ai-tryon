@@ -57,7 +57,13 @@ api.interceptors.response.use(
 // Auth
 export const authApi = {
   register: (data: { email: string; password: string; full_name: string }) =>
-    api.post<TokenResponse>("/auth/register", data).then((r) => r.data),
+    api.post<{ message: string; email: string }>("/auth/register", data).then((r) => r.data),
+
+  verifyEmail: (email: string, code: string) =>
+    api.post<TokenResponse>("/auth/verify-email", { email, code }).then((r) => r.data),
+
+  resendVerification: (email: string) =>
+    api.post<{ message: string }>("/auth/resend-verification", { email }).then((r) => r.data),
 
   login: (data: { email: string; password: string }) =>
     api.post<TokenResponse>("/auth/login", data).then((r) => r.data),

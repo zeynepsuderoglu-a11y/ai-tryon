@@ -59,6 +59,11 @@ class ChangePasswordRequest(BaseModel):
         return v
 
 
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+
 class BillingProfile(BaseModel):
     type: Literal["individual", "corporate"]
     full_name: Optional[str] = None
