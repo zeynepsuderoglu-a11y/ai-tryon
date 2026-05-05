@@ -1,21 +1,48 @@
+import logging
+import httpx
 import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from app.core.config import settings
 
+logger = logging.getLogger(__name__)
+
 
 async def send_email(to: str, subject: str, html: str) -> None:
-    """Send an email via SMTP. Silently skips if SMTP is not configured."""
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        print(f"[EMAIL] SMTP not configured. Would send to {to}: {subject}")
-        return
+    """Resend API (birincil) veya SMTP (yedek) ile e-posta gönderir."""
+    if settings.RESEND_API_KEY:
+        await _send_via_resend(to, subject, html)
+    elif settings.SMTP_USER and settings.SMTP_PASSWORD:
+        await _send_via_smtp(to, subject, html)
+    else:
+        logger.warning("[EMAIL] Gönderim yapılandırılmamış. Alıcı: %s | Konu: %s", to, subject)
 
+
+async def _send_via_resend(to: str, subject: str, html: str) -> None:
+    """Resend.com API — SPF/DKIM imzalı, spam'e düşmez."""
+    from_addr = f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM}>"
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"from": from_addr, "to": [to], "subject": subject, "html": html},
+        )
+    if resp.status_code not in (200, 201):
+        logger.error("[EMAIL/Resend] Gönderim başarısız: %s %s", resp.status_code, resp.text)
+        raise RuntimeError(f"E-posta gönderilemedi: {resp.status_code}")
+    logger.info("[EMAIL/Resend] Gönderildi → %s", to)
+
+
+async def _send_via_smtp(to: str, subject: str, html: str) -> None:
+    """Gmail SMTP yedek — Resend yapılandırılmamışsa kullanılır."""
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = f"{settings.EMAIL_FROM_NAME} <{settings.SMTP_USER}>"
+    msg["From"] = f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM}>"
     msg["To"] = to
     msg.attach(MIMEText(html, "html", "utf-8"))
-
     await aiosmtplib.send(
         msg,
         hostname=settings.SMTP_HOST,
@@ -24,6 +51,7 @@ async def send_email(to: str, subject: str, html: str) -> None:
         password=settings.SMTP_PASSWORD,
         start_tls=True,
     )
+    logger.info("[EMAIL/SMTP] Gönderildi → %s", to)
 
 
 async def send_contact_email(
@@ -58,22 +86,29 @@ async def send_contact_email(
       </p>
     </div>
     """
-    await send_email("support@studyoima.com", f"İletişim Formu: {name} {surname}", html)
+    await send_email("ilgi@ilet.in", f"İletişim Formu: {name} {surname}", html)
 
 
 async def send_verification_email(to: str, code: str) -> None:
     html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
-      <h2 style="color:#1a1a1a;font-size:20px;margin-bottom:8px">E-posta Doğrulama</h2>
-      <p style="color:#737373;font-size:14px;margin-bottom:24px">
-        StudyoİMA AI hesabınızı oluşturmak için aşağıdaki doğrulama kodunu girin.
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:40px 32px">
+      <p style="color:#1a1a1a;font-size:22px;font-weight:700;margin:0 0 8px 0">E-posta Doğrulama</p>
+      <p style="color:#737373;font-size:14px;margin:0 0 32px 0">
+        StudyoİMA AI hesabınızı oluşturmak için aşağıdaki kodu kullanın.
       </p>
-      <div style="background:#f5f5f5;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
-        <p style="color:#737373;font-size:12px;margin:0 0 8px 0;text-transform:uppercase;letter-spacing:0.1em">Doğrulama Kodu</p>
-        <p style="color:#1a1a1a;font-size:36px;font-weight:700;letter-spacing:0.3em;margin:0">{code}</p>
+      <div style="background:#f5f5f5;border-radius:16px;padding:28px;text-align:center;margin-bottom:28px">
+        <p style="color:#737373;font-size:11px;margin:0 0 10px 0;text-transform:uppercase;letter-spacing:0.15em">
+          Doğrulama Kodu
+        </p>
+        <p style="color:#1a1a1a;font-size:40px;font-weight:800;letter-spacing:0.35em;margin:0;font-variant-numeric:tabular-nums">
+          {code}
+        </p>
       </div>
+      <p style="color:#a3a3a3;font-size:12px;margin:0 0 8px 0">
+        Bu kod <strong>10 dakika</strong> geçerlidir.
+      </p>
       <p style="color:#a3a3a3;font-size:12px;margin:0">
-        Bu kod 10 dakika geçerlidir. Talebi siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.
+        Talebi siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.
       </p>
     </div>
     """
@@ -82,20 +117,20 @@ async def send_verification_email(to: str, code: str) -> None:
 
 async def send_password_reset_email(to: str, reset_url: str) -> None:
     html = f"""
-    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
-      <h2 style="color:#1a1a1a;font-size:20px;margin-bottom:8px">Şifre Sıfırlama</h2>
-      <p style="color:#737373;font-size:14px;margin-bottom:24px">
-        İMA Tryon hesabınız için şifre sıfırlama talebinde bulundunuz.<br>
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:40px 32px">
+      <p style="color:#1a1a1a;font-size:22px;font-weight:700;margin:0 0 8px 0">Şifre Sıfırlama</p>
+      <p style="color:#737373;font-size:14px;margin:0 0 28px 0">
+        StudyoİMA AI hesabınız için şifre sıfırlama talebinde bulundunuz.<br>
         Aşağıdaki butona tıklayarak yeni şifrenizi belirleyebilirsiniz.
       </p>
       <a href="{reset_url}"
          style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;
-                padding:12px 28px;border-radius:8px;font-size:14px;font-weight:600">
+                padding:14px 32px;border-radius:10px;font-size:14px;font-weight:600">
         Şifremi Sıfırla
       </a>
-      <p style="color:#a3a3a3;font-size:12px;margin-top:24px">
-        Bu link 1 saat geçerlidir. Talebi siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.
+      <p style="color:#a3a3a3;font-size:12px;margin-top:28px">
+        Bu link <strong>1 saat</strong> geçerlidir. Talebi siz yapmadıysanız görmezden gelebilirsiniz.
       </p>
     </div>
     """
-    await send_email(to, "Şifre Sıfırlama — İMA Tryon", html)
+    await send_email(to, "Şifre Sıfırlama — StudyoİMA AI", html)

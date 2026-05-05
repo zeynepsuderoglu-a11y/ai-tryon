@@ -48,7 +48,7 @@ export default function SatisSozlesmesiPage() {
                   <p className="font-medium text-[#1a1a1a] mb-1">Satıcı (Hizmet Sağlayıcı)</p>
                   <p>Ünvan: StudyoİMA AI</p>
                   <p>Web sitesi: www.studyoima.com</p>
-                  <p>E-posta: support@studyoima.com</p>
+                  <p>E-posta: ilgi@ilet.in</p>
                 </div>
                 <div className="p-4 bg-white border border-[#e5e5e5] rounded-xl">
                   <p className="font-medium text-[#1a1a1a] mb-1">Alıcı (Müşteri)</p>
@@ -169,7 +169,7 @@ export default function SatisSozlesmesiPage() {
                 </p>
               </div>
               <p className="mt-3">
-                Cayma talebini <strong className="text-[#1a1a1a]">support@studyoima.com</strong> adresine
+                Cayma talebini <strong className="text-[#1a1a1a]">ilgi@ilet.in</strong> adresine
                 e-posta göndererek iletebilirsiniz. Cayma işlemi onaylandıktan sonra ödeme, kullanılan
                 ödeme yöntemine iade edilir (banka işlem süreleri hariç 14 iş günü içinde).
               </p>
@@ -217,7 +217,7 @@ export default function SatisSozlesmesiPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Madde 11 — İletişim</h2>
               <div className="p-4 bg-white border border-[#e5e5e5] rounded-xl space-y-1">
-                <p><strong className="text-[#1a1a1a]">E-posta:</strong> support@studyoima.com</p>
+                <p><strong className="text-[#1a1a1a]">E-posta:</strong> ilgi@ilet.in</p>
                 <p><strong className="text-[#1a1a1a]">Web:</strong> www.studyoima.com</p>
               </div>
             </section>

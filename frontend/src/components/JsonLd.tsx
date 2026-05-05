@@ -7,7 +7,7 @@ export default function JsonLd() {
     logo: "https://studyoima.com/logo.png",
     contactPoint: {
       "@type": "ContactPoint",
-      email: "support@studyoima.com",
+      email: "ilgi@ilet.in",
       contactType: "customer service",
       availableLanguage: "Turkish",
     },

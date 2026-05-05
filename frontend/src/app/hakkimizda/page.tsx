@@ -129,7 +129,7 @@ export default function HakkimizdaPage() {
                 Sorularınız, önerileriniz veya iş birliği talepleriniz için bizimle iletişime geçebilirsiniz.
               </p>
               <div className="mt-3 p-4 bg-white border border-[#e5e5e5] rounded-xl space-y-1">
-                <p><strong className="text-[#1a1a1a]">E-posta:</strong> support@studyoima.com</p>
+                <p><strong className="text-[#1a1a1a]">E-posta:</strong> ilgi@ilet.in</p>
                 <p><strong className="text-[#1a1a1a]">Web:</strong> www.studyoima.com</p>
               </div>
             </section>

@@ -259,6 +259,14 @@ export default function RegisterPage() {
                 </p>
               </div>
 
+              {/* Spam uyarısı */}
+              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5">
+                <span className="text-amber-500 text-base leading-none mt-0.5">⚠</span>
+                <p className="text-xs text-amber-700 leading-relaxed">
+                  Kodu göremiyorsanız <strong>spam / önemsiz</strong> klasörünü kontrol edin. Bazen otomatik filtreler doğrulama e-postalarını oraya taşıyabilir.
+                </p>
+              </div>
+
               {/* 6 kutucuk */}
               <div className="flex gap-2 mb-6" onPaste={handlePaste}>
                 {code.map((digit, i) => (
