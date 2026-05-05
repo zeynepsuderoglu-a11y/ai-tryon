@@ -113,20 +113,18 @@ async def adjust_user_credits(
 async def list_generations(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    user_id: str | None = Query(None),
+    user_search: str | None = Query(None),
     category: str | None = Query(None),
     status: str | None = Query(None),
     admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy import and_
+    from sqlalchemy import and_, or_
 
     filters = []
-    if user_id:
-        try:
-            filters.append(Generation.user_id == uuid.UUID(user_id))
-        except ValueError:
-            pass
+    if user_search:
+        term = f"%{user_search}%"
+        filters.append(or_(User.full_name.ilike(term), User.email.ilike(term)))
     if category:
         filters.append(Generation.category == category)
     if status:
@@ -134,10 +132,11 @@ async def list_generations(
 
     where_clause = and_(*filters) if filters else True
 
-    total = (await db.execute(select(func.count(Generation.id)).where(where_clause))).scalar()
+    base_query = select(Generation, User.email, User.full_name).join(User, Generation.user_id == User.id)
+
+    total = (await db.execute(select(func.count()).select_from(base_query.where(where_clause).subquery()))).scalar()
     rows = (await db.execute(
-        select(Generation, User.email, User.full_name)
-        .join(User, Generation.user_id == User.id)
+        base_query
         .where(where_clause)
         .order_by(Generation.created_at.desc())
         .offset((page - 1) * page_size)

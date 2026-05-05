@@ -65,7 +65,7 @@ export default function AdminGenerationsPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterUser, setFilterUser] = useState("");
-  const [userInput, setUserInput] = useState("");
+  const [userInput, setUserInput] = useState(""); // isim veya e-posta
 
   const [preview, setPreview] = useState<AdminGeneration | null>(null);
 
@@ -73,7 +73,7 @@ export default function AdminGenerationsPage() {
 
   const fetchData = useCallback(() => {
     setLoading(true);
-    adminApi.generations({ page, page_size: PAGE_SIZE, category: filterCategory || undefined, status: filterStatus || undefined, user_id: filterUser || undefined })
+    adminApi.generations({ page, page_size: PAGE_SIZE, category: filterCategory || undefined, status: filterStatus || undefined, user_search: filterUser || undefined })
       .then((res) => { setItems(res.items); setTotal(res.total); })
       .catch(() => toast.error("Veriler alınamadı"))
       .finally(() => setLoading(false));
@@ -135,16 +135,16 @@ export default function AdminGenerationsPage() {
             </select>
           </div>
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs text-[#737373] mb-1 font-medium">Kullanıcı ID (opsiyonel)</label>
+            <label className="block text-xs text-[#737373] mb-1 font-medium">Kullanıcı (isim veya e-posta)</label>
             <div className="flex gap-2">
               <input
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && applyUserFilter()}
-                placeholder="UUID..."
+                placeholder="Ara..."
                 className="flex-1 text-sm border border-[#e5e5e5] rounded-lg px-3 py-2 focus:outline-none focus:border-[#1a1a1a]"
               />
-              <button onClick={applyUserFilter} className="px-3 py-2 text-sm bg-[#1a1a1a] text-white rounded-lg hover:bg-[#333]">Uygula</button>
+              <button onClick={applyUserFilter} className="px-3 py-2 text-sm bg-[#1a1a1a] text-white rounded-lg hover:bg-[#333]">Ara</button>
             </div>
           </div>
           {(filterCategory || filterStatus || filterUser) && (
