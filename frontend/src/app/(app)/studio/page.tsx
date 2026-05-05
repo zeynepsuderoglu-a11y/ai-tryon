@@ -346,6 +346,7 @@ export default function StudioPage() {
   const [mannequinGarmentUrl, setMannequinGarmentUrl] = useState<string | null>(null);
   const [mannequinGarmentPreview, setMannequinGarmentPreview] = useState<string | null>(null);
   const [mannequinUploading, setMannequinUploading] = useState(false);
+  const [mannequinBackground, setMannequinBackground] = useState<string>("white_studio");
 
   /* ── Mobil Sidebar ── */
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -424,7 +425,7 @@ export default function StudioPage() {
     try {
       if (isMannequin) {
         setRunningMessage("Kıyafet analiz ediliyor...");
-        const result = await mannequinTryonApi.run(mannequinGarmentUrl!, selectedMannequin!);
+        const result = await mannequinTryonApi.run(mannequinGarmentUrl!, selectedMannequin!, mannequinBackground);
         setGenerationId(result.generation_id);
         toast.success("Üretim başladı!");
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 2 });
@@ -741,6 +742,44 @@ export default function StudioPage() {
                         <div className="absolute inset-0 bg-[#0f0f0f]/10 flex items-center justify-center">
                           <div className="w-6 h-6 rounded-full bg-[#0f0f0f] flex items-center justify-center">
                             <Check className="w-3 h-3 text-white" />
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Arka Plan Seç */}
+              <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+                <div className="px-5 pt-5 pb-1">
+                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">3. Arka Plan</p>
+                </div>
+                <div className="p-5 pt-3 grid grid-cols-4 gap-2">
+                  {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => (
+                    <button
+                      key={bg.value}
+                      onClick={() => setMannequinBackground(bg.value)}
+                      className={cn(
+                        "relative rounded-xl overflow-hidden border-2 transition-all aspect-square",
+                        mannequinBackground === bg.value
+                          ? "border-[#0f0f0f] ring-2 ring-[#0f0f0f]/20"
+                          : "border-[#e8e8e8] hover:border-[#a3a3a3]"
+                      )}
+                    >
+                      {bg.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={bg.image} alt={bg.label} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-white" />
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-3 pb-1 px-1">
+                        <p className="text-white text-[9px] font-medium text-center leading-tight">{bg.label}</p>
+                      </div>
+                      {mannequinBackground === bg.value && (
+                        <div className="absolute top-1 right-1">
+                          <div className="w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-white" />
                           </div>
                         </div>
                       )}

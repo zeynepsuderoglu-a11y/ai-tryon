@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
 
-def _build_prompt(critical_detail: str, is_sleepwear: bool) -> str:
+def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str) -> str:
     detail_block = f"CRITICAL GARMENT DETAIL — reproduce this exactly: {critical_detail}\n\n" if critical_detail else ""
     footwear_line = "\nThe model must be barefoot with no shoes." if is_sleepwear else ""
 
@@ -29,7 +29,7 @@ IMAGE 2: Fashion garment.
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
 The complete figure from head to feet must be fully visible — do not crop.
-White background, soft studio lighting, attractive e-commerce pose.
+{background_desc}, soft studio lighting, attractive e-commerce pose.
 Output one fashion photo."""
 
 
@@ -83,6 +83,7 @@ class MannequinTryonService:
         garment_url: str,
         critical_detail: str,
         is_sleepwear: bool,
+        background_desc: str = "pure white seamless studio background, no shadows",
     ) -> str:
         # Yüz fotoğrafı — PNG varsa 1024px JPEG'e çevir (RGBA→RGB dahil)
         png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
@@ -115,7 +116,7 @@ class MannequinTryonService:
 
         logger.info("[mannequin-tryon] manken=%d garment=%s", mannequin_id, garment_url)
 
-        prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear)
+        prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear, background_desc=background_desc)
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()

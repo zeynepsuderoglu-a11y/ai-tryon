@@ -26,6 +26,12 @@ export default function AdminModelsPage() {
   const [editForm, setEditForm] = useState<{ name: string; gender: "male" | "female" | "unisex"; body_type: "slim" | "average" | "plus_size"; crop_type: "full_body" | "half_body" }>({ name: "", gender: "female", body_type: "slim", crop_type: "full_body" });
   const [saving, setSaving] = useState(false);
 
+  /* ── Mannequin State ── */
+  const mannequinFileInputRef = useRef<HTMLInputElement>(null);
+  const [mannequinEditId, setMannequinEditId] = useState<number | null>(null);
+  const [mannequinUploading, setMannequinUploading] = useState<number | null>(null);
+  const [mannequinTimestamp, setMannequinTimestamp] = useState(Date.now());
+
   const fetchModels = () => {
     setLoading(true);
     adminApi.models.list({ page: 1, page_size: 50, include_inactive: showInactive })
@@ -179,6 +185,68 @@ export default function AdminModelsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Mannequin Section */}
+      <div className="mt-12">
+        <div className="mb-4">
+          <h2 className="text-xl font-bold">AI Stil Oluştur — Mankenler</h2>
+          <p className="text-gray-400 text-sm">Fotoğrafı değiştirmek için üzerine gelin ve yükleme simgesine tıklayın</p>
+        </div>
+        <div className="grid grid-cols-4 sm:grid-cols-7 gap-4">
+          {[1, 2, 3, 4, 5, 6, 7].map((id) => (
+            <div key={id} className="relative group rounded-xl overflow-hidden bg-gray-800">
+              <div className="aspect-[3/4] relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/static/mannequins/${id}.jpg?t=${mannequinTimestamp}`}
+                  alt={`Manken ${id}`}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.3"; }}
+                />
+              </div>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-2">
+                <p className="text-white text-xs font-medium text-center">Manken {id}</p>
+              </div>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => { setMannequinEditId(id); mannequinFileInputRef.current?.click(); }}
+                  className="bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg"
+                  title="Fotoğrafı değiştir"
+                  disabled={mannequinUploading === id}
+                >
+                  {mannequinUploading === id ? (
+                    <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Upload className="w-3 h-3" />
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <input
+          ref={mannequinFileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file || !mannequinEditId) return;
+            setMannequinUploading(mannequinEditId);
+            try {
+              await adminApi.mannequins.upload(mannequinEditId, file);
+              toast.success(`Manken ${mannequinEditId} güncellendi`);
+              setMannequinTimestamp(Date.now());
+            } catch {
+              toast.error("Yükleme başarısız");
+            } finally {
+              setMannequinUploading(null);
+              setMannequinEditId(null);
+              e.target.value = "";
+            }
+          }}
+        />
       </div>
 
       {/* Edit Modal */}

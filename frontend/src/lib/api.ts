@@ -252,10 +252,11 @@ export const backgroundReplaceApi = {
 
 // Mannequin Try-On
 export const mannequinTryonApi = {
-  run: (garment_url: string, mannequin_id: number) => {
+  run: (garment_url: string, mannequin_id: number, background: string = "white_studio") => {
     const form = new FormData();
     form.append("garment_url", garment_url);
     form.append("mannequin_id", String(mannequin_id));
+    form.append("background", background);
     return api.post<{ generation_id: string; status: string }>("/mannequin-tryon/run", form, {
       headers: { "Content-Type": "multipart/form-data" },
     }).then((r) => r.data);
@@ -301,6 +302,16 @@ export const adminApi = {
       api.put<ModelAsset>(`/admin/models/${id}`, data).then((r) => r.data),
 
     delete: (id: string) => api.delete(`/admin/models/${id}`),
+  },
+
+  mannequins: {
+    upload: (id: number, file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return api.post(`/admin/mannequins/${id}`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then((r) => r.data);
+    },
   },
 };
 

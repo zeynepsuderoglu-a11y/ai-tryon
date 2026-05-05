@@ -18,6 +18,7 @@ from app.schemas.model_asset import ModelAssetCreate, ModelAssetUpdate, ModelAss
 from app.services.credit_service import credit_service
 
 STATIC_DIR = Path(__file__).parent.parent.parent.parent / "static" / "models"
+MANNEQUIN_DIR = Path(__file__).parent.parent.parent.parent / "static" / "mannequins"
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -323,3 +324,30 @@ async def admin_delete_model(
     if not model:
         raise HTTPException(status_code=404, detail="Model not found")
     await db.delete(model)
+
+
+@router.post("/mannequins/{mannequin_id}")
+async def admin_upload_mannequin(
+    mannequin_id: int,
+    file: UploadFile = File(...),
+    admin: User = Depends(get_current_admin),
+):
+    if mannequin_id < 1 or mannequin_id > 7:
+        raise HTTPException(status_code=400, detail="Geçersiz manken ID (1-7)")
+
+    import io
+    from PIL import Image as PILImage
+
+    contents = await file.read()
+    MANNEQUIN_DIR.mkdir(parents=True, exist_ok=True)
+
+    jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
+    png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
+
+    img = PILImage.open(io.BytesIO(contents)).convert("RGB")
+    img.save(str(jpg_path), format="JPEG", quality=95)
+
+    if png_path.exists():
+        png_path.unlink()
+
+    return {"id": mannequin_id, "url": f"/static/mannequins/{mannequin_id}.jpg"}

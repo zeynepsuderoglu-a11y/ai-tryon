@@ -66,8 +66,12 @@ async def _process_background(
     generation_id: uuid.UUID,
     mannequin_id: int,
     garment_url: str,
+    background: str = "white_studio",
 ):
     from app.core.database import AsyncSessionLocal
+
+    from app.services.background_replace_service import BACKGROUND_DESCS
+    background_desc = BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
 
     async with AsyncSessionLocal() as db:
         try:
@@ -94,6 +98,7 @@ async def _process_background(
                 garment_url=garment_url,
                 critical_detail=analysis.critical_detail,
                 is_sleepwear=sleepwear,
+                background_desc=background_desc,
             )
             logger.info("[mannequin-tryon/%s] Tamamlandı: %s", generation_id, output_url)
 
@@ -130,6 +135,7 @@ async def run_mannequin_tryon(
     background_tasks: BackgroundTasks,
     garment_url: str = Form(...),
     mannequin_id: int = Form(...),
+    background: str = Form("white_studio"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -154,7 +160,7 @@ async def run_mannequin_tryon(
     db.add(generation)
     await db.flush()
 
-    background_tasks.add_task(_process_background, generation.id, mannequin_id, garment_url)
+    background_tasks.add_task(_process_background, generation.id, mannequin_id, garment_url, background)
 
     await db.commit()
     return TryOnResponse(generation_id=generation.id, status=generation.status)
