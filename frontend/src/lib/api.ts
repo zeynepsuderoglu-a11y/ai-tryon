@@ -264,11 +264,12 @@ export const mannequinsApi = {
 
 // Mannequin Try-On
 export const mannequinTryonApi = {
-  run: (garment_url: string, mannequin_id: string, background: string = "white_studio") => {
+  run: (garment_url: string, mannequin_id: string, background: string = "white_studio", crop_type: string = "full_body") => {
     const form = new FormData();
     form.append("garment_url", garment_url);
     form.append("mannequin_id", mannequin_id);
     form.append("background", background);
+    form.append("crop_type", crop_type);
     return api.post<{ generation_id: string; status: string }>("/mannequin-tryon/run", form, {
       headers: { "Content-Type": "multipart/form-data" },
     }).then((r) => r.data);

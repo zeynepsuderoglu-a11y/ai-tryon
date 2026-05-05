@@ -16,16 +16,21 @@ from app.services.cloudinary_service import cloudinary_service
 logger = logging.getLogger(__name__)
 
 
-def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str) -> str:
+def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body") -> str:
     detail_block = f"CRITICAL GARMENT DETAIL — reproduce this exactly: {critical_detail}\n\n" if critical_detail else ""
     footwear_line = "\nThe model must be barefoot with no shoes." if is_sleepwear else ""
+    crop_line = (
+        "The complete figure from head to feet must be fully visible — do not crop."
+        if crop_type == "full_body"
+        else "Frame as a three-quarter shot from head to just above the knees — do not show feet."
+    )
 
     return f"""IMAGE 1: Fashion model face reference.
 IMAGE 2: Fashion garment.
 
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
-The complete figure from head to feet must be fully visible — do not crop.
+{crop_line}
 {background_desc}, soft studio lighting, attractive e-commerce pose.
 Output one fashion photo."""
 
@@ -81,6 +86,7 @@ class MannequinTryonService:
         critical_detail: str,
         is_sleepwear: bool,
         background_desc: str = "pure white seamless studio background, no shadows",
+        crop_type: str = "full_body",
     ) -> str:
         # Yüz fotoğrafını URL'den indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -101,7 +107,7 @@ class MannequinTryonService:
 
         logger.info("[mannequin-tryon] garment=%s", garment_url)
 
-        prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear, background_desc=background_desc)
+        prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear, background_desc=background_desc, crop_type=crop_type)
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()

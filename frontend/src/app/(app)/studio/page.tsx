@@ -353,6 +353,7 @@ export default function StudioPage() {
   const [mannequinGarmentPreview, setMannequinGarmentPreview] = useState<string | null>(null);
   const [mannequinUploading, setMannequinUploading] = useState(false);
   const [mannequinBackground, setMannequinBackground] = useState<string>("white_studio");
+  const [mannequinCropType, setMannequinCropType] = useState<"full_body" | "half_body">("full_body");
 
   /* ── Mobil Sidebar ── */
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -431,7 +432,7 @@ export default function StudioPage() {
     try {
       if (isMannequin) {
         setRunningMessage("Kıyafet analiz ediliyor...");
-        const result = await mannequinTryonApi.run(mannequinGarmentUrl!, selectedMannequin!, mannequinBackground);
+        const result = await mannequinTryonApi.run(mannequinGarmentUrl!, selectedMannequin!, mannequinBackground, mannequinCropType);
         setGenerationId(result.generation_id);
         toast.success("Üretim başladı!");
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 2 });
@@ -794,6 +795,35 @@ export default function StudioPage() {
                           </div>
                         </div>
                       )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Çerçeveleme Seç */}
+              <div className="bg-white rounded-2xl border border-[#e8e8e8] overflow-hidden">
+                <div className="px-5 pt-5 pb-1">
+                  <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">4. Çerçeveleme</p>
+                </div>
+                <div className="p-5 pt-3 grid grid-cols-2 gap-3">
+                  {([
+                    { value: "full_body" as const, label: "Tam Boy", desc: "Baştan ayağa tam görünüm" },
+                    { value: "half_body" as const, label: "Yarım Boy", desc: "Diz üstü kırpma" },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setMannequinCropType(opt.value)}
+                      className={cn(
+                        "flex flex-col items-start gap-1 p-4 rounded-xl border-2 text-left transition-all",
+                        mannequinCropType === opt.value
+                          ? "border-[#0f0f0f] bg-[#0f0f0f] text-white"
+                          : "border-[#e8e8e8] bg-white text-[#0f0f0f] hover:border-[#0f0f0f]"
+                      )}
+                    >
+                      <span className="text-xs font-semibold">{opt.label}</span>
+                      <span className={cn("text-[10px]", mannequinCropType === opt.value ? "text-white/50" : "text-[#a3a3a3]")}>
+                        {opt.desc}
+                      </span>
                     </button>
                   ))}
                 </div>
