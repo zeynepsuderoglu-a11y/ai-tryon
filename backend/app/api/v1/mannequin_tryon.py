@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.generation import Generation, GenerationStatus, GarmentCategory
+from app.models.mannequin import Mannequin
 from app.schemas.tryon import TryOnResponse, TryOnStatusResponse
 from app.services.mannequin_tryon_service import mannequin_tryon_service
 from app.services.garment_analysis_service import analyze_garment
@@ -64,13 +65,13 @@ def _compute_locks(proportion_hint: str, garment_type: str, category: str) -> tu
 
 async def _process_background(
     generation_id: uuid.UUID,
-    mannequin_id: int,
+    face_url: str,
     garment_url: str,
     background: str = "white_studio",
 ):
     from app.core.database import AsyncSessionLocal
-
     from app.services.background_replace_service import BACKGROUND_DESCS
+
     background_desc = BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
 
     async with AsyncSessionLocal() as db:
@@ -94,7 +95,7 @@ async def _process_background(
 
             # 2. Görsel üretimi
             output_url = await mannequin_tryon_service.run(
-                mannequin_id=mannequin_id,
+                face_url=face_url,
                 garment_url=garment_url,
                 critical_detail=analysis.critical_detail,
                 is_sleepwear=sleepwear,
@@ -134,13 +135,22 @@ async def _process_background(
 async def run_mannequin_tryon(
     background_tasks: BackgroundTasks,
     garment_url: str = Form(...),
-    mannequin_id: int = Form(...),
+    mannequin_id: str = Form(...),
     background: str = Form("white_studio"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if mannequin_id < 1 or mannequin_id > 7:
-        raise HTTPException(status_code=400, detail="Geçersiz manken ID (1-7)")
+    try:
+        mannequin_uuid = uuid.UUID(mannequin_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Geçersiz manken ID")
+
+    mannequin_result = await db.execute(
+        select(Mannequin).where(Mannequin.id == mannequin_uuid, Mannequin.is_active == True)
+    )
+    mannequin = mannequin_result.scalar_one_or_none()
+    if not mannequin:
+        raise HTTPException(status_code=404, detail="Manken bulunamadı")
 
     if not await credit_service.check_credits(current_user, CREDITS_COST):
         raise HTTPException(status_code=402, detail="Insufficient credits")
@@ -160,7 +170,7 @@ async def run_mannequin_tryon(
     db.add(generation)
     await db.flush()
 
-    background_tasks.add_task(_process_background, generation.id, mannequin_id, garment_url, background)
+    background_tasks.add_task(_process_background, generation.id, mannequin.image_url, garment_url, background)
 
     await db.commit()
     return TryOnResponse(generation_id=generation.id, status=generation.status)

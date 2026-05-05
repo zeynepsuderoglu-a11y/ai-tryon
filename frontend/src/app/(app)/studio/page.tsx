@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { tryonApi, eyewearApi, videoApi, ghostMannequinApi, geminiTryonApi, backgroundReplaceApi, mannequinTryonApi } from "@/lib/api";
+import { tryonApi, eyewearApi, videoApi, ghostMannequinApi, geminiTryonApi, backgroundReplaceApi, mannequinTryonApi, mannequinsApi } from "@/lib/api";
 import { useStudioStore } from "@/lib/store";
 import { useAuthStore } from "@/lib/store";
 import GarmentUpload from "@/components/studio/GarmentUpload";
@@ -323,6 +323,11 @@ export default function StudioPage() {
   useEffect(() => {
     if (selectedModelId) setBackground("original");
   }, [selectedModelId]);
+
+  // Manken listesini yükle
+  useEffect(() => {
+    mannequinsApi.list().then(setMannequinList).catch(() => {});
+  }, []);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
   const [garmentCategory, setGarmentCategory] = useState("tops");
@@ -342,7 +347,8 @@ export default function StudioPage() {
   const videoFileInputRef = useRef<HTMLInputElement>(null);
 
   /* ── Mannequin State ── */
-  const [selectedMannequin, setSelectedMannequin] = useState<number | null>(null);
+  const [mannequinList, setMannequinList] = useState<{ id: string; name: string; image_url: string }[]>([]);
+  const [selectedMannequin, setSelectedMannequin] = useState<string | null>(null);
   const [mannequinGarmentUrl, setMannequinGarmentUrl] = useState<string | null>(null);
   const [mannequinGarmentPreview, setMannequinGarmentPreview] = useState<string | null>(null);
   const [mannequinUploading, setMannequinUploading] = useState(false);
@@ -721,24 +727,29 @@ export default function StudioPage() {
                   <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">2. Manken Seç</p>
                 </div>
                 <div className="p-5 pt-3 grid grid-cols-4 gap-3">
-                  {[1, 2, 3, 4, 5, 6, 7].map((id) => (
+                  {mannequinList.length === 0 ? (
+                    <p className="col-span-4 text-xs text-[#a3a3a3] py-4 text-center">Henüz manken eklenmemiş</p>
+                  ) : mannequinList.map((m) => (
                     <button
-                      key={id}
-                      onClick={() => setSelectedMannequin(id)}
+                      key={m.id}
+                      onClick={() => setSelectedMannequin(m.id)}
                       className={cn(
                         "relative rounded-xl overflow-hidden border-2 transition-all aspect-[3/4]",
-                        selectedMannequin === id
+                        selectedMannequin === m.id
                           ? "border-[#0f0f0f] ring-2 ring-[#0f0f0f]/20"
                           : "border-[#e8e8e8] hover:border-[#a3a3a3]"
                       )}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={`/static/mannequins/${id}.jpg`}
-                        alt={`Manken ${id}`}
+                        src={m.image_url}
+                        alt={m.name}
                         className="w-full h-full object-cover object-top"
                       />
-                      {selectedMannequin === id && (
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent pt-4 pb-1 px-1">
+                        <p className="text-white text-[9px] font-medium text-center truncate">{m.name}</p>
+                      </div>
+                      {selectedMannequin === m.id && (
                         <div className="absolute inset-0 bg-[#0f0f0f]/10 flex items-center justify-center">
                           <div className="w-6 h-6 rounded-full bg-[#0f0f0f] flex items-center justify-center">
                             <Check className="w-3 h-3 text-white" />

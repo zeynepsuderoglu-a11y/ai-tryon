@@ -33,7 +33,7 @@ async def get_db() -> AsyncSession:
 
 async def create_tables():
     # Tüm modellerin import edildiğinden emin ol
-    from app.models import user, generation, batch_job, credit_transaction, model_asset, payment, video_generation  # noqa: F401
+    from app.models import user, generation, batch_job, credit_transaction, model_asset, payment, video_generation, mannequin  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

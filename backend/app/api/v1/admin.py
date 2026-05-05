@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.generation import Generation
 from app.models.batch_job import BatchJob
 from app.models.model_asset import ModelAsset, Gender, BodyType, SkinTone, CropType
+from app.models.mannequin import Mannequin
 from app.models.credit_transaction import CreditTransaction, TransactionType
 from app.models.payment import Payment
 from app.schemas.admin import AdminStatsResponse, AdminCreditAdjust, AdminUserOut
@@ -18,7 +19,6 @@ from app.schemas.model_asset import ModelAssetCreate, ModelAssetUpdate, ModelAss
 from app.services.credit_service import credit_service
 
 STATIC_DIR = Path(__file__).parent.parent.parent.parent / "static" / "models"
-MANNEQUIN_DIR = Path(__file__).parent.parent.parent.parent / "static" / "mannequins"
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -326,28 +326,78 @@ async def admin_delete_model(
     await db.delete(model)
 
 
-@router.post("/mannequins/{mannequin_id}")
+# ── Mannequin CRUD ──────────────────────────────────────────────────────────
+
+@router.get("/mannequins")
+async def admin_list_mannequins(
+    include_inactive: bool = False,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Mannequin)
+    if not include_inactive:
+        query = query.where(Mannequin.is_active == True)
+    result = await db.execute(query.order_by(Mannequin.created_at.asc()))
+    mannequins = result.scalars().all()
+    return [
+        {"id": str(m.id), "name": m.name, "image_url": m.image_url, "is_active": m.is_active, "created_at": m.created_at}
+        for m in mannequins
+    ]
+
+
+@router.post("/mannequins/upload", status_code=201)
 async def admin_upload_mannequin(
-    mannequin_id: int,
+    name: str = Form(...),
     file: UploadFile = File(...),
     admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
 ):
-    if mannequin_id < 1 or mannequin_id > 7:
-        raise HTTPException(status_code=400, detail="Geçersiz manken ID (1-7)")
-
-    import io
-    from PIL import Image as PILImage
+    import asyncio
+    from app.services.cloudinary_service import cloudinary_service
 
     contents = await file.read()
-    MANNEQUIN_DIR.mkdir(parents=True, exist_ok=True)
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(
+        None, lambda: cloudinary_service.upload_file(contents, folder="tryon/mannequins")
+    )
+    image_url = result["secure_url"]
 
-    jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
-    png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
+    mannequin = Mannequin(name=name, image_url=image_url)
+    db.add(mannequin)
+    await db.flush()
+    await db.commit()
+    return {"id": str(mannequin.id), "name": mannequin.name, "image_url": mannequin.image_url, "is_active": mannequin.is_active}
 
-    img = PILImage.open(io.BytesIO(contents)).convert("RGB")
-    img.save(str(jpg_path), format="JPEG", quality=95)
 
-    if png_path.exists():
-        png_path.unlink()
+@router.put("/mannequins/{mannequin_id}")
+async def admin_update_mannequin(
+    mannequin_id: uuid.UUID,
+    name: str | None = None,
+    is_active: bool | None = None,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Mannequin).where(Mannequin.id == mannequin_id))
+    mannequin = result.scalar_one_or_none()
+    if not mannequin:
+        raise HTTPException(status_code=404, detail="Manken bulunamadı")
+    if name is not None:
+        mannequin.name = name
+    if is_active is not None:
+        mannequin.is_active = is_active
+    await db.commit()
+    return {"id": str(mannequin.id), "name": mannequin.name, "image_url": mannequin.image_url, "is_active": mannequin.is_active}
 
-    return {"id": mannequin_id, "url": f"/static/mannequins/{mannequin_id}.jpg"}
+
+@router.delete("/mannequins/{mannequin_id}", status_code=204)
+async def admin_delete_mannequin(
+    mannequin_id: uuid.UUID,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Mannequin).where(Mannequin.id == mannequin_id))
+    mannequin = result.scalar_one_or_none()
+    if not mannequin:
+        raise HTTPException(status_code=404, detail="Manken bulunamadı")
+    await db.delete(mannequin)
+    await db.commit()

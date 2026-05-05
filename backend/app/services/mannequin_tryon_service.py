@@ -1,5 +1,5 @@
 """
-MannequinTryonService — Yüz referansı + Ürün analizi → E-ticaret katalog görseli
+MannequinTryonService — Yüz referansı (Cloudinary URL) + Ürün → E-ticaret katalog görseli
 Garment analysis (Claude) → Gemini image generation
 """
 from __future__ import annotations
@@ -7,7 +7,6 @@ from __future__ import annotations
 import asyncio
 import io
 import logging
-from pathlib import Path
 
 import httpx
 
@@ -15,8 +14,6 @@ from app.core.config import settings
 from app.services.cloudinary_service import cloudinary_service
 
 logger = logging.getLogger(__name__)
-
-MANNEQUIN_DIR = Path(__file__).parent.parent.parent / "static" / "mannequins"
 
 
 def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str) -> str:
@@ -79,32 +76,20 @@ def _run_sync(
 class MannequinTryonService:
     async def run(
         self,
-        mannequin_id: int,
+        face_url: str,
         garment_url: str,
         critical_detail: str,
         is_sleepwear: bool,
         background_desc: str = "pure white seamless studio background, no shadows",
     ) -> str:
-        # Yüz fotoğrafı — PNG varsa 1024px JPEG'e çevir (RGBA→RGB dahil)
-        png_path = MANNEQUIN_DIR / f"{mannequin_id}.png"
-        jpg_path = MANNEQUIN_DIR / f"{mannequin_id}.jpg"
-
-        if png_path.exists():
-            from PIL import Image as PILImage
-            img = PILImage.open(png_path).convert("RGB")
-            w, h = img.size
-            new_h = int(h * 1024 / w)
-            img = img.resize((1024, new_h), PILImage.LANCZOS)
-            buf = io.BytesIO()
-            img.save(buf, format="JPEG", quality=95)
-            face_bytes = buf.getvalue()
-            logger.info("[mannequin-tryon] face 1024px JPEG: %dKB", len(face_bytes) // 1024)
-        elif jpg_path.exists():
-            face_bytes = jpg_path.read_bytes()
-            logger.info("[mannequin-tryon] face thumbnail JPG: %dKB", len(face_bytes) // 1024)
-        else:
-            raise FileNotFoundError(f"Manken {mannequin_id} bulunamadı")
-        face_mime = "image/jpeg"
+        # Yüz fotoğrafını URL'den indir
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(face_url)
+            resp.raise_for_status()
+            face_bytes = resp.content
+            ct = resp.headers.get("content-type", "image/jpeg")
+            face_mime = ct.split(";")[0].strip() or "image/jpeg"
+        logger.info("[mannequin-tryon] face=%s (%dKB)", face_url, len(face_bytes) // 1024)
 
         # Ürün fotoğrafını indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -114,14 +99,14 @@ class MannequinTryonService:
             ct = resp.headers.get("content-type", "image/jpeg")
             garment_mime = ct.split(";")[0].strip() or "image/jpeg"
 
-        logger.info("[mannequin-tryon] manken=%d garment=%s", mannequin_id, garment_url)
+        logger.info("[mannequin-tryon] garment=%s", garment_url)
 
         prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear, background_desc=background_desc)
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()
 
-        # 3 deneme (Nano Banana gibi)
+        # 3 deneme
         last_err: Exception | None = None
         for attempt in range(1, 4):
             try:

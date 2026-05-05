@@ -27,10 +27,18 @@ export default function AdminModelsPage() {
   const [saving, setSaving] = useState(false);
 
   /* ── Mannequin State ── */
+  type MannequinItem = { id: string; name: string; image_url: string; is_active: boolean };
+  const [mannequins, setMannequins] = useState<MannequinItem[]>([]);
+  const [mannequinLoading, setMannequinLoading] = useState(true);
+  const [showMannequinInactive, setShowMannequinInactive] = useState(false);
+  const [showMannequinUpload, setShowMannequinUpload] = useState(false);
+  const [mannequinUploadFile, setMannequinUploadFile] = useState<File | null>(null);
+  const [mannequinUploadName, setMannequinUploadName] = useState("");
+  const [mannequinUploading, setMannequinUploading] = useState(false);
+  const [editingMannequin, setEditingMannequin] = useState<MannequinItem | null>(null);
+  const [mannequinEditName, setMannequinEditName] = useState("");
+  const [mannequinSaving, setMannequinSaving] = useState(false);
   const mannequinFileInputRef = useRef<HTMLInputElement>(null);
-  const [mannequinEditId, setMannequinEditId] = useState<number | null>(null);
-  const [mannequinUploading, setMannequinUploading] = useState<number | null>(null);
-  const [mannequinTimestamp, setMannequinTimestamp] = useState(Date.now());
 
   const fetchModels = () => {
     setLoading(true);
@@ -40,6 +48,15 @@ export default function AdminModelsPage() {
   };
 
   useEffect(() => { fetchModels(); }, [showInactive]);
+
+  const fetchMannequins = () => {
+    setMannequinLoading(true);
+    adminApi.mannequins.list(showMannequinInactive || undefined)
+      .then(setMannequins)
+      .catch(() => {})
+      .finally(() => setMannequinLoading(false));
+  };
+  useEffect(() => { fetchMannequins(); }, [showMannequinInactive]);
 
   const handleUpload = async () => {
     if (!form.name) { toast.error("Model adı zorunlu"); return; }
@@ -187,67 +204,218 @@ export default function AdminModelsPage() {
         )}
       </div>
 
-      {/* Mannequin Section */}
+      {/* ── Mannequin Section ── */}
       <div className="mt-12">
-        <div className="mb-4">
-          <h2 className="text-xl font-bold">AI Stil Oluştur — Mankenler</h2>
-          <p className="text-gray-400 text-sm">Fotoğrafı değiştirmek için üzerine gelin ve yükleme simgesine tıklayın</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold">AI Stil Oluştur — Mankenler</h2>
+            <p className="text-gray-400 text-sm">{mannequins.length} manken</p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowMannequinInactive(!showMannequinInactive)}
+              className={cn("px-4 py-2 rounded-lg text-sm transition-colors",
+                showMannequinInactive ? "bg-white/20 text-white" : "bg-white/10 text-gray-400 hover:text-white"
+              )}
+            >
+              {showMannequinInactive ? "Hide" : "Show"} Inactive
+            </button>
+            <button
+              onClick={() => setShowMannequinUpload(true)}
+              className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Manken Ekle
+            </button>
+          </div>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-7 gap-4">
-          {[1, 2, 3, 4, 5, 6, 7].map((id) => (
-            <div key={id} className="relative group rounded-xl overflow-hidden bg-gray-800">
-              <div className="aspect-[3/4] relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/static/mannequins/${id}.jpg?t=${mannequinTimestamp}`}
-                  alt={`Manken ${id}`}
-                  className="w-full h-full object-cover object-top"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.3"; }}
+
+        {mannequinLoading ? (
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="aspect-[2/3] rounded-xl bg-gray-800 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {mannequins.map((m) => (
+              <div key={m.id} className={cn("relative group rounded-xl overflow-hidden bg-gray-800", !m.is_active && "opacity-50")}>
+                <div className="aspect-[2/3] relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={m.image_url} alt={m.name} className="w-full h-full object-cover object-top" />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-2">
+                  <p className="text-white text-xs font-medium truncate">{m.name}</p>
+                </div>
+                <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => { setEditingMannequin(m); setMannequinEditName(m.name); }}
+                    className="bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg"
+                    title="Düzenle"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await adminApi.mannequins.update(m.id, { is_active: !m.is_active });
+                        toast.success(`Manken ${!m.is_active ? "aktif" : "pasif"} edildi`);
+                        fetchMannequins();
+                      } catch { toast.error("Güncelleme başarısız"); }
+                    }}
+                    className="bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg"
+                    title={m.is_active ? "Pasif yap" : "Aktif yap"}
+                  >
+                    {m.is_active ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm("Bu mankeni sil?")) return;
+                      try {
+                        await adminApi.mannequins.delete(m.id);
+                        toast.success("Manken silindi");
+                        fetchMannequins();
+                      } catch { toast.error("Silme başarısız"); }
+                    }}
+                    className="bg-red-500/60 hover:bg-red-500/80 text-white p-1.5 rounded-lg"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Mannequin Edit Modal */}
+      {editingMannequin && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="glass rounded-2xl p-6 w-full max-w-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg">Mankeni Düzenle</h3>
+              <button onClick={() => setEditingMannequin(null)} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">İsim *</label>
+                <input
+                  value={mannequinEditName}
+                  onChange={(e) => setMannequinEditName(e.target.value)}
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                  style={{ color: "white" }}
                 />
               </div>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-2">
-                <p className="text-white text-xs font-medium text-center">Manken {id}</p>
-              </div>
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-3 pt-1">
                 <button
-                  onClick={() => { setMannequinEditId(id); mannequinFileInputRef.current?.click(); }}
-                  className="bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-lg"
-                  title="Fotoğrafı değiştir"
-                  disabled={mannequinUploading === id}
+                  onClick={() => setEditingMannequin(null)}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-lg text-sm"
                 >
-                  {mannequinUploading === id ? (
-                    <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Upload className="w-3 h-3" />
-                  )}
+                  İptal
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!mannequinEditName.trim()) return;
+                    setMannequinSaving(true);
+                    try {
+                      await adminApi.mannequins.update(editingMannequin.id, { name: mannequinEditName.trim() });
+                      toast.success("Manken güncellendi");
+                      setEditingMannequin(null);
+                      fetchMannequins();
+                    } catch { toast.error("Güncelleme başarısız"); }
+                    finally { setMannequinSaving(false); }
+                  }}
+                  disabled={mannequinSaving}
+                  className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium"
+                >
+                  {mannequinSaving ? "Kaydediliyor..." : "Kaydet"}
                 </button>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-        <input
-          ref={mannequinFileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file || !mannequinEditId) return;
-            setMannequinUploading(mannequinEditId);
-            try {
-              await adminApi.mannequins.upload(mannequinEditId, file);
-              toast.success(`Manken ${mannequinEditId} güncellendi`);
-              setMannequinTimestamp(Date.now());
-            } catch {
-              toast.error("Yükleme başarısız");
-            } finally {
-              setMannequinUploading(null);
-              setMannequinEditId(null);
-              e.target.value = "";
-            }
-          }}
-        />
-      </div>
+      )}
+
+      {/* Mannequin Upload Modal */}
+      {showMannequinUpload && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="glass rounded-2xl p-6 w-full max-w-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg">Manken Ekle</h3>
+              <button onClick={() => { setShowMannequinUpload(false); setMannequinUploadFile(null); setMannequinUploadName(""); }} className="text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">İsim *</label>
+                <input
+                  value={mannequinUploadName}
+                  onChange={(e) => setMannequinUploadName(e.target.value)}
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500 placeholder:text-gray-500"
+                  placeholder="Manken adı"
+                  style={{ color: "white" }}
+                />
+              </div>
+              <div>
+                <input
+                  ref={mannequinFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setMannequinUploadFile(e.target.files?.[0] || null)}
+                />
+                <button
+                  onClick={() => mannequinFileInputRef.current?.click()}
+                  className={cn(
+                    "w-full border-2 border-dashed rounded-xl py-8 text-sm transition-colors",
+                    mannequinUploadFile ? "border-primary-500 text-primary-300" : "border-white/20 text-gray-400 hover:border-white/40"
+                  )}
+                >
+                  {mannequinUploadFile ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Upload className="w-4 h-4" /> {mannequinUploadFile.name}
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Upload className="w-4 h-4" /> Fotoğraf seç
+                    </span>
+                  )}
+                </button>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowMannequinUpload(false); setMannequinUploadFile(null); setMannequinUploadName(""); }}
+                  className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 rounded-lg text-sm"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!mannequinUploadName.trim()) { toast.error("İsim zorunlu"); return; }
+                    if (!mannequinUploadFile) { toast.error("Fotoğraf seçin"); return; }
+                    setMannequinUploading(true);
+                    try {
+                      await adminApi.mannequins.upload(mannequinUploadName.trim(), mannequinUploadFile);
+                      toast.success("Manken eklendi!");
+                      setShowMannequinUpload(false);
+                      setMannequinUploadFile(null);
+                      setMannequinUploadName("");
+                      fetchMannequins();
+                    } catch { toast.error("Yükleme başarısız"); }
+                    finally { setMannequinUploading(false); }
+                  }}
+                  disabled={mannequinUploading}
+                  className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium"
+                >
+                  {mannequinUploading ? "Yükleniyor..." : "Ekle"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editingModel && (

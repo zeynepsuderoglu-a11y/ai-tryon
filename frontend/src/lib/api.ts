@@ -250,12 +250,18 @@ export const backgroundReplaceApi = {
     api.get<Generation>(`/background-replace/${id}/status`).then((r) => r.data),
 };
 
+// Public Mannequins
+export const mannequinsApi = {
+  list: () =>
+    api.get<{ id: string; name: string; image_url: string }[]>("/mannequins").then((r) => r.data),
+};
+
 // Mannequin Try-On
 export const mannequinTryonApi = {
-  run: (garment_url: string, mannequin_id: number, background: string = "white_studio") => {
+  run: (garment_url: string, mannequin_id: string, background: string = "white_studio") => {
     const form = new FormData();
     form.append("garment_url", garment_url);
-    form.append("mannequin_id", String(mannequin_id));
+    form.append("mannequin_id", mannequin_id);
     form.append("background", background);
     return api.post<{ generation_id: string; status: string }>("/mannequin-tryon/run", form, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -305,13 +311,24 @@ export const adminApi = {
   },
 
   mannequins: {
-    upload: (id: number, file: File) => {
+    list: (include_inactive?: boolean) =>
+      api.get<{ id: string; name: string; image_url: string; is_active: boolean; created_at: string }[]>(
+        "/admin/mannequins", { params: { include_inactive } }
+      ).then((r) => r.data),
+
+    upload: (name: string, file: File) => {
       const form = new FormData();
+      form.append("name", name);
       form.append("file", file);
-      return api.post(`/admin/mannequins/${id}`, form, {
+      return api.post("/admin/mannequins/upload", form, {
         headers: { "Content-Type": "multipart/form-data" },
       }).then((r) => r.data);
     },
+
+    update: (id: string, data: { name?: string; is_active?: boolean }) =>
+      api.put(`/admin/mannequins/${id}`, null, { params: data }).then((r) => r.data),
+
+    delete: (id: string) => api.delete(`/admin/mannequins/${id}`),
   },
 };
 
