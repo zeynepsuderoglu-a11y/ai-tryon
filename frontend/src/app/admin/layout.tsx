@@ -7,14 +7,15 @@ import { isAuthenticated, clearTokens } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
 import { authApi } from "@/lib/api";
 import Image from "next/image";
-import { BarChart3, Users, ImageIcon, LogOut, KeyRound } from "lucide-react";
+import { BarChart3, Users, ImageIcon, LogOut, KeyRound, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/admin",          label: "Genel Bakış",    icon: BarChart3  },
-  { href: "/admin/users",    label: "Kullanıcılar",   icon: Users      },
-  { href: "/admin/models",   label: "Modeller",       icon: ImageIcon  },
-  { href: "/admin/settings", label: "Şifre Değiştir", icon: KeyRound   },
+  { href: "/admin",             label: "Genel Bakış",    icon: BarChart3  },
+  { href: "/admin/users",       label: "Kullanıcılar",   icon: Users      },
+  { href: "/admin/models",      label: "Modeller",       icon: ImageIcon  },
+  { href: "/admin/backgrounds", label: "Arka Planlar",   icon: Layers     },
+  { href: "/admin/settings",    label: "Şifre Değiştir", icon: KeyRound   },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { tryonApi, eyewearApi, videoApi, ghostMannequinApi, geminiTryonApi, backgroundReplaceApi, mannequinTryonApi, mannequinsApi } from "@/lib/api";
+import { tryonApi, eyewearApi, videoApi, ghostMannequinApi, geminiTryonApi, backgroundReplaceApi, mannequinTryonApi, mannequinsApi, backgroundsApi } from "@/lib/api";
+import type { BackgroundItem } from "@/lib/api";
 import { useStudioStore } from "@/lib/store";
 import { useAuthStore } from "@/lib/store";
 import GarmentUpload from "@/components/studio/GarmentUpload";
@@ -22,31 +23,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 
-const BACKGROUNDS = [
-  { value: "original",       label: "Orijinal", image: null                              },
-  { value: "white_studio",   label: "Beyaz",    image: "/backgrounds/white_studio.jpg"   },
-  { value: "grey_studio",    label: "Gri",      image: "/backgrounds/grey_studio.jpg"    },
-  { value: "cream",          label: "Krem",     image: "/backgrounds/cream.jpg"          },
-  { value: "black_studio",   label: "Siyah",    image: "/backgrounds/black_studio.jpg"   },
-  { value: "pink_studio",    label: "Pembe",    image: "/backgrounds/pink_studio.jpg"    },
-  { value: "outdoor_city",   label: "Şehir",    image: "/backgrounds/outdoor_city.jpg"   },
-  { value: "outdoor_nature", label: "Doğa",     image: "/backgrounds/outdoor_nature.jpg" },
-  { value: "cafe",           label: "Kafe",     image: "/backgrounds/cafe.jpg"           },
-  { value: "minimal_room",   label: "Oda",      image: "/backgrounds/minimal_room.jpg"   },
-  { value: "beige_outdoor",      label: "Plaj",         image: "/backgrounds/beige_outdoor.jpg"      },
-  { value: "istanbul_terrace",   label: "İstanbul",     image: "/backgrounds/istanbul_terrace.jpg"   },
-  { value: "boho_room",          label: "Boho",         image: "/backgrounds/boho_room.jpg"          },
-  { value: "wood_studio",        label: "Ahşap",        image: "/backgrounds/wood_studio.jpg"        },
-  { value: "luxury_marble",      label: "Mermer",       image: "/backgrounds/luxury_marble.jpg"      },
-  { value: "warm_studio",        label: "Sıcak",        image: "/backgrounds/warm_studio.jpg"        },
-  { value: "ottoman_cafe",       label: "Osmanlı",      image: "/backgrounds/ottoman_cafe.jpg"       },
-  { value: "industrial_room",    label: "Endüstriyel",  image: "/backgrounds/industrial_room.jpg"    },
-  { value: "garden",             label: "Bahçe",        image: "/backgrounds/garden.jpg"             },
-  { value: "concrete_loft",      label: "Loft",         image: "/backgrounds/concrete_loft.jpg"      },
-  { value: "rose_studio",        label: "Gül",          image: "/backgrounds/rose_studio.jpg"        },
-  { value: "arch_room",          label: "Kemerli",      image: "/backgrounds/arch_room.jpg"          },
-];
-
 const AESTHETICS = [
   { value: "no_accessories",   label: "Aksesuarsız", emoji: "✨", desc: "Sade üretim"      },
   { value: "with_accessories", label: "Aksesuarlı",  emoji: "👜", desc: "Çanta, gözlük"    },
@@ -54,7 +30,7 @@ const AESTHETICS = [
 
 /* ── Arka Plan Seçim Tipi ── */
 type BgPhoto = { id: string; url: string; preview: string };
-type BgSelection = { background: string; customUrl?: string; customPreview?: string };
+type BgSelection = { background: string; imageUrl: string; customPreview?: string };
 
 /* ── Ghost Mannequin Upload Bileşeni ── */
 function GhostUpload() {
@@ -324,9 +300,10 @@ export default function StudioPage() {
     if (selectedModelId) setBackground("original");
   }, [selectedModelId]);
 
-  // Manken listesini yükle
+  // Manken ve arka plan listesini yükle
   useEffect(() => {
     mannequinsApi.list().then(setMannequinList).catch(() => {});
+    backgroundsApi.list().then(setBackgroundsList).catch(() => {});
   }, []);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
@@ -345,6 +322,9 @@ export default function StudioPage() {
   const [ghostGenerationId, setGhostGenerationId] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
+
+  /* ── Backgrounds State ── */
+  const [backgroundsList, setBackgroundsList] = useState<BackgroundItem[]>([]);
 
   /* ── Mannequin State ── */
   const [mannequinList, setMannequinList] = useState<{ id: string; name: string; image_url: string }[]>([]);
@@ -442,11 +422,7 @@ export default function StudioPage() {
         const results = await Promise.all(
           bgPhotos.map((photo, i) => {
             const sel = bgSelections.length === 1 ? bgSelections[0] : bgSelections[i];
-            return backgroundReplaceApi.run(
-              photo.url,
-              sel.background,
-              sel.background === "custom" ? (sel.customUrl || "") : "",
-            );
+            return backgroundReplaceApi.run(photo.url, sel.background, sel.imageUrl || "");
           })
         );
         const ids = results.map((r) => r.generation_id);
@@ -768,27 +744,23 @@ export default function StudioPage() {
                   <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">3. Arka Plan</p>
                 </div>
                 <div className="p-5 pt-3 grid grid-cols-4 gap-2">
-                  {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => (
+                  {backgroundsList.map((bg) => (
                     <button
-                      key={bg.value}
-                      onClick={() => setMannequinBackground(bg.value)}
+                      key={bg.key}
+                      onClick={() => setMannequinBackground(bg.key)}
                       className={cn(
                         "relative rounded-xl overflow-hidden border-2 transition-all aspect-square",
-                        mannequinBackground === bg.value
+                        mannequinBackground === bg.key
                           ? "border-[#0f0f0f] ring-2 ring-[#0f0f0f]/20"
                           : "border-[#e8e8e8] hover:border-[#a3a3a3]"
                       )}
                     >
-                      {bg.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={bg.image} alt={bg.label} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-white" />
-                      )}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={bg.image_url} alt={bg.label} className="w-full h-full object-cover" />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-3 pb-1 px-1">
                         <p className="text-white text-[9px] font-medium text-center leading-tight">{bg.label}</p>
                       </div>
-                      {mannequinBackground === bg.value && (
+                      {mannequinBackground === bg.key && (
                         <div className="absolute top-1 right-1">
                           <div className="w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center">
                             <Check className="w-2.5 h-2.5 text-white" />
@@ -951,48 +923,41 @@ export default function StudioPage() {
                 </div>
                 <div className="p-5 pt-3">
                   <div className="grid grid-cols-5 gap-2">
-                    {BACKGROUNDS.filter(bg => bg.value !== "original").map((bg) => {
-                      const selIdx = bgSelections.findIndex(s => s.background === bg.value);
+                    {backgroundsList.map((bg) => {
+                      const selIdx = bgSelections.findIndex(s => s.background === bg.key);
                       const isSelected = selIdx !== -1;
                       const canSelectMore = bgSelections.length < (bgPhotos.length > 0 ? bgPhotos.length : 5);
-                        return (
-                          <button
-                            key={bg.value}
-                            onClick={() => {
-                              if (isSelected) {
-                                setBgSelections(prev => prev.filter((_, i) => i !== selIdx));
-                              } else if (canSelectMore) {
-                                setBgSelections(prev => [...prev, { background: bg.value }]);
-                              }
-                            }}
-                            className={cn(
-                              "relative flex flex-col items-center gap-1 rounded-xl overflow-hidden border-2 transition-all",
-                              isSelected
-                                ? "border-[#0f0f0f]"
-                                : canSelectMore
-                                ? "border-transparent hover:border-[#e8e8e8]"
-                                : "border-transparent opacity-40 cursor-not-allowed"
-                            )}
-                          >
-                            {/* Sıra numarası */}
-                            {isSelected && (
-                              <div className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full bg-[#0f0f0f] text-white text-[10px] font-bold flex items-center justify-center shadow">
-                                {selIdx + 1}
-                              </div>
-                            )}
-                            {bg.image ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={bg.image} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
-                            ) : (
-                              <div className="w-full aspect-square bg-[#f3f3f3] rounded-lg flex items-center justify-center">
-                                <ImageIcon className="w-5 h-5 text-[#a3a3a3]" />
-                              </div>
-                            )}
-                            <span className="text-[10px] text-[#737373] pb-1 truncate w-full text-center">{bg.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                      return (
+                        <button
+                          key={bg.key}
+                          onClick={() => {
+                            if (isSelected) {
+                              setBgSelections(prev => prev.filter((_, i) => i !== selIdx));
+                            } else if (canSelectMore) {
+                              setBgSelections(prev => [...prev, { background: bg.key, imageUrl: bg.image_url }]);
+                            }
+                          }}
+                          className={cn(
+                            "relative flex flex-col items-center gap-1 rounded-xl overflow-hidden border-2 transition-all",
+                            isSelected
+                              ? "border-[#0f0f0f]"
+                              : canSelectMore
+                              ? "border-transparent hover:border-[#e8e8e8]"
+                              : "border-transparent opacity-40 cursor-not-allowed"
+                          )}
+                        >
+                          {isSelected && (
+                            <div className="absolute top-1 right-1 z-10 w-5 h-5 rounded-full bg-[#0f0f0f] text-white text-[10px] font-bold flex items-center justify-center shadow">
+                              {selIdx + 1}
+                            </div>
+                          )}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={bg.image_url} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
+                          <span className="text-[10px] text-[#737373] pb-1 truncate w-full text-center">{bg.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
                     {/* Özel arka plan yükleme */}
                     {bgSelections.length < (bgPhotos.length > 0 ? bgPhotos.length : 5) && (
@@ -1012,7 +977,7 @@ export default function StudioPage() {
                               try {
                                 const preview = URL.createObjectURL(file);
                                 const result = await tryonApi.uploadGarment(file);
-                                setBgSelections(prev => [...prev, { background: "custom", customUrl: result.url, customPreview: preview }]);
+                                setBgSelections(prev => [...prev, { background: "custom", imageUrl: result.url, customPreview: preview }]);
                                 toast.success("Özel arka plan eklendi!");
                               } catch {
                                 toast.error("Yükleme başarısız");

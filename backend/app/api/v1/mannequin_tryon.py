@@ -11,6 +11,7 @@ from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.generation import Generation, GenerationStatus, GarmentCategory
 from app.models.mannequin import Mannequin
+from app.models.background import Background
 from app.schemas.tryon import TryOnResponse, TryOnStatusResponse
 from app.services.mannequin_tryon_service import mannequin_tryon_service
 from app.services.garment_analysis_service import analyze_garment
@@ -73,7 +74,14 @@ async def _process_background(
     from app.core.database import AsyncSessionLocal
     from app.services.background_replace_service import BACKGROUND_DESCS
 
-    background_desc = BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
+    async with AsyncSessionLocal() as _tmp_db:
+        bg_row = (await _tmp_db.execute(
+            select(Background).where(Background.key == background)
+        )).scalar_one_or_none()
+    if bg_row and bg_row.description:
+        background_desc = bg_row.description
+    else:
+        background_desc = BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
 
     async with AsyncSessionLocal() as db:
         try:

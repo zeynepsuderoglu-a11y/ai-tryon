@@ -262,6 +262,12 @@ export const mannequinsApi = {
     api.get<{ id: string; name: string; image_url: string }[]>("/mannequins").then((r) => r.data),
 };
 
+// Public Backgrounds
+export type BackgroundItem = { id: string; key: string; label: string; image_url: string; description?: string };
+export const backgroundsApi = {
+  list: () => api.get<BackgroundItem[]>("/backgrounds").then((r) => r.data),
+};
+
 // Mannequin Try-On
 export const mannequinTryonApi = {
   run: (garment_url: string, mannequin_id: string, background: string = "white_studio", crop_type: string = "full_body") => {
@@ -336,6 +342,40 @@ export const adminApi = {
       api.put(`/admin/mannequins/${id}`, null, { params: data }).then((r) => r.data),
 
     delete: (id: string) => api.delete(`/admin/mannequins/${id}`),
+  },
+
+  backgrounds: {
+    list: (include_inactive?: boolean) =>
+      api.get<{ id: string; key: string; label: string; image_url: string; description?: string; is_active: boolean; sort_order: number; created_at: string }[]>(
+        "/admin/backgrounds", { params: { include_inactive } }
+      ).then((r) => r.data),
+
+    upload: (label: string, file: File, description = "", sort_order = 0) => {
+      const form = new FormData();
+      form.append("label", label);
+      form.append("file", file);
+      form.append("description", description);
+      form.append("sort_order", String(sort_order));
+      return api.post("/admin/backgrounds/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then((r) => r.data);
+    },
+
+    uploadFromUrl: (label: string, image_url: string, description = "", sort_order = 0) => {
+      const form = new FormData();
+      form.append("label", label);
+      form.append("image_url", image_url);
+      form.append("description", description);
+      form.append("sort_order", String(sort_order));
+      return api.post("/admin/backgrounds/upload-url", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }).then((r) => r.data);
+    },
+
+    update: (id: string, data: { label?: string; description?: string; is_active?: boolean; sort_order?: number }) =>
+      api.put(`/admin/backgrounds/${id}`, null, { params: data }).then((r) => r.data),
+
+    delete: (id: string) => api.delete(`/admin/backgrounds/${id}`),
   },
 };
 

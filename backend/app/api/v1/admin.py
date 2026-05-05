@@ -12,6 +12,7 @@ from app.models.generation import Generation
 from app.models.batch_job import BatchJob
 from app.models.model_asset import ModelAsset, Gender, BodyType, SkinTone, CropType
 from app.models.mannequin import Mannequin
+from app.models.background import Background
 from app.models.credit_transaction import CreditTransaction, TransactionType
 from app.models.payment import Payment
 from app.schemas.admin import AdminStatsResponse, AdminCreditAdjust, AdminUserOut
@@ -400,4 +401,157 @@ async def admin_delete_mannequin(
     if not mannequin:
         raise HTTPException(status_code=404, detail="Manken bulunamadı")
     await db.delete(mannequin)
+    await db.commit()
+
+
+# ── Background CRUD ──────────────────────────────────────────────────────────
+
+@router.get("/backgrounds")
+async def admin_list_backgrounds(
+    include_inactive: bool = False,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Background)
+    if not include_inactive:
+        query = query.where(Background.is_active == True)
+    result = await db.execute(query.order_by(Background.sort_order.asc(), Background.created_at.asc()))
+    bgs = result.scalars().all()
+    return [
+        {
+            "id": str(b.id), "key": b.key, "label": b.label,
+            "image_url": b.image_url, "description": b.description,
+            "is_active": b.is_active, "sort_order": b.sort_order,
+            "created_at": b.created_at,
+        }
+        for b in bgs
+    ]
+
+
+@router.post("/backgrounds/upload", status_code=201)
+async def admin_upload_background(
+    label: str = Form(...),
+    description: str = Form(""),
+    sort_order: int = Form(0),
+    file: UploadFile = File(...),
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    import asyncio
+    import re
+    from app.services.cloudinary_service import cloudinary_service
+
+    contents = await file.read()
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(
+        None, lambda: cloudinary_service.upload_file(contents, folder="tryon/backgrounds")
+    )
+    image_url = result["secure_url"]
+
+    # Auto-generate key from label
+    key_base = re.sub(r"[^a-z0-9]+", "_", label.lower().strip()).strip("_")
+    key = key_base or "bg"
+    # Ensure uniqueness
+    existing = (await db.execute(select(Background).where(Background.key == key))).scalar_one_or_none()
+    if existing:
+        import time
+        key = f"{key}_{int(time.time()) % 10000}"
+
+    bg = Background(
+        key=key, label=label,
+        image_url=image_url,
+        description=description.strip() or None,
+        sort_order=sort_order,
+    )
+    db.add(bg)
+    await db.flush()
+    await db.commit()
+    return {"id": str(bg.id), "key": bg.key, "label": bg.label, "image_url": bg.image_url, "is_active": bg.is_active}
+
+
+@router.post("/backgrounds/upload-url", status_code=201)
+async def admin_upload_background_from_url(
+    label: str = Form(...),
+    image_url: str = Form(...),
+    description: str = Form(""),
+    sort_order: int = Form(0),
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    import asyncio
+    import re
+    from app.services.cloudinary_service import cloudinary_service
+    import httpx
+
+    # Fetch image and upload to Cloudinary
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.get(image_url)
+            resp.raise_for_status()
+            contents = resp.content
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Resim indirilemedi: {e}")
+
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(
+        None, lambda: cloudinary_service.upload_file(contents, folder="tryon/backgrounds")
+    )
+    stored_url = result["secure_url"]
+
+    key_base = re.sub(r"[^a-z0-9]+", "_", label.lower().strip()).strip("_")
+    key = key_base or "bg"
+    existing = (await db.execute(select(Background).where(Background.key == key))).scalar_one_or_none()
+    if existing:
+        import time
+        key = f"{key}_{int(time.time()) % 10000}"
+
+    bg = Background(
+        key=key, label=label,
+        image_url=stored_url,
+        description=description.strip() or None,
+        sort_order=sort_order,
+    )
+    db.add(bg)
+    await db.flush()
+    await db.commit()
+    return {"id": str(bg.id), "key": bg.key, "label": bg.label, "image_url": bg.image_url, "is_active": bg.is_active}
+
+
+@router.put("/backgrounds/{bg_id}")
+async def admin_update_background(
+    bg_id: uuid.UUID,
+    label: str | None = None,
+    description: str | None = None,
+    is_active: bool | None = None,
+    sort_order: int | None = None,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Background).where(Background.id == bg_id))
+    bg = result.scalar_one_or_none()
+    if not bg:
+        raise HTTPException(status_code=404, detail="Arka plan bulunamadı")
+    if label is not None:
+        bg.label = label
+    if description is not None:
+        bg.description = description or None
+    if is_active is not None:
+        bg.is_active = is_active
+    if sort_order is not None:
+        bg.sort_order = sort_order
+    await db.commit()
+    return {"id": str(bg.id), "key": bg.key, "label": bg.label, "image_url": bg.image_url, "is_active": bg.is_active, "sort_order": bg.sort_order}
+
+
+@router.delete("/backgrounds/{bg_id}", status_code=204)
+async def admin_delete_background(
+    bg_id: uuid.UUID,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Background).where(Background.id == bg_id))
+    bg = result.scalar_one_or_none()
+    if not bg:
+        raise HTTPException(status_code=404, detail="Arka plan bulunamadı")
+    await db.delete(bg)
     await db.commit()
