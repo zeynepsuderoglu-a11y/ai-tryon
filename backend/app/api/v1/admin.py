@@ -109,6 +109,60 @@ async def adjust_user_credits(
     }
 
 
+@router.get("/generations")
+async def list_generations(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    user_id: str | None = Query(None),
+    category: str | None = Query(None),
+    status: str | None = Query(None),
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    from sqlalchemy import and_
+
+    filters = []
+    if user_id:
+        try:
+            filters.append(Generation.user_id == uuid.UUID(user_id))
+        except ValueError:
+            pass
+    if category:
+        filters.append(Generation.category == category)
+    if status:
+        filters.append(Generation.status == status)
+
+    where_clause = and_(*filters) if filters else True
+
+    total = (await db.execute(select(func.count(Generation.id)).where(where_clause))).scalar()
+    rows = (await db.execute(
+        select(Generation, User.email, User.full_name)
+        .join(User, Generation.user_id == User.id)
+        .where(where_clause)
+        .order_by(Generation.created_at.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )).all()
+
+    items = []
+    for gen, email, full_name in rows:
+        items.append({
+            "id": str(gen.id),
+            "user_id": str(gen.user_id),
+            "user_email": email,
+            "user_name": full_name,
+            "category": gen.category,
+            "status": gen.status,
+            "credits_used": gen.credits_used,
+            "garment_url": gen.garment_url,
+            "output_urls": gen.output_urls or [],
+            "error_message": gen.error_message,
+            "created_at": gen.created_at.isoformat(),
+        })
+
+    return {"items": items, "total": total, "page": page, "page_size": page_size}
+
+
 @router.put("/users/{user_id}/status")
 async def toggle_user_status(
     user_id: uuid.UUID,

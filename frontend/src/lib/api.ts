@@ -291,6 +291,9 @@ export const adminApi = {
   users: (params?: { page?: number; page_size?: number }) =>
     api.get("/admin/users", { params }).then((r) => r.data),
 
+  generations: (params?: { page?: number; page_size?: number; category?: string; status?: string; user_id?: string }) =>
+    api.get("/admin/generations", { params }).then((r) => r.data),
+
   adjustCredits: (userId: string, amount: number, description?: string, credit_type?: string) =>
     api.post(`/admin/users/${userId}/credits`, { amount, description, credit_type: credit_type || "clothing" }).then((r) => r.data),
 
