@@ -348,7 +348,7 @@ export default function StudioPage() {
   const bgSelectionsValid =
     bgPhotos.length > 0 &&
     (bgSelections.length === 1 || bgSelections.length === bgPhotos.length) &&
-    bgSelections.every(s => s.background !== "custom" || !!s.customUrl);
+    bgSelections.every(s => s.background !== "custom" || !!s.imageUrl);
 
   const canGenerate = isMannequin
     ? !!mannequinGarmentUrl && !!selectedMannequin
@@ -1252,24 +1252,24 @@ export default function StudioPage() {
                 <div>
                   <label className="block text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Arka Plan</label>
                   <div className="grid grid-cols-5 gap-2">
-                    {BACKGROUNDS.map((bg) => (
-                      <button key={bg.value} onClick={() => setBackground(bg.value)} className="flex flex-col items-center gap-1.5" title={bg.label}>
+                    {backgroundsList.map((bg) => (
+                      <button key={bg.key} onClick={() => setBackground(bg.key)} className="flex flex-col items-center gap-1.5" title={bg.label}>
                         <div className={cn(
                           "w-full aspect-square rounded-xl overflow-hidden transition-all",
-                          background === bg.value
+                          background === bg.key
                             ? "ring-2 ring-[#0f0f0f] ring-offset-2"
                             : "hover:ring-1 hover:ring-[#a3a3a3] ring-offset-1"
                         )}>
-                          {bg.image ? (
+                          {bg.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={bg.image} alt={bg.label} className="w-full h-full object-cover" />
+                            <img src={bg.image_url} alt={bg.label} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border-2 border-dashed border-gray-300">
                               <ImageIcon className="w-4 h-4 text-gray-400" />
                             </div>
                           )}
                         </div>
-                        <span className={cn("text-[10px] text-center leading-tight", background === bg.value ? "text-[#0f0f0f] font-semibold" : "text-[#a3a3a3]")}>
+                        <span className={cn("text-[10px] text-center leading-tight", background === bg.key ? "text-[#0f0f0f] font-semibold" : "text-[#a3a3a3]")}>
                           {bg.label}
                         </span>
                       </button>
