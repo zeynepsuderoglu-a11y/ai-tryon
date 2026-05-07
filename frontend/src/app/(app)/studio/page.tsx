@@ -450,7 +450,7 @@ export default function StudioPage() {
         if (user) setUser({ ...user, credits_remaining: user.credits_remaining - 1 });
         setShowResult(true);
       } else if (isNano) {
-        setRunningMessage("Nano Banana analiz ediyor...");
+        setRunningMessage("AI analiz ediyor...");
         const result = await geminiTryonApi.run({
           garment_url: garmentUrl!,
           model_asset_id: selectedModelId!,
@@ -544,7 +544,7 @@ export default function StudioPage() {
               generationId={generationId || undefined}
               batchJobId={batchJobId || undefined}
               mode={isEyewear ? "eyewear" : "garment"}
-              statusEndpoint={isNano ? "gemini-tryon" : isMannequin ? "mannequin-tryon" : isBgReplace ? "background-replace" : undefined}
+              statusEndpoint={isNano ? "ai-pro" : isMannequin ? "mannequin-tryon" : isBgReplace ? "background-replace" : undefined}
             />
           )}
         </div>

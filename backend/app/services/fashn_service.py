@@ -51,8 +51,8 @@ class FashnService:
                 except Exception:
                     code, msg = "", response.text
                 if code == "OutOfCredits":
-                    raise RuntimeError("FASHN API kredisi tükendi. Lütfen fashn.ai hesabına kredi yükle.")
-                raise RuntimeError(f"FASHN tryon error {response.status_code}: {msg}")
+                    raise RuntimeError("Servis kapasitesi doldu, lütfen destek ekibimizle iletişime geçin.")
+                raise RuntimeError(f"Görsel işleme hatası ({response.status_code})")
             return response.json()
 
     async def run_product_to_model(
@@ -97,8 +97,8 @@ class FashnService:
                 except Exception:
                     code, msg = "", response.text
                 if code == "OutOfCredits":
-                    raise RuntimeError("FASHN API kredisi tükendi. Lütfen fashn.ai hesabına kredi yükle.")
-                raise RuntimeError(f"FASHN product-to-model error {response.status_code}: {msg}")
+                    raise RuntimeError("Servis kapasitesi doldu, lütfen destek ekibimizle iletişime geçin.")
+                raise RuntimeError(f"Görsel işleme hatası ({response.status_code})")
             return response.json()
 
     async def get_status(self, prediction_id: str) -> dict:
@@ -123,10 +123,10 @@ class FashnService:
             if status == "completed":
                 return result
             if status in ("failed", "error", "canceled"):
-                raise RuntimeError(f"FASHN prediction failed: {result.get('error', 'Unknown error')}")
+                raise RuntimeError("Görsel işleme başarısız oldu")
             await asyncio.sleep(poll_interval)
             elapsed += poll_interval
-        raise TimeoutError(f"FASHN prediction {prediction_id} timed out after {max_wait}s")
+        raise TimeoutError("İşlem zaman aşımına uğradı")
 
 
 fashn_service = FashnService()

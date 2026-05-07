@@ -638,7 +638,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     )
                     prediction_id = run_result.get("id")
                     if not prediction_id:
-                        raise RuntimeError(f"FASHN product-to-model prediction id gelmedi: {run_result}")
+                        raise RuntimeError("Görsel üretimi başlatılamadı")
 
                     final = await fashn_service.poll_until_complete(prediction_id)
                     raw_output = final.get("output", [])
@@ -646,7 +646,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     output_urls = output_urls[:1]
 
                     if not output_urls:
-                        raise RuntimeError("FASHN product-to-model boş çıktı döndürdü")
+                        raise RuntimeError("Görsel çıktısı alınamadı")
 
                     logger.info("[%s] FASHN.ai tamamlandı", generation_id)
 
@@ -710,7 +710,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
             gen = gen_result.scalar_one_or_none()
             if gen:
                 gen.status = GenerationStatus.failed
-                gen.error_message = f"{type(e).__name__}: {e}\n{tb}"
+                gen.error_message = "İşlem tamamlanamadı. Lütfen tekrar deneyin."
                 # Kredi iadesi — başarısız işlemde kullanıcıya geri ver
                 try:
                     from app.models.credit_transaction import TransactionType

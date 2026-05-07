@@ -18,7 +18,7 @@ from app.services.credit_service import credit_service
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/gemini-tryon", tags=["gemini-tryon"])
+router = APIRouter(prefix="/ai-pro", tags=["ai-pro"])
 
 CREDITS_COST = 2
 
@@ -110,7 +110,7 @@ async def process_gemini_tryon_background(
             gen = result.scalar_one_or_none()
             if gen:
                 gen.status = GenerationStatus.failed
-                gen.error_message = f"{type(e).__name__}: {e}"
+                gen.error_message = "İşlem tamamlanamadı. Lütfen tekrar deneyin."
                 try:
                     from app.models.credit_transaction import TransactionType
                     await credit_service.add_credits(

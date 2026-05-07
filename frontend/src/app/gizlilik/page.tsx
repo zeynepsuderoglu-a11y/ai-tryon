@@ -90,7 +90,7 @@ export default function GizlilikPage() {
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">4. Görsel Verilerin İşlenmesi</h2>
               <p className="mb-3">
                 Yüklediğiniz ürün fotoğrafları ve üretilen görseller, hizmetin sunulması amacıyla
-                Cloudinary bulut depolama altyapısında saklanmaktadır. Bu görseller:
+                güvenli bulut depolama altyapısında saklanmaktadır. Bu görseller:
               </p>
               <ul className="space-y-2 pl-4">
                 <li className="flex gap-2"><span className="text-[#c9a96e] font-medium flex-shrink-0">·</span><span>Yalnızca sizin hesabınızla ilişkilendirilir ve üçüncü taraflarla paylaşılmaz.</span></li>

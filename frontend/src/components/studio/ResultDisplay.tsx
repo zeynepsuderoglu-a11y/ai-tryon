@@ -12,7 +12,7 @@ interface ResultDisplayProps {
   generationId?: string;
   batchJobId?: string;
   mode?: "garment" | "eyewear";
-  statusEndpoint?: "gemini-tryon" | "background-replace" | "mannequin-tryon";
+  statusEndpoint?: "ai-pro" | "background-replace" | "mannequin-tryon";
   onComplete?: () => void;
 }
 
@@ -29,7 +29,7 @@ export default function ResultDisplay({ generationId, batchJobId, mode = "garmen
     const poll = async () => {
       try {
         if (generationId) {
-          const gen = statusEndpoint === "gemini-tryon"
+          const gen = statusEndpoint === "ai-pro"
             ? await geminiTryonApi.getStatus(generationId)
             : statusEndpoint === "background-replace"
             ? await backgroundReplaceApi.getStatus(generationId)

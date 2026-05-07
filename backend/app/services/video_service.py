@@ -53,7 +53,7 @@ async def generate_video(
         data = resp.json()
 
     if data.get("code") != 200:
-        raise RuntimeError(f"kie.ai generate error: {data.get('msg', 'Unknown error')}")
+        raise RuntimeError("Video üretimi başlatılamadı")
 
     task_id = data["data"]["taskId"]
     logger.info("[video] Task oluşturuldu: %s", task_id)
@@ -79,7 +79,7 @@ async def poll_video_status(task_id: str) -> str:
             data = resp.json()
 
             if data.get("code") != 200:
-                raise RuntimeError(f"kie.ai status error: {data.get('msg')}")
+                raise RuntimeError("Video durum sorgusu başarısız")
 
             info = data.get("data", {})
             flag = info.get("successFlag", 0)
@@ -99,7 +99,7 @@ async def poll_video_status(task_id: str) -> str:
                 raise RuntimeError("Video URL boş döndü")
 
             elif flag in (2, 3):
-                raise RuntimeError(f"kie.ai video üretim başarısız (flag={flag})")
+                raise RuntimeError("Video üretimi başarısız oldu")
 
             logger.info("[video/%s] Bekleniyor... deneme %d/%d", task_id, attempt + 1, MAX_POLLS)
 

@@ -224,7 +224,7 @@ export default function AdminBackgroundsPage() {
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Açıklama (Gemini için)</label>
+                <label className="text-xs text-gray-400 block mb-1">AI Açıklaması</label>
                 <textarea
                   value={editDesc}
                   onChange={(e) => setEditDesc(e.target.value)}
@@ -285,7 +285,7 @@ export default function AdminBackgroundsPage() {
               </div>
 
               <div>
-                <label className="text-xs text-gray-400 block mb-1">Açıklama (Gemini için — opsiyonel)</label>
+                <label className="text-xs text-gray-400 block mb-1">AI Açıklaması (opsiyonel)</label>
                 <textarea
                   value={uploadDesc}
                   onChange={(e) => setUploadDesc(e.target.value)}
