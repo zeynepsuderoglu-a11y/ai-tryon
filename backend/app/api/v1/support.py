@@ -8,6 +8,12 @@ router = APIRouter(prefix="/support", tags=["support"])
 # ---------------------------------------------------------------------------
 _RULES = [
     (
+        ["kredi kartı", "banka kartı", "ödeme", "satın al", "paket", "üretim hakkı", "ödeme yöntemi"],
+        "Evet, kredi kartı ile güvenli ödeme yaparak üretim hakkı (kredi paketi) satın alabilirsiniz. "
+        "Kredi Yükle sayfasından istediğiniz paketi seçin, kart bilgilerinizi girin, işlem tamamlanınca krediler anında hesabınıza eklenir. "
+        "Ödeme altyapımız 256-bit SSL ile korunmaktadır.",
+    ),
+    (
         ["nasıl çalışır", "nasıl kullanılır", "nasıl yapılır", "ne işe yarar", "nedir bu", "ne yapıyor"],
         "StudyoİMA AI, ürün fotoğrafınızdan saniyeler içinde profesyonel görsel üretir. "
         "Stüdyo sayfasına gidip bir özellik seçin, ürün fotoğrafınızı yükleyin ve AI'ın üretmesini bekleyin. "
@@ -56,10 +62,6 @@ _RULES = [
     (
         ["kayıt", "hesap aç", "üye ol", "üyelik", "giriş yap", "nasıl kayıt", "nasıl üye", "nasıl giriş", "şifre"],
         "Kayıt & Giriş: studyoima.com/register adresinden ücretsiz kayıt olabilirsiniz. Şifrenizi unutursanız giriş sayfasındaki 'Şifremi Unuttum' bağlantısını kullanın.",
-    ),
-    (
-        ["ödeme", "satın al", "paket", "kart", "kredi kartı", "ödeme yöntemi"],
-        "Ödeme: Kredi kartı ile güvenli ödeme yapabilirsiniz. Kredi Yükle sayfasından istediğiniz paketi seçebilirsiniz. Ödeme altyapımız 256-bit SSL ile korunmaktadır.",
     ),
     (
         ["iletişim", "destek", "yardım", "mail", "e-posta", "şikayet", "sorun"],
