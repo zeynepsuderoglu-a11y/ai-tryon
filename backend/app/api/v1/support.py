@@ -8,7 +8,7 @@ router = APIRouter(prefix="/support", tags=["support"])
 # ---------------------------------------------------------------------------
 _RULES = [
     (
-        ["nasıl çalışır", "nasıl kullanılır", "nasıl yapılır", "ne işe yarar", "nedir bu", "ne yapıyor", "nasıl"],
+        ["nasıl çalışır", "nasıl kullanılır", "nasıl yapılır", "ne işe yarar", "nedir bu", "ne yapıyor"],
         "StudyoİMA AI, ürün fotoğrafınızdan saniyeler içinde profesyonel görsel üretir. "
         "Stüdyo sayfasına gidip bir özellik seçin, ürün fotoğrafınızı yükleyin ve AI'ın üretmesini bekleyin. "
         "Her özellik 1–5 kredi harcar.",
@@ -54,7 +54,7 @@ _RULES = [
         "Görsel yükleme: Ürün fotoğrafı net ve düz zemin üzerinde olmalıdır. Desteklenen formatlar: JPG, PNG, WEBP. Yüksek çözünürlüklü ve iyi aydınlatılmış görseller daha iyi sonuç verir.",
     ),
     (
-        ["kayıt", "hesap", "üye", "üyelik", "giriş", "şifre"],
+        ["kayıt", "hesap aç", "üye ol", "üyelik", "giriş yap", "nasıl kayıt", "nasıl üye", "nasıl giriş", "şifre"],
         "Kayıt & Giriş: studyoima.com/register adresinden ücretsiz kayıt olabilirsiniz. Şifrenizi unutursanız giriş sayfasındaki 'Şifremi Unuttum' bağlantısını kullanın.",
     ),
     (
