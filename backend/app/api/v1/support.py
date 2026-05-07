@@ -14,6 +14,18 @@ _RULES = [
         "Ödeme altyapımız 256-bit SSL ile korunmaktadır.",
     ),
     (
+        ["üretimle ilgili", "üretim hakkında", "üretim bilgi", "üretim yapabilir", "üretilebilir", "üretim nasıl", "üretim ne"],
+        "StudyoİMA AI ile 7 farklı üretim yapabilirsiniz:\n"
+        "• AI Stil Oluştur — ürün fotoğrafından otomatik manken görseli (2 kredi)\n"
+        "• Model Seç & Giydir — seçtiğiniz model üzerine kıyafet giydirme (2 kredi)\n"
+        "• AI Giydir Pro — gelişmiş AI ile daha gerçekçi giydirme (2 kredi)\n"
+        "• Arka Plan Değiştir — görsel arka planını değiştirme (1 kredi)\n"
+        "• Ghost Manken — katalog için içi boş manken görseli (1 kredi)\n"
+        "• Gözlük — modele sanal gözlük giydirme (1 kredi)\n"
+        "• Video — ürün görselinden kısa video üretimi (5 kredi)\n"
+        "Tüm özellikler Stüdyo sayfasından kullanılabilir.",
+    ),
+    (
         ["nasıl çalışır", "nasıl kullanılır", "nasıl yapılır", "ne işe yarar", "nedir bu", "ne yapıyor"],
         "StudyoİMA AI, ürün fotoğrafınızdan saniyeler içinde profesyonel görsel üretir. "
         "Stüdyo sayfasına gidip bir özellik seçin, ürün fotoğrafınızı yükleyin ve AI'ın üretmesini bekleyin. "
