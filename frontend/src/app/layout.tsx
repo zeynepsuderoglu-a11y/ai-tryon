@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import ToasterProvider from "@/components/ToasterProvider";
+import ChatWidget from "@/components/ChatWidget";
 import JsonLd from "@/components/JsonLd";
 
 const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600"] });
@@ -112,6 +113,7 @@ export default function RootLayout({
         </noscript>
         <JsonLd />
         {children}
+        <ChatWidget />
         <ToasterProvider />
       </body>
     </html>
