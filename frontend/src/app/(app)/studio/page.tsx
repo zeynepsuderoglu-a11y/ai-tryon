@@ -271,6 +271,20 @@ function MannequinGarmentSection({
   );
 }
 
+/* ── Cloudinary thumbnail helper ── */
+function thumbUrl(url: string, w = 200): string {
+  if (!url || !url.includes("res.cloudinary.com")) return url;
+  return url.replace("/upload/", `/upload/w_${w},q_auto,f_auto/`);
+}
+
+/* ── Module-level cache (5 dk) ── */
+type Mannequin = { id: string; name: string; image_url: string };
+const _cache: {
+  mannequins?: { data: Mannequin[]; ts: number };
+  backgrounds?: { data: import("@/lib/api").BackgroundItem[]; ts: number };
+} = {};
+const CACHE_TTL = 5 * 60 * 1000;
+
 /* ── Studio Sekmeleri ── */
 const STUDIO_TABS = [
   { mode: "mannequin"  as const, label: "AI Stil Oluştur",    icon: User      },
@@ -300,10 +314,20 @@ export default function StudioPage() {
     if (selectedModelId) setBackground("original");
   }, [selectedModelId]);
 
-  // Manken ve arka plan listesini yükle
+  // Manken ve arka plan listesini yükle (5 dk cache)
+  const [listsLoading, setListsLoading] = useState(true);
   useEffect(() => {
-    mannequinsApi.list().then(setMannequinList).catch(() => {});
-    backgroundsApi.list().then(setBackgroundsList).catch(() => {});
+    const now = Date.now();
+    const fetchMannequins = _cache.mannequins && now - _cache.mannequins.ts < CACHE_TTL
+      ? Promise.resolve(_cache.mannequins.data)
+      : mannequinsApi.list().then((d) => { _cache.mannequins = { data: d, ts: Date.now() }; return d; });
+    const fetchBackgrounds = _cache.backgrounds && now - _cache.backgrounds.ts < CACHE_TTL
+      ? Promise.resolve(_cache.backgrounds.data)
+      : backgroundsApi.list().then((d) => { _cache.backgrounds = { data: d, ts: Date.now() }; return d; });
+    Promise.all([fetchMannequins, fetchBackgrounds])
+      .then(([mannequins, backgrounds]) => { setMannequinList(mannequins); setBackgroundsList(backgrounds); })
+      .catch(() => {})
+      .finally(() => setListsLoading(false));
   }, []);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
@@ -704,7 +728,11 @@ export default function StudioPage() {
                   <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">2. Manken Seç</p>
                 </div>
                 <div className="p-5 pt-3 grid grid-cols-4 gap-3">
-                  {mannequinList.length === 0 ? (
+                  {listsLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="rounded-xl aspect-[3/4] bg-[#f0f0f0] animate-pulse" />
+                    ))
+                  ) : mannequinList.length === 0 ? (
                     <p className="col-span-4 text-xs text-[#a3a3a3] py-4 text-center">Henüz manken eklenmemiş</p>
                   ) : mannequinList.map((m) => (
                     <button
@@ -719,7 +747,7 @@ export default function StudioPage() {
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={m.image_url}
+                        src={thumbUrl(m.image_url)}
                         alt={m.name}
                         className="w-full h-full object-cover object-top"
                       />
@@ -744,7 +772,11 @@ export default function StudioPage() {
                   <p className="text-xs font-semibold text-[#a3a3a3] uppercase tracking-wider">3. Arka Plan</p>
                 </div>
                 <div className="p-5 pt-3 grid grid-cols-4 gap-2">
-                  {backgroundsList.map((bg) => (
+                  {listsLoading ? (
+                    Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="rounded-xl aspect-square bg-[#f0f0f0] animate-pulse" />
+                    ))
+                  ) : backgroundsList.map((bg) => (
                     <button
                       key={bg.key}
                       onClick={() => setMannequinBackground(bg.key)}
@@ -756,7 +788,7 @@ export default function StudioPage() {
                       )}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={bg.image_url} alt={bg.label} className="w-full h-full object-cover" />
+                      <img src={thumbUrl(bg.image_url)} alt={bg.label} className="w-full h-full object-cover" />
                       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-3 pb-1 px-1">
                         <p className="text-white text-[9px] font-medium text-center leading-tight">{bg.label}</p>
                       </div>
@@ -952,7 +984,7 @@ export default function StudioPage() {
                             </div>
                           )}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={bg.image_url} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
+                          <img src={thumbUrl(bg.image_url)} alt={bg.label} className="w-full aspect-square object-cover rounded-lg" />
                           <span className="text-[10px] text-[#737373] pb-1 truncate w-full text-center">{bg.label}</span>
                         </button>
                       );
@@ -1262,7 +1294,7 @@ export default function StudioPage() {
                         )}>
                           {bg.image_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={bg.image_url} alt={bg.label} className="w-full h-full object-cover" />
+                            <img src={thumbUrl(bg.image_url)} alt={bg.label} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border-2 border-dashed border-gray-300">
                               <ImageIcon className="w-4 h-4 text-gray-400" />
