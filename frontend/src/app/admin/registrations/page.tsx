@@ -66,7 +66,7 @@ export default function AdminRegistrationsPage() {
     setLoading(true);
     adminApi.registrations
       .list({ email_search: emailSearch, status: statusFilter, page, page_size: PAGE_SIZE })
-      .then((res) => { setItems(res.items); setTotal(res.total); })
+      .then((res) => { setItems(res.items as RegistrationItem[]); setTotal(res.total); })
       .finally(() => setLoading(false));
   }, [emailSearch, statusFilter, page]);
 
