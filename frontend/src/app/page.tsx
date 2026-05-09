@@ -148,7 +148,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-black/5">
         <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="StudyoİMA AI — Yapay Zeka Görsel Üretim Platformu" width={32} height={32} className="rounded-full" />
+            <Image src="/logo.png" alt="StudyoİMA AI — Yapay Zeka Görsel Üretim Platformu" width={32} height={32} className="rounded-full" priority />
             <span className="text-base font-semibold tracking-tight">StudyoİMA AI</span>
           </Link>
           <div className="flex items-center gap-5">

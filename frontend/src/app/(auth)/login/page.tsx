@@ -89,7 +89,7 @@ export default function LoginPage() {
           {/* Mobil logo */}
           <div className="lg:hidden text-center mb-10">
             <Link href="/" className="flex items-center gap-3 justify-center">
-              <Image src="/logo.png" alt="IMA AI Studio" width={44} height={44} className="rounded-full" />
+              <Image src="/logo.png" alt="IMA AI Studio" width={44} height={44} className="rounded-full" priority />
               <span className="text-2xl font-bold tracking-tight text-[#0f0f0f]">StudyoİMA AI</span>
             </Link>
           </div>

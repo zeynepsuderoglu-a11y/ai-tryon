@@ -6,7 +6,7 @@ import ToasterProvider from "@/components/ToasterProvider";
 import ChatWidget from "@/components/ChatWidget";
 import JsonLd from "@/components/JsonLd";
 
-const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600"] });
+const inter = Inter({ subsets: ["latin", "latin-ext"], weight: ["300", "400", "500", "600"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://studyoima.com"),
