@@ -15,9 +15,12 @@ from app.models.mannequin import Mannequin
 from app.models.background import Background
 from app.models.credit_transaction import CreditTransaction, TransactionType
 from app.models.payment import Payment
+from app.models.registration_attempt import RegistrationAttempt, RegistrationStatus
 from app.schemas.admin import AdminStatsResponse, AdminCreditAdjust, AdminUserOut
 from app.schemas.model_asset import ModelAssetCreate, ModelAssetUpdate, ModelAssetOut, ModelAssetListResponse
 from app.services.credit_service import credit_service
+from app.core.config import settings
+import redis.asyncio as aioredis
 
 STATIC_DIR = Path(__file__).parent.parent.parent.parent / "static" / "models"
 
@@ -608,3 +611,58 @@ async def admin_delete_background(
         raise HTTPException(status_code=404, detail="Arka plan bulunamadı")
     await db.delete(bg)
     await db.commit()
+
+
+# ─── Kayıt Girişimleri ─────────────────────────────────────────────────────
+
+@router.get("/registrations")
+async def list_registrations(
+    email_search: str = Query("", alias="email_search"),
+    status: str = Query("all"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    q = select(RegistrationAttempt)
+    if email_search:
+        q = q.where(RegistrationAttempt.email.ilike(f"%{email_search}%"))
+    if status != "all":
+        try:
+            q = q.where(RegistrationAttempt.status == RegistrationStatus(status))
+        except ValueError:
+            pass
+
+    total = (await db.execute(select(func.count()).select_from(q.subquery()))).scalar()
+    rows = (await db.execute(
+        q.order_by(RegistrationAttempt.created_at.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )).scalars().all()
+
+    items = [
+        {
+            "id": str(r.id),
+            "email": r.email,
+            "status": r.status,
+            "resend_count": r.resend_count,
+            "created_at": r.created_at.isoformat(),
+            "updated_at": r.updated_at.isoformat(),
+            "verified_at": r.verified_at.isoformat() if r.verified_at else None,
+        }
+        for r in rows
+    ]
+    return {"items": items, "total": total, "page": page, "page_size": page_size}
+
+
+@router.get("/registrations/check-redis/{email}")
+async def check_registration_redis(
+    email: str,
+    admin: User = Depends(get_current_admin),
+):
+    r = aioredis.from_url(settings.REDIS_URL)
+    ttl = await r.ttl(f"email_verify:{email}")
+    await r.aclose()
+    if ttl and ttl > 0:
+        return {"has_pending": True, "expires_in_seconds": ttl}
+    return {"has_pending": False, "expires_in_seconds": 0}

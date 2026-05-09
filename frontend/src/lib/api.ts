@@ -380,6 +380,22 @@ export const adminApi = {
 
     delete: (id: string) => api.delete(`/admin/backgrounds/${id}`),
   },
+
+  registrations: {
+    list: (params?: { email_search?: string; status?: string; page?: number; page_size?: number }) =>
+      api.get<{
+        items: {
+          id: string; email: string; status: string; resend_count: number;
+          created_at: string; updated_at: string; verified_at: string | null;
+        }[];
+        total: number; page: number; page_size: number;
+      }>("/admin/registrations", { params }).then((r) => r.data),
+
+    checkRedis: (email: string) =>
+      api.get<{ has_pending: boolean; expires_in_seconds: number }>(
+        `/admin/registrations/check-redis/${encodeURIComponent(email)}`
+      ).then((r) => r.data),
+  },
 };
 
 export default api;

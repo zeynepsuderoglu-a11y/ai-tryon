@@ -7,6 +7,7 @@ from pathlib import Path
 from app.core.database import create_tables, apply_migrations
 from app.core.config import settings
 from app.api.v1 import auth, tryon, models, generations, admin, eyewear, payments, video, contact, ghost_mannequin, gemini_tryon, background_replace, mannequin_tryon, mannequins, backgrounds, support
+from app.models.registration_attempt import RegistrationAttempt  # noqa: F401 — table creation
 
 logging.basicConfig(
     level=logging.INFO,

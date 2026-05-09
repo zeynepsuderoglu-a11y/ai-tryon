@@ -1,4 +1,5 @@
 import secrets
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -8,6 +9,7 @@ from app.core.security import (
     create_access_token, create_refresh_token, decode_token
 )
 from app.models.user import User
+from app.models.registration_attempt import RegistrationAttempt, RegistrationStatus
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, TokenResponse,
     RefreshRequest, UserOut, ForgotPasswordRequest, ResetPasswordRequest,
@@ -42,6 +44,12 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
     await r.aclose()
 
     await send_verification_email(data.email, code)
+
+    # Kayıt girişimini DB'ye logla
+    attempt = RegistrationAttempt(email=data.email, status=RegistrationStatus.pending)
+    db.add(attempt)
+    await db.flush()
+
     return {"message": "Doğrulama kodu gönderildi", "email": data.email}
 
 
@@ -75,6 +83,20 @@ async def verify_email(data: VerifyEmailRequest, db: AsyncSession = Depends(get_
     )
     db.add(user)
     await db.flush()
+
+    # En son pending/resent kaydını verified yap
+    latest = await db.execute(
+        select(RegistrationAttempt)
+        .where(RegistrationAttempt.email == data.email)
+        .order_by(RegistrationAttempt.created_at.desc())
+        .limit(1)
+    )
+    attempt = latest.scalar_one_or_none()
+    if attempt:
+        attempt.status = RegistrationStatus.verified
+        attempt.verified_at = datetime.now(timezone.utc)
+        attempt.updated_at = datetime.now(timezone.utc)
+
     return TokenResponse(
         access_token=create_access_token(str(user.id)),
         refresh_token=create_refresh_token(str(user.id)),
@@ -82,7 +104,7 @@ async def verify_email(data: VerifyEmailRequest, db: AsyncSession = Depends(get_
 
 
 @router.post("/resend-verification", status_code=200)
-async def resend_verification(data: ForgotPasswordRequest):
+async def resend_verification(data: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
     """Doğrulama kodunu yeniden gönder (her zaman 200 döner)."""
     r = aioredis.from_url(settings.REDIS_URL)
     raw = await r.get(f"email_verify:{data.email}")
@@ -93,6 +115,20 @@ async def resend_verification(data: ForgotPasswordRequest):
         await r.setex(f"email_verify:{data.email}", 600, json.dumps(payload))
         await r.aclose()
         await send_verification_email(data.email, code)
+
+        # En son kaydı resent yap, resend_count artır
+        latest = await db.execute(
+            select(RegistrationAttempt)
+            .where(RegistrationAttempt.email == data.email)
+            .order_by(RegistrationAttempt.created_at.desc())
+            .limit(1)
+        )
+        attempt = latest.scalar_one_or_none()
+        if attempt:
+            attempt.status = RegistrationStatus.resent
+            attempt.resend_count = attempt.resend_count + 1
+            attempt.updated_at = datetime.now(timezone.utc)
+        await db.flush()
     else:
         await r.aclose()
     return {"message": "Doğrulama kodu gönderildi"}
