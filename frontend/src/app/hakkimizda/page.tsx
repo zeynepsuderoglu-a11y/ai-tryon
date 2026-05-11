@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Instagram, Facebook } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import SiteFooter from "@/components/SiteFooter";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -140,36 +141,7 @@ export default function HakkimizdaPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-[#e5e5e5] py-8 px-6 bg-white">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-sm font-semibold text-[#1a1a1a]">StudyoİMA AI</span>
-          <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-[#737373]">
-            <Link href="/hakkimizda" className="hover:text-[#1a1a1a] transition-colors">Hakkımızda</Link>
-            <Link href="/iletisim" className="hover:text-[#1a1a1a] transition-colors">İletişim</Link>
-            <Link href="/gizlilik" className="hover:text-[#1a1a1a] transition-colors">Gizlilik Politikası</Link>
-            <Link href="/satis-sozlesmesi" className="hover:text-[#1a1a1a] transition-colors">Satış Sözleşmesi</Link>
-            <a href="https://www.instagram.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
-              <Instagram className="w-3.5 h-3.5" /> Instagram
-            </a>
-            <a href="https://www.facebook.com/studyoimaai" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-[#1a1a1a] transition-colors">
-              <Facebook className="w-3.5 h-3.5" /> Facebook
-            </a>
-          </div>
-          <p className="text-xs text-[#a3a3a3]">© {new Date().getFullYear()} StudyoİMA AI</p>
-        </div>
-        <div className="max-w-5xl mx-auto mt-6 pt-5 border-t border-[#f0f0f0] flex flex-col sm:flex-row items-center justify-center gap-3">
-          <span className="text-[11px] text-[#b0b0b0] tracking-wide">GÜVENLİ ÖDEME</span>
-          <div className="flex items-center gap-2">
-            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
-              <Image src="/visa.svg" alt="Visa" width={46} height={15} className="object-contain" />
-            </div>
-            <div className="h-8 px-3 flex items-center justify-center border border-[#e0e0e0] rounded-md bg-white shadow-sm">
-              <Image src="/mastercard.svg" alt="Mastercard" width={38} height={24} className="object-contain" />
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
