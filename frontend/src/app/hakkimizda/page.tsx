@@ -129,8 +129,10 @@ export default function HakkimizdaPage() {
                 Sorularınız, önerileriniz veya iş birliği talepleriniz için bizimle iletişime geçebilirsiniz.
               </p>
               <div className="mt-3 p-4 bg-white border border-[#e5e5e5] rounded-xl space-y-1">
-                <p><strong className="text-[#1a1a1a]">E-posta:</strong> ilgi@ilet.in</p>
+                <p><strong className="text-[#1a1a1a]">E-posta:</strong> <a href="mailto:ilgi@ilet.in" className="hover:text-[#c9a96e] transition-colors">ilgi@ilet.in</a></p>
                 <p><strong className="text-[#1a1a1a]">Web:</strong> www.studyoima.com</p>
+                <p><strong className="text-[#1a1a1a]">Adres:</strong> Merkez Mh. Merter Sk. No:42/1 Güngören / İSTANBUL</p>
+                <p><strong className="text-[#1a1a1a]">Instagram:</strong> <a href="https://www.instagram.com/studyoimaai/" target="_blank" rel="noopener noreferrer" className="hover:text-[#c9a96e] transition-colors">@studyoimaai</a></p>
               </div>
             </section>
 

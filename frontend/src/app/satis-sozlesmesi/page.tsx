@@ -47,6 +47,7 @@ export default function SatisSozlesmesiPage() {
                 <div className="p-4 bg-white border border-[#e5e5e5] rounded-xl">
                   <p className="font-medium text-[#1a1a1a] mb-1">Satıcı (Hizmet Sağlayıcı)</p>
                   <p>Ünvan: StudyoİMA AI</p>
+                  <p>Adres: Merkez Mh. Merter Sk. No:42/1 Güngören / İSTANBUL</p>
                   <p>Web sitesi: www.studyoima.com</p>
                   <p>E-posta: ilgi@ilet.in</p>
                 </div>
@@ -217,8 +218,9 @@ export default function SatisSozlesmesiPage() {
             <section>
               <h2 className="text-base font-semibold text-[#1a1a1a] mb-3">Madde 11 — İletişim</h2>
               <div className="p-4 bg-white border border-[#e5e5e5] rounded-xl space-y-1">
-                <p><strong className="text-[#1a1a1a]">E-posta:</strong> ilgi@ilet.in</p>
+                <p><strong className="text-[#1a1a1a]">E-posta:</strong> <a href="mailto:ilgi@ilet.in" className="hover:text-[#c9a96e] transition-colors">ilgi@ilet.in</a></p>
                 <p><strong className="text-[#1a1a1a]">Web:</strong> www.studyoima.com</p>
+                <p><strong className="text-[#1a1a1a]">Adres:</strong> Merkez Mh. Merter Sk. No:42/1 Güngören / İSTANBUL</p>
               </div>
             </section>
 
