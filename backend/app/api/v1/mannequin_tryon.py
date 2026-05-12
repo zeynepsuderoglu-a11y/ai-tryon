@@ -114,6 +114,7 @@ async def _process_background(
                 crop_type=crop_type,
                 footwear=analysis.footwear,
                 background_image_url=background_image_url,
+                texture_prompt=analysis.texture_prompt,
             )
             logger.info("[mannequin-tryon/%s] Tamamlandı: %s", generation_id, output_url)
 

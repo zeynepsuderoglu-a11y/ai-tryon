@@ -16,8 +16,12 @@ from app.services.cloudinary_service import cloudinary_service
 logger = logging.getLogger(__name__)
 
 
-def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False) -> str:
-    detail_block = f"CRITICAL GARMENT DETAIL — reproduce this exactly: {critical_detail}\n\n" if critical_detail else ""
+def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False, texture_prompt: str = "") -> str:
+    detail_block = ""
+    if texture_prompt:
+        detail_block += f"GARMENT TEXTURE & MATERIAL: {texture_prompt}\n\n"
+    if critical_detail:
+        detail_block += f"CRITICAL GARMENT DETAIL — reproduce this exactly: {critical_detail}\n\n"
     if is_sleepwear:
         footwear_line = "\nThe model must be barefoot with no shoes."
     elif footwear:
@@ -42,6 +46,7 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
 SILHOUETTE IS CRITICAL: preserve the exact shape, volume, drape, and proportions of the garment — do NOT narrow, restructure, or conventionalize an unusual or dramatic silhouette.
+TEXTURE & PATTERN IS CRITICAL: reproduce ALL surface decoration exactly — embroidery, embossed patterns, prints, jacquard, lace, stitching details. Do NOT simplify, smooth over, or omit any texture or pattern visible in IMAGE 2.
 COLOR ACCURACY IS CRITICAL: reproduce the exact color from IMAGE 2 with the same hue, saturation, and depth — do NOT lighten, brighten, desaturate, or shift the color in any way.
 LOGO/PRINT ACCURACY IS CRITICAL: if any logo, brand mark, or graphic print exists on IMAGE 2, reproduce it at the exact same position, size, and orientation on the garment — do NOT move, resize, mirror, or omit any logo.
 The model's exposed skin (face, neck, hands, arms) must remain its exact natural tone — no color cast, tint, or bleed from the garment color onto skin.
@@ -111,6 +116,7 @@ class MannequinTryonService:
         crop_type: str = "full_body",
         footwear: str = "",
         background_image_url: str = "",
+        texture_prompt: str = "",
     ) -> str:
         # Yüz fotoğrafını URL'den indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -153,6 +159,7 @@ class MannequinTryonService:
             crop_type=crop_type,
             footwear=footwear,
             has_bg_image=bg_bytes is not None,
+            texture_prompt=texture_prompt,
         )
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
