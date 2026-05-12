@@ -25,9 +25,9 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str
     else:
         footwear_line = ""
     crop_line = (
-        "The complete figure from head to feet must be fully visible — do not crop."
+        "FRAMING: show the complete figure from head to feet — do not crop any part of the body."
         if crop_type == "full_body"
-        else "Frame as a three-quarter shot from head to just above the knees — do not show feet."
+        else "FRAMING IS CRITICAL: three-quarter shot only — the frame must cut between mid-thigh and just above the knees. The lower legs, ankles, and feet must NOT appear in the image under any circumstances. Hard crop at knee level."
     )
 
     if has_bg_image:
@@ -41,6 +41,7 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str
 
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
+SILHOUETTE IS CRITICAL: preserve the exact shape, volume, drape, and proportions of the garment — do NOT narrow, restructure, or conventionalize an unusual or dramatic silhouette.
 COLOR ACCURACY IS CRITICAL: reproduce the exact color from IMAGE 2 with the same hue, saturation, and depth — do NOT lighten, brighten, desaturate, or shift the color in any way.
 LOGO/PRINT ACCURACY IS CRITICAL: if any logo, brand mark, or graphic print exists on IMAGE 2, reproduce it at the exact same position, size, and orientation on the garment — do NOT move, resize, mirror, or omit any logo.
 The model's exposed skin (face, neck, hands, arms) must remain its exact natural tone — no color cast, tint, or bleed from the garment color onto skin.
