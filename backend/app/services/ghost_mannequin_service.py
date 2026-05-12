@@ -80,6 +80,7 @@ def _ghost_mannequin_sync(image_bytes: bytes, mime_type: str = "image/jpeg", gar
         ],
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE", "TEXT"],
+            temperature=0.5,
         ),
     )
 

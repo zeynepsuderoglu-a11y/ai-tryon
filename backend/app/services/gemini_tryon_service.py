@@ -28,6 +28,29 @@ BACKGROUND_DESCS = {
 }
 
 
+_POSE_BY_CATEGORY = {
+    "tops": (
+        "confident editorial pose — slight 3/4 body turn toward camera, "
+        "one hand resting on hip or lightly in pocket, natural weight shift, "
+        "relaxed shoulders, engaging expression toward camera"
+    ),
+    "bottoms": (
+        "editorial pose — one leg slightly forward to show fabric and silhouette, "
+        "hands relaxed at sides or one thumb gently in pocket, "
+        "slight 3/4 angle to highlight drape and fit, natural elegant stance"
+    ),
+    "one-pieces": (
+        "confident sales pose — slight hip shift to one side, "
+        "one hand gently resting on hip, natural weight on one leg, "
+        "body at 3/4 angle to camera, relaxed and elegant expression"
+    ),
+}
+_POSE_DEFAULT = (
+    "natural confident pose — slight 3/4 angle to camera, "
+    "relaxed hands, elegant stance, engaging expression"
+)
+
+
 def _build_tryon_prompt(
     garment_type: str,
     texture_prompt: str,
@@ -37,20 +60,45 @@ def _build_tryon_prompt(
     bottom_lock: str,
     background_desc: str,
     crop_frame: str,
+    category: str = "one-pieces",
 ) -> str:
-    detail_line = f"\nReproduce EXACTLY: {critical_detail}" if critical_detail else ""
+    sleeve_line = f"\nSLEEVE LOCK: {sleeve_lock} — enforce strictly." if sleeve_lock else ""
+    bottom_line = f"\nBOTTOM LOCK: {bottom_lock} — enforce strictly." if bottom_lock else ""
+    detail_line = f"\nCRITICAL DETAIL: {critical_detail}" if critical_detail else ""
     if background_desc.startswith("keep the original"):
-        bg_line = "Keep the setting, background, lighting, and environment from IMAGE 2 exactly as is."
+        bg_line = "BACKGROUND: keep the exact setting, environment, and lighting from IMAGE 2."
     else:
-        bg_line = f"Background: {background_desc}"
+        bg_line = f"BACKGROUND: {background_desc} — render exactly, do NOT default to plain white."
+    pose = _POSE_BY_CATEGORY.get(category, _POSE_DEFAULT)
+
     return f"""IMAGE 1: Fashion garment.
 IMAGE 2: Fashion model.
 
-Produce a fashion editorial photo of the model from IMAGE 2 styled in the garment from IMAGE 1.
-Match every detail of the garment in IMAGE 1 exactly: color, fabric, pattern, neckline, sleeve length, buttons, and trim.{detail_line}
-Preserve the model's styling, pose, hair, and footwear from IMAGE 2.
+Produce a professional e-commerce fashion photo of the model from IMAGE 2 wearing the garment from IMAGE 1.
+
+EXACT GARMENT: {garment_type}.
+FABRIC & DETAILS: {texture_prompt}.
+SILHOUETTE & PROPORTIONS: {proportion_hint} — reproduce exactly.{detail_line}{sleeve_line}{bottom_line}
+
+COLOR ACCURACY IS CRITICAL: reproduce the exact color from IMAGE 1 with the same hue, saturation, and depth — do NOT lighten, brighten, desaturate, or shift the color.
+TEXTURE & PATTERN IS CRITICAL: reproduce ALL surface decoration exactly — embroidery, embossed patterns, prints, jacquard, lace, stitching. Do NOT simplify, smooth over, or omit any texture or pattern.
+LOGO/PRINT IS CRITICAL: if any logo, brand mark, or graphic exists on IMAGE 1, reproduce it at the exact same position, size, and orientation — do NOT move, resize, mirror, or omit.
+SILHOUETTE IS CRITICAL: preserve the exact shape, volume, drape, and proportions — do NOT narrow, restructure, or conventionalize an unusual or dramatic silhouette.
+
+CRITICAL FIDELITY RULES — do NOT violate:
+- Do NOT add sleeve stripes, ribbed cuffs, or contrast panels not in IMAGE 1
+- Do NOT add drawstrings, waist ties, or belts not in IMAGE 1
+- Do NOT add side slits, leg splits, or hem cuts not in IMAGE 1
+- Do NOT add elastic ankle bands if hem is described as plain straight
+- Do NOT reproduce inner garment labels or care tags on the outside
+- Do NOT change button count — reproduce EXACTLY the number visible in IMAGE 1
+- Do NOT add or remove pockets
+- If piping is curved/wavy, reproduce CURVED shape — do NOT straighten into vertical stripe
+
+POSE: {pose}.
+{crop_frame}.
 {bg_line}
-Output one fashion editorial photo."""
+Soft professional lighting. Output one photorealistic fashion photo."""
 
 
 def _gemini_tryon_sync(
@@ -77,6 +125,7 @@ def _gemini_tryon_sync(
         ],
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE", "TEXT"],
+            temperature=0.5,
         ),
     )
 
@@ -119,6 +168,7 @@ class GeminiTryonService:
         bottom_lock: str,
         background: str,
         crop_frame: str,
+        category: str = "one-pieces",
     ) -> str:
         """
         Manken URL + Ürün URL → try-on Cloudinary URL
@@ -148,6 +198,7 @@ class GeminiTryonService:
             bottom_lock=bottom_lock,
             background_desc=background_desc,
             crop_frame=crop_frame,
+            category=category,
         )
 
         logger.info("[gemini-tryon] Prompt:\n%s", prompt)

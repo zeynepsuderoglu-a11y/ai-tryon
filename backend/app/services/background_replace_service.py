@@ -85,6 +85,7 @@ def _background_replace_sync(
             contents=contents,
             config=types.GenerateContentConfig(
                 response_modalities=["IMAGE", "TEXT"],
+                temperature=0.5,
             ),
         )
 

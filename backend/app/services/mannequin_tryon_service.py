@@ -16,7 +16,24 @@ from app.services.cloudinary_service import cloudinary_service
 logger = logging.getLogger(__name__)
 
 
-def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False, texture_prompt: str = "") -> str:
+_MANNEQUIN_POSE_BY_CATEGORY = {
+    "tops": (
+        "confident editorial pose — slight 3/4 body turn toward camera, "
+        "one hand resting on hip or lightly in pocket, relaxed natural stance"
+    ),
+    "bottoms": (
+        "editorial pose — one leg slightly forward to show silhouette and drape, "
+        "hands relaxed at sides, slight 3/4 angle to highlight fit"
+    ),
+    "one-pieces": (
+        "confident sales pose — slight hip shift to one side, "
+        "one hand gently on hip, natural weight on one leg, body at 3/4 angle to camera"
+    ),
+}
+_MANNEQUIN_POSE_DEFAULT = "natural confident pose, slight 3/4 angle, relaxed elegant stance"
+
+
+def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False, texture_prompt: str = "", category: str = "one-pieces") -> str:
     detail_block = ""
     if texture_prompt:
         detail_block += f"GARMENT TEXTURE & MATERIAL: {texture_prompt}\n\n"
@@ -41,6 +58,8 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str
         image_refs = "IMAGE 1: Fashion model face reference.\nIMAGE 2: Fashion garment."
         bg_line = f"BACKGROUND: {background_desc} — render this background exactly, do NOT default to plain white studio."
 
+    pose = _MANNEQUIN_POSE_BY_CATEGORY.get(category, _MANNEQUIN_POSE_DEFAULT)
+
     return f"""{image_refs}
 
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
@@ -48,12 +67,13 @@ Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, 
 SILHOUETTE IS CRITICAL: preserve the exact shape, volume, drape, and proportions of the garment — do NOT narrow, restructure, or conventionalize an unusual or dramatic silhouette.
 TEXTURE & PATTERN IS CRITICAL: reproduce ALL surface decoration exactly — embroidery, embossed patterns, prints, jacquard, lace, stitching details. Do NOT simplify, smooth over, or omit any texture or pattern visible in IMAGE 2.
 COLOR ACCURACY IS CRITICAL: reproduce the exact color from IMAGE 2 with the same hue, saturation, and depth — do NOT lighten, brighten, desaturate, or shift the color in any way.
-LOGO/PRINT ACCURACY IS CRITICAL: if any logo, brand mark, or graphic print exists on IMAGE 2, reproduce it at the exact same position, size, and orientation on the garment — do NOT move, resize, mirror, or omit any logo.
+LOGO/PRINT ACCURACY IS CRITICAL: if any logo, brand mark, or graphic print exists on IMAGE 2, reproduce it at the exact same position, size, and orientation — do NOT move, resize, mirror, or omit any logo.
+FIDELITY RULES — do NOT violate: do NOT add sleeve stripes or ribbed cuffs not in IMAGE 2; do NOT add buttons beyond the exact count in IMAGE 2; do NOT add side slits or hem cuts not in IMAGE 2; if piping is curved/wavy, do NOT straighten it.
 The model's exposed skin (face, neck, hands, arms) must remain its exact natural tone — no color cast, tint, or bleed from the garment color onto skin.
 {crop_line}
 {bg_line}
-Soft studio lighting, attractive e-commerce pose.
-Output one fashion photo."""
+POSE: {pose}.
+Soft professional studio lighting. Output one photorealistic fashion photo."""
 
 
 def _run_sync(
@@ -117,6 +137,8 @@ class MannequinTryonService:
         footwear: str = "",
         background_image_url: str = "",
         texture_prompt: str = "",
+        category: str = "one-pieces",
+        extra_instruction: str = "",
     ) -> str:
         # Yüz fotoğrafını URL'den indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -160,7 +182,10 @@ class MannequinTryonService:
             footwear=footwear,
             has_bg_image=bg_bytes is not None,
             texture_prompt=texture_prompt,
+            category=category,
         )
+        if extra_instruction:
+            prompt = prompt + f"\n\nCORRECTION REQUIRED: {extra_instruction}"
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()

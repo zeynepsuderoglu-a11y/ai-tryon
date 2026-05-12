@@ -91,6 +91,7 @@ async def process_gemini_tryon_background(
                 bottom_lock=bottom_lock,
                 background=background,
                 crop_frame=crop_frame,
+                category=analysis.category,
             )
 
             logger.info("[gemini-tryon/%s] Tamamlandı: %s", generation_id, output_url)

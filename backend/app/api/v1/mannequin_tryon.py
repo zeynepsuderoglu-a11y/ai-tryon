@@ -14,7 +14,7 @@ from app.models.mannequin import Mannequin
 from app.models.background import Background
 from app.schemas.tryon import TryOnResponse, TryOnStatusResponse
 from app.services.mannequin_tryon_service import mannequin_tryon_service
-from app.services.garment_analysis_service import analyze_garment
+from app.services.garment_analysis_service import analyze_garment, check_generation_quality
 from app.services.credit_service import credit_service
 
 logger = logging.getLogger(__name__)
@@ -115,7 +115,30 @@ async def _process_background(
                 footwear=analysis.footwear,
                 background_image_url=background_image_url,
                 texture_prompt=analysis.texture_prompt,
+                category=analysis.category,
             )
+            logger.info("[mannequin-tryon/%s] İlk üretim tamamlandı: %s", generation_id, output_url)
+
+            # Kalite kontrolü → gerekirse otomatik retry
+            quality = await check_generation_quality(garment_url, output_url)
+            logger.info("[mannequin-tryon/%s] Kalite: score=%s retry=%s emphasis=%r",
+                        generation_id, quality.get("overall_score"), quality.get("should_retry"), quality.get("retry_emphasis", ""))
+            if quality.get("should_retry") and quality.get("retry_emphasis"):
+                logger.info("[mannequin-tryon/%s] Kalite yetersiz, retry başlıyor", generation_id)
+                output_url = await mannequin_tryon_service.run(
+                    face_url=face_url,
+                    garment_url=garment_url,
+                    critical_detail=analysis.critical_detail,
+                    is_sleepwear=sleepwear,
+                    background_desc=background_desc,
+                    crop_type=crop_type,
+                    footwear=analysis.footwear,
+                    background_image_url=background_image_url,
+                    texture_prompt=analysis.texture_prompt,
+                    category=analysis.category,
+                    extra_instruction=quality["retry_emphasis"],
+                )
+                logger.info("[mannequin-tryon/%s] Retry tamamlandı: %s", generation_id, output_url)
             logger.info("[mannequin-tryon/%s] Tamamlandı: %s", generation_id, output_url)
 
             result = await db.execute(select(Generation).where(Generation.id == generation_id))
