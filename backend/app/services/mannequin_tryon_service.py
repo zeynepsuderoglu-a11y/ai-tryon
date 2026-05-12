@@ -41,6 +41,8 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str
 
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
+COLOR ACCURACY IS CRITICAL: reproduce the exact color from IMAGE 2 with the same hue, saturation, and depth — do NOT lighten, brighten, desaturate, or shift the color in any way.
+LOGO/PRINT ACCURACY IS CRITICAL: if any logo, brand mark, or graphic print exists on IMAGE 2, reproduce it at the exact same position, size, and orientation on the garment — do NOT move, resize, mirror, or omit any logo.
 The model's exposed skin (face, neck, hands, arms) must remain its exact natural tone — no color cast, tint, or bleed from the garment color onto skin.
 {crop_line}
 {bg_line}
