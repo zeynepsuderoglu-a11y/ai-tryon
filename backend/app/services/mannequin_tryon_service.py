@@ -16,22 +16,35 @@ from app.services.cloudinary_service import cloudinary_service
 logger = logging.getLogger(__name__)
 
 
-def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body") -> str:
+def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False) -> str:
     detail_block = f"CRITICAL GARMENT DETAIL — reproduce this exactly: {critical_detail}\n\n" if critical_detail else ""
-    footwear_line = "\nThe model must be barefoot with no shoes." if is_sleepwear else ""
+    if is_sleepwear:
+        footwear_line = "\nThe model must be barefoot with no shoes."
+    elif footwear:
+        footwear_line = f"\nThe model wears {footwear}."
+    else:
+        footwear_line = ""
     crop_line = (
         "The complete figure from head to feet must be fully visible — do not crop."
         if crop_type == "full_body"
         else "Frame as a three-quarter shot from head to just above the knees — do not show feet."
     )
 
-    return f"""IMAGE 1: Fashion model face reference.
-IMAGE 2: Fashion garment.
+    if has_bg_image:
+        image_refs = "IMAGE 1: Fashion model face reference.\nIMAGE 2: Fashion garment.\nIMAGE 3: Background scene."
+        bg_line = "BACKGROUND: Use the exact scene from IMAGE 3 as the background — reproduce it faithfully, do NOT replace with plain white studio."
+    else:
+        image_refs = "IMAGE 1: Fashion model face reference.\nIMAGE 2: Fashion garment."
+        bg_line = f"BACKGROUND: {background_desc} — render this background exactly, do NOT default to plain white studio."
+
+    return f"""{image_refs}
 
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
+The model's exposed skin (face, neck, hands, arms) must remain its exact natural tone — no color cast, tint, or bleed from the garment color onto skin.
 {crop_line}
-{background_desc}, soft studio lighting, attractive e-commerce pose.
+{bg_line}
+Soft studio lighting, attractive e-commerce pose.
 Output one fashion photo."""
 
 
@@ -41,20 +54,26 @@ def _run_sync(
     garment_bytes: bytes,
     garment_mime: str,
     prompt: str,
+    bg_bytes: bytes | None = None,
+    bg_mime: str = "image/jpeg",
 ) -> bytes:
     from google import genai
     from google.genai import types
 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-    logger.info("[mannequin-tryon] Gemini isteği gönderiliyor")
+    contents = [
+        types.Part.from_bytes(data=face_bytes, mime_type=face_mime),
+        types.Part.from_bytes(data=garment_bytes, mime_type=garment_mime),
+    ]
+    if bg_bytes:
+        contents.append(types.Part.from_bytes(data=bg_bytes, mime_type=bg_mime))
+    contents.append(prompt)
+
+    logger.info("[mannequin-tryon] Gemini isteği gönderiliyor (bg_image=%s)", bg_bytes is not None)
     response = client.models.generate_content(
         model="gemini-2.5-flash-image",
-        contents=[
-            types.Part.from_bytes(data=face_bytes, mime_type=face_mime),
-            types.Part.from_bytes(data=garment_bytes, mime_type=garment_mime),
-            prompt,
-        ],
+        contents=contents,
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE", "TEXT"],
             temperature=0.5,
@@ -87,6 +106,8 @@ class MannequinTryonService:
         is_sleepwear: bool,
         background_desc: str = "pure white seamless studio background, no shadows",
         crop_type: str = "full_body",
+        footwear: str = "",
+        background_image_url: str = "",
     ) -> str:
         # Yüz fotoğrafını URL'den indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -104,10 +125,32 @@ class MannequinTryonService:
             garment_bytes = resp.content
             ct = resp.headers.get("content-type", "image/jpeg")
             garment_mime = ct.split(";")[0].strip() or "image/jpeg"
-
         logger.info("[mannequin-tryon] garment=%s", garment_url)
 
-        prompt = _build_prompt(critical_detail=critical_detail, is_sleepwear=is_sleepwear, background_desc=background_desc, crop_type=crop_type)
+        # Arka plan görselini indir (varsa)
+        bg_bytes: bytes | None = None
+        bg_mime = "image/jpeg"
+        if background_image_url:
+            try:
+                async with httpx.AsyncClient(timeout=20) as client:
+                    resp = await client.get(background_image_url)
+                    resp.raise_for_status()
+                    bg_bytes = resp.content
+                    ct = resp.headers.get("content-type", "image/jpeg")
+                    bg_mime = ct.split(";")[0].strip() or "image/jpeg"
+                logger.info("[mannequin-tryon] bg_image=%s (%dKB)", background_image_url, len(bg_bytes) // 1024)
+            except Exception as e:
+                logger.warning("[mannequin-tryon] Arka plan görseli indirilemedi: %s", e)
+                bg_bytes = None
+
+        prompt = _build_prompt(
+            critical_detail=critical_detail,
+            is_sleepwear=is_sleepwear,
+            background_desc=background_desc,
+            crop_type=crop_type,
+            footwear=footwear,
+            has_bg_image=bg_bytes is not None,
+        )
         logger.info("[mannequin-tryon] Prompt:\n%s", prompt)
 
         loop = asyncio.get_event_loop()
@@ -117,7 +160,7 @@ class MannequinTryonService:
         for attempt in range(1, 4):
             try:
                 img_bytes = await asyncio.wait_for(
-                    loop.run_in_executor(None, _run_sync, face_bytes, face_mime, garment_bytes, garment_mime, prompt),
+                    loop.run_in_executor(None, _run_sync, face_bytes, face_mime, garment_bytes, garment_mime, prompt, bg_bytes, bg_mime),
                     timeout=180,
                 )
                 break

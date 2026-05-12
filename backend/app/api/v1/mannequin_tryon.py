@@ -78,8 +78,10 @@ async def _process_background(
         bg_row = (await _tmp_db.execute(
             select(Background).where(Background.key == background)
         )).scalar_one_or_none()
+    background_image_url = ""
     if bg_row and bg_row.description:
         background_desc = bg_row.description
+        background_image_url = bg_row.image_url or ""
     else:
         background_desc = BACKGROUND_DESCS.get(background, BACKGROUND_DESCS["white_studio"])
 
@@ -98,8 +100,8 @@ async def _process_background(
             )
             sleepwear = _is_sleepwear(analysis.garment_type, analysis.texture_prompt)
             logger.info(
-                "[mannequin-tryon/%s] sleeve=%r bottom=%r sleepwear=%s",
-                generation_id, sleeve_lock or "none", bottom_lock or "none", sleepwear,
+                "[mannequin-tryon/%s] sleeve=%r bottom=%r sleepwear=%s bg_image=%s",
+                generation_id, sleeve_lock or "none", bottom_lock or "none", sleepwear, bool(background_image_url),
             )
 
             # 2. Görsel üretimi
@@ -110,6 +112,8 @@ async def _process_background(
                 is_sleepwear=sleepwear,
                 background_desc=background_desc,
                 crop_type=crop_type,
+                footwear=analysis.footwear,
+                background_image_url=background_image_url,
             )
             logger.info("[mannequin-tryon/%s] Tamamlandı: %s", generation_id, output_url)
 
