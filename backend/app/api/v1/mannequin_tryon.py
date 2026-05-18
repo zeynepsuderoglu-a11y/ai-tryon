@@ -28,10 +28,20 @@ SLEEPWEAR_KEYWORDS = (
     "gecelik", "loungewear", "robe", "sleep", "lounge",
 )
 
+SWIMWEAR_KEYWORDS = (
+    "bikini", "swimsuit", "swimwear", "bathing suit", "swim", "bandeau",
+    "mayo", "bikini top", "bikini bottom", "one-piece swimsuit",
+    "monokini", "tankini", "wetsuit",
+)
+
 
 def _is_sleepwear(garment_type: str, texture_prompt: str) -> bool:
     combined = (garment_type + " " + texture_prompt).lower()
     return any(kw in combined for kw in SLEEPWEAR_KEYWORDS)
+
+
+def _is_swimwear(garment_type: str) -> bool:
+    return any(kw in garment_type.lower() for kw in SWIMWEAR_KEYWORDS)
 
 
 def _compute_locks(proportion_hint: str, garment_type: str, category: str) -> tuple[str, str]:
@@ -94,6 +104,12 @@ async def _process_background(
                 "[mannequin-tryon/%s] Garment: %s | category=%s",
                 generation_id, analysis.garment_type, analysis.category,
             )
+
+            if _is_swimwear(analysis.garment_type):
+                raise RuntimeError(
+                    "Mayo ve bikini görselleri bu sekme ile desteklenmiyor. "
+                    "Lütfen 'Model Seç & Giydir' sekmesini kullanın."
+                )
 
             sleeve_lock, bottom_lock = _compute_locks(
                 analysis.proportion_hint, analysis.garment_type, analysis.category
