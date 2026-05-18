@@ -637,7 +637,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         garment_image_url=garment_url_clean,
                         category="one-pieces",
                         mode="quality",
-                        moderation="permissive",
+                        moderation_level="none",
                     )
                     prediction_id = run_result.get("id")
                     if not prediction_id:
