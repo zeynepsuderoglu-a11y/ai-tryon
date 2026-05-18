@@ -24,6 +24,7 @@ class FashnService:
         num_samples: int = 1,
         garment_photo_type: str = "auto",
         segmentation_free: bool = True,
+        moderation: str = "conservative",
     ) -> dict:
         payload = {
             "model_name": "tryon-v1.6",
@@ -35,6 +36,7 @@ class FashnService:
                 "num_samples": num_samples,
                 "garment_photo_type": garment_photo_type,
                 "segmentation_free": segmentation_free,
+                "moderation": moderation,
             },
         }
         async with httpx.AsyncClient(timeout=30.0) as client:
