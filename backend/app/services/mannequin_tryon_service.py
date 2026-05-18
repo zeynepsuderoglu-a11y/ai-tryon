@@ -105,6 +105,12 @@ def _run_sync(
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE", "TEXT"],
             temperature=0.5,
+            safety_settings=[
+                types.SafetySetting(
+                    category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    threshold="BLOCK_ONLY_HIGH",
+                ),
+            ],
         ),
     )
 
