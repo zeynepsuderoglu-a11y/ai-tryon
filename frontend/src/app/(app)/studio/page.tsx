@@ -314,7 +314,7 @@ export default function StudioPage() {
     if (selectedModelId) setBackground("original");
   }, [selectedModelId]);
 
-  // Manken ve arka plan listesini yükle (5 dk cache)
+  // Manken ve arka plan listesini bağımsız yükle (5 dk cache)
   const [listsLoading, setListsLoading] = useState(true);
   useEffect(() => {
     const now = Date.now();
@@ -324,10 +324,9 @@ export default function StudioPage() {
     const fetchBackgrounds = _cache.backgrounds && now - _cache.backgrounds.ts < CACHE_TTL
       ? Promise.resolve(_cache.backgrounds.data)
       : backgroundsApi.list().then((d) => { _cache.backgrounds = { data: d, ts: Date.now() }; return d; });
-    Promise.all([fetchMannequins, fetchBackgrounds])
-      .then(([mannequins, backgrounds]) => { setMannequinList(mannequins); setBackgroundsList(backgrounds); })
-      .catch(() => {})
-      .finally(() => setListsLoading(false));
+    fetchMannequins.then((mannequins) => setMannequinList(mannequins)).catch(() => {});
+    fetchBackgrounds.then((backgrounds) => setBackgroundsList(backgrounds)).catch(() => {});
+    Promise.allSettled([fetchMannequins, fetchBackgrounds]).finally(() => setListsLoading(false));
   }, []);
   const [aesthetic, setAesthetic]       = useState("no_accessories");
   const [ghostGarmentType, setGhostGarmentType] = useState("top");
