@@ -301,6 +301,7 @@ export default function StudioPage() {
   const { user, setUser } = useAuthStore();
   const {
     garmentUrl, garmentDetailUrls, selectedModelId, isBatchMode, batchModelIds, setIsBatchMode,
+    fashnSource, selectedMannequinId,
     glassesUrl, studioMode, setStudioMode,
     videoImageUrls, setVideoImageUrls, videoMode, setVideoMode,
     ghostInputUrl, setGhostInputUrl,
@@ -309,10 +310,10 @@ export default function StudioPage() {
   const [bodyType, setBodyType]         = useState("standard");
   const [background, setBackground]     = useState("white_studio");
 
-  // Model galerisinden seçim yapılınca otomatik "orijinal arka plan" moduna geç
+  // Model/manken seçilince otomatik "orijinal arka plan" moduna geç
   useEffect(() => {
-    if (selectedModelId) setBackground("original");
-  }, [selectedModelId]);
+    if (selectedModelId || selectedMannequinId) setBackground("original");
+  }, [selectedModelId, selectedMannequinId]);
 
   // Manken ve arka plan listesini bağımsız yükle (5 dk cache)
   const [listsLoading, setListsLoading] = useState(true);
@@ -387,7 +388,7 @@ export default function StudioPage() {
     ? !!garmentUrl && !!selectedModelId
     : isBatchMode
     ? !!garmentUrl && batchModelIds.length > 0
-    : !!garmentUrl && !!selectedModelId;
+    : !!garmentUrl && (fashnSource === "mannequin" ? !!selectedMannequinId : !!selectedModelId);
 
   const requiredCredits = isVideo ? 5 : isGhost ? 1 : isBgReplace ? bgPhotos.length : isEyewear ? 1 : isMannequin ? 2 : isBatchMode ? batchModelIds.length * 2 : 2;
   const hasCredits = !user || user.credits_remaining >= requiredCredits;
@@ -491,7 +492,10 @@ export default function StudioPage() {
         setShowResult(true);
       } else {
         const result = await tryonApi.run({
-          garment_url: garmentUrl!, model_asset_id: selectedModelId!,
+          garment_url: garmentUrl!,
+          ...(fashnSource === "mannequin"
+            ? { mannequin_id: selectedMannequinId! }
+            : { model_asset_id: selectedModelId! }),
           category: garmentCategory, body_type: bodyType, provider: "fashn", background, aesthetic,
           ...(garmentDetailUrls.length > 0 ? { garment_detail_urls: garmentDetailUrls } : {}),
         });

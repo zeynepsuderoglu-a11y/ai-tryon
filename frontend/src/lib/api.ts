@@ -98,7 +98,8 @@ export const tryonApi = {
 
   run: (data: {
     garment_url: string;
-    model_asset_id: string;
+    model_asset_id?: string;
+    mannequin_id?: string;
     model_image_url?: string;
     category?: string;
     pose?: string;

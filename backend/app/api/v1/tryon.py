@@ -774,7 +774,8 @@ async def upload_garment(
 async def run_tryon(
     background_tasks: BackgroundTasks,
     garment_url: str = Form(...),
-    model_asset_id: uuid.UUID = Form(...),
+    model_asset_id: uuid.UUID | None = Form(None),
+    mannequin_id: uuid.UUID | None = Form(None),
     model_image_url: str = Form(None),
     body_type: str = Form("standard"),
     provider: str = Form("fashn"),
@@ -784,19 +785,33 @@ async def run_tryon(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    if model_asset_id is None and mannequin_id is None:
+        raise HTTPException(status_code=422, detail="model_asset_id veya mannequin_id gerekli")
+
     credits_cost = 2
     if not await credit_service.check_credits(current_user, credits_cost):
         raise HTTPException(status_code=402, detail="Insufficient credits")
 
-    model_result = await db.execute(
-        select(ModelAsset).where(ModelAsset.id == model_asset_id, ModelAsset.is_active == True)
-    )
-    model = model_result.scalar_one_or_none()
-    if not model:
-        raise HTTPException(status_code=404, detail="Model not found")
+    effective_crop_type = "full_body"
 
-    # model_image_url verilmişse (takım ikinci adımı), onu kullan; yoksa modelin orijinal görselini kullan
-    effective_model_image_url = model_image_url if model_image_url else model.image_url
+    if model_asset_id is not None:
+        model_result = await db.execute(
+            select(ModelAsset).where(ModelAsset.id == model_asset_id, ModelAsset.is_active == True)
+        )
+        model = model_result.scalar_one_or_none()
+        if not model:
+            raise HTTPException(status_code=404, detail="Model not found")
+        effective_model_image_url = model_image_url if model_image_url else model.image_url
+        effective_crop_type = model.crop_type.value if model.crop_type else "full_body"
+    else:
+        from app.models.mannequin import Mannequin as MannequinModel
+        mannequin_result = await db.execute(
+            select(MannequinModel).where(MannequinModel.id == mannequin_id, MannequinModel.is_active == True)
+        )
+        mannequin = mannequin_result.scalar_one_or_none()
+        if not mannequin:
+            raise HTTPException(status_code=404, detail="Mannequin not found")
+        effective_model_image_url = model_image_url if model_image_url else mannequin.image_url
 
     # Krediyi düş
     await credit_service.deduct_credits(
@@ -828,7 +843,7 @@ async def run_tryon(
     background_tasks.add_task(
         process_tryon_background,
         generation.id, effective_model_image_url, garment_url, "tops", "front", body_type, provider,
-        background, "high", aesthetic, model.crop_type.value if model.crop_type else "full_body",
+        background, "high", aesthetic, effective_crop_type,
         _detail_urls,
     )
 

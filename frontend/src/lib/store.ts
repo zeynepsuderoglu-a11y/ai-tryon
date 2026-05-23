@@ -21,6 +21,8 @@ interface StudioState {
   garmentUrl: string | null;
   garmentDetailUrls: string[];
   selectedModelId: string | null;
+  fashnSource: "model_asset" | "mannequin";
+  selectedMannequinId: string | null;
   isBatchMode: boolean;
   batchModelIds: string[];
   glassesUrl: string | null;
@@ -32,6 +34,8 @@ interface StudioState {
   setGarmentUrl: (url: string | null) => void;
   setGarmentDetailUrls: (urls: string[]) => void;
   setSelectedModelId: (id: string | null) => void;
+  setFashnSource: (source: "model_asset" | "mannequin") => void;
+  setSelectedMannequinId: (id: string | null) => void;
   setIsBatchMode: (batch: boolean) => void;
   toggleBatchModel: (id: string) => void;
   setGlassesUrl: (url: string | null) => void;
@@ -47,6 +51,8 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   garmentUrl: null,
   garmentDetailUrls: [],
   selectedModelId: null,
+  fashnSource: "model_asset",
+  selectedMannequinId: null,
   isBatchMode: false,
   batchModelIds: [],
   glassesUrl: null,
@@ -58,6 +64,8 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
   setGarmentUrl: (url) => set({ garmentUrl: url }),
   setGarmentDetailUrls: (urls) => set({ garmentDetailUrls: urls }),
   setSelectedModelId: (id) => set({ selectedModelId: id }),
+  setFashnSource: (source) => set({ fashnSource: source, selectedModelId: null, selectedMannequinId: null }),
+  setSelectedMannequinId: (id) => set({ selectedMannequinId: id }),
   setIsBatchMode: (isBatchMode) => set({ isBatchMode, batchModelIds: [] }),
   toggleBatchModel: (id) => {
     const current = get().batchModelIds;
@@ -78,6 +86,8 @@ export const useStudioStore = create<StudioState>()((set, get) => ({
       garmentUrl: null,
       garmentDetailUrls: [],
       selectedModelId: null,
+      fashnSource: "model_asset",
+      selectedMannequinId: null,
       isBatchMode: false,
       batchModelIds: [],
       glassesUrl: null,
