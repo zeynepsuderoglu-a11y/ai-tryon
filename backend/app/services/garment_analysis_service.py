@@ -640,7 +640,17 @@ async def analyze_garment(garment_url: str, category: str = "tops", detail_urls:
             resp = await http.get(garment_url)
             resp.raise_for_status()
             content_type = resp.headers.get("content-type", "image/jpeg").split(";")[0]
-            image_data = base64.standard_b64encode(resp.content).decode("utf-8")
+            image_bytes = resp.content
+            if len(image_bytes) > 4 * 1024 * 1024:
+                from PIL import Image as PILImage
+                import io as _io
+                img = PILImage.open(_io.BytesIO(image_bytes))
+                buf = _io.BytesIO()
+                img.convert("RGB").save(buf, format="JPEG", quality=85)
+                image_bytes = buf.getvalue()
+                content_type = "image/jpeg"
+                logger.info("analyze_garment: görsel %dMB → JPEG sıkıştırıldı", len(resp.content) // (1024 * 1024))
+            image_data = base64.standard_b64encode(image_bytes).decode("utf-8")
 
             # Detay fotoğraflarını indir
             detail_images: list[tuple[str, str]] = []
@@ -689,7 +699,16 @@ def analyze_garment_sync(garment_url: str, category: str = "tops") -> GarmentAna
             resp = http.get(garment_url)
             resp.raise_for_status()
             content_type = resp.headers.get("content-type", "image/jpeg").split(";")[0]
-            image_data = base64.standard_b64encode(resp.content).decode("utf-8")
+            image_bytes = resp.content
+            if len(image_bytes) > 4 * 1024 * 1024:
+                from PIL import Image as PILImage
+                import io as _io
+                img = PILImage.open(_io.BytesIO(image_bytes))
+                buf = _io.BytesIO()
+                img.convert("RGB").save(buf, format="JPEG", quality=85)
+                image_bytes = buf.getvalue()
+                content_type = "image/jpeg"
+            image_data = base64.standard_b64encode(image_bytes).decode("utf-8")
 
         client = _get_sync_client()
         message = client.messages.create(
