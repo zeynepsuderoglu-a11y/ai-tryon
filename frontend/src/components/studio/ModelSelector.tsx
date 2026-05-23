@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { modelsApi, mannequinsApi } from "@/lib/api";
+import { modelsApi } from "@/lib/api";
 import { useStudioStore } from "@/lib/store";
 import type { ModelAsset } from "@/types";
 import { cn } from "@/lib/utils";
@@ -26,8 +26,6 @@ const TAG_OPTIONS = [
   { value: "pijama", label: "Pijama"       },
 ] as const;
 
-type MannequinItem = { id: string; name: string; image_url: string };
-
 const normalizeUrl = (url: string) =>
   url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):\d+/, "");
 
@@ -43,8 +41,6 @@ const toThumb = (url: string) => {
 export default function ModelSelector() {
   const {
     selectedModelId, setSelectedModelId,
-    fashnSource, setFashnSource,
-    selectedMannequinId, setSelectedMannequinId,
     isBatchMode, batchModelIds, toggleBatchModel,
   } = useStudioStore();
 
@@ -54,12 +50,8 @@ export default function ModelSelector() {
   const [bodyType, setBodyType]           = useState<string>("all");
   const [tag, setTag]                     = useState<string>("all");
 
-  const [mannequins, setMannequins]               = useState<MannequinItem[]>([]);
-  const [loadingMannequins, setLoadingMannequins] = useState(false);
-
   /* ── Model assets: tümünü tek seferde yükle ── */
   useEffect(() => {
-    if (fashnSource !== "model_asset") return;
     setLoadingModels(true);
     const params: Record<string, string | number> = { page: 1, page_size: 200 };
     if (gender !== "all") params.gender = gender;
@@ -68,14 +60,7 @@ export default function ModelSelector() {
     modelsApi.list(params as any)
       .then((res) => setModels(res.items))
       .finally(() => setLoadingModels(false));
-  }, [fashnSource, gender, bodyType, tag]);
-
-  /* ── Mannequins: ilk geçişte yükle ── */
-  useEffect(() => {
-    if (fashnSource !== "mannequin" || mannequins.length > 0) return;
-    setLoadingMannequins(true);
-    mannequinsApi.list().then(setMannequins).finally(() => setLoadingMannequins(false));
-  }, [fashnSource, mannequins.length]);
+  }, [gender, bodyType, tag]);
 
   const handleSelectModel = (id: string) => {
     if (isBatchMode) toggleBatchModel(id);
@@ -96,134 +81,72 @@ export default function ModelSelector() {
 
   return (
     <div className="space-y-3">
-
-      {/* ── Kaynak toggle ── */}
-      <div className="flex gap-2">
-        {[
-          { value: "model_asset" as const, label: "Modeller" },
-          { value: "mannequin"  as const, label: "AI Mankenler" },
-        ].map((src) => (
-          <button
-            key={src.value}
-            onClick={() => setFashnSource(src.value)}
-            className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-              fashnSource === src.value
+      {/* Filtreler */}
+      <div className="flex gap-2 flex-wrap">
+        {TAG_OPTIONS.map((t) => (
+          <button key={t.value} onClick={() => setTag(t.value)}
+            className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              tag === t.value
                 ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
                 : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-            )}
-          >
-            {src.label}
-          </button>
+            )}>{t.label}</button>
+        ))}
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {GENDER_OPTIONS.map((g) => (
+          <button key={g.value} onClick={() => setGender(g.value)}
+            className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              gender === g.value
+                ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
+            )}>{g.label}</button>
+        ))}
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {BODY_OPTIONS.map((b) => (
+          <button key={b.value} onClick={() => setBodyType(b.value)}
+            className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              bodyType === b.value
+                ? "bg-[#c9a96e] text-white border-[#c9a96e]"
+                : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#c9a96e] hover:text-[#c9a96e]"
+            )}>{b.label}</button>
         ))}
       </div>
 
-      {fashnSource === "model_asset" ? (
-        <>
-          {/* Filtreler */}
-          <div className="flex gap-2 flex-wrap">
-            {TAG_OPTIONS.map((t) => (
-              <button key={t.value} onClick={() => setTag(t.value)}
-                className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                  tag === t.value
-                    ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
-                    : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-                )}>{t.label}</button>
-            ))}
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {GENDER_OPTIONS.map((g) => (
-              <button key={g.value} onClick={() => setGender(g.value)}
-                className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                  gender === g.value
-                    ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
-                    : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-                )}>{g.label}</button>
-            ))}
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {BODY_OPTIONS.map((b) => (
-              <button key={b.value} onClick={() => setBodyType(b.value)}
-                className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-                  bodyType === b.value
-                    ? "bg-[#c9a96e] text-white border-[#c9a96e]"
-                    : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#c9a96e] hover:text-[#c9a96e]"
-                )}>{b.label}</button>
-            ))}
-          </div>
-
-          {/* Grid — tüm modeller tek scroll */}
-          {loadingModels ? <Skeleton count={18} /> : models.length === 0 ? (
-            <div className="py-12 text-center text-[#737373] text-sm">Model bulunamadı</div>
-          ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-              {models.map((model) => {
-                const selected = isModelSelected(model.id);
-                return (
-                  <button
-                    key={model.id}
-                    onClick={() => handleSelectModel(model.id)}
-                    className={cn(
-                      "relative aspect-[2/3] rounded-xl overflow-hidden transition-all",
-                      selected
-                        ? "ring-2 ring-[#1a1a1a] ring-offset-1 ring-offset-[#fafafa]"
-                        : "hover:ring-1 hover:ring-[#a3a3a3]"
-                    )}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={toThumb(model.thumbnail_url || model.image_url)}
-                      alt={model.name}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    {selected && (
-                      <div className="absolute top-1.5 right-1.5 bg-[#1a1a1a] rounded-full p-0.5">
-                        <Check className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </>
+      {/* Grid — tüm modeller tek scroll */}
+      {loadingModels ? <Skeleton count={18} /> : models.length === 0 ? (
+        <div className="py-12 text-center text-[#737373] text-sm">Model bulunamadı</div>
       ) : (
-        /* ── AI Mankenler ── */
-        loadingMannequins ? <Skeleton count={8} /> : mannequins.length === 0 ? (
-          <div className="py-12 text-center text-[#737373] text-sm">Manken bulunamadı</div>
-        ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-            {mannequins.map((m) => {
-              const selected = selectedMannequinId === m.id;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setSelectedMannequinId(m.id === selectedMannequinId ? null : m.id)}
-                  className={cn(
-                    "relative aspect-[2/3] rounded-xl overflow-hidden transition-all",
-                    selected
-                      ? "ring-2 ring-[#1a1a1a] ring-offset-1 ring-offset-[#fafafa]"
-                      : "hover:ring-1 hover:ring-[#a3a3a3]"
-                  )}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={toThumb(m.image_url)}
-                    alt={m.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  {selected && (
-                    <div className="absolute top-1.5 right-1.5 bg-[#1a1a1a] rounded-full p-0.5">
-                      <Check className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+          {models.map((model) => {
+            const selected = isModelSelected(model.id);
+            return (
+              <button
+                key={model.id}
+                onClick={() => handleSelectModel(model.id)}
+                className={cn(
+                  "relative aspect-[2/3] rounded-xl overflow-hidden transition-all",
+                  selected
+                    ? "ring-2 ring-[#1a1a1a] ring-offset-1 ring-offset-[#fafafa]"
+                    : "hover:ring-1 hover:ring-[#a3a3a3]"
+                )}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={toThumb(model.thumbnail_url || model.image_url)}
+                  alt={model.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+                {selected && (
+                  <div className="absolute top-1.5 right-1.5 bg-[#1a1a1a] rounded-full p-0.5">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
       )}
     </div>
   );
