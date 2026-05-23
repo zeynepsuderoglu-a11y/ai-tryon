@@ -630,14 +630,17 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     logger.info("[%s] Etiket temizlendi, temiz URL kullanılıyor", generation_id)
 
                 if _is_swimwear:
-                    # ── Mayo/bikini: FASHN tryon-v1.6 permissive mod ─────────
-                    logger.info("[%s] Swimwear tespit edildi — tryon-v1.6 permissive modunda çalışıyor", generation_id)
-                    run_result = await fashn_service.run_tryon(
-                        model_image_url=model_image_url,
-                        garment_image_url=garment_url_clean,
-                        category="one-pieces",
-                        mode="quality",
-                        moderation_level="none",
+                    # ── Mayo/bikini: product-to-model (tryon-v1.6 desenli bikinilerde hallucinate ediyor)
+                    logger.info("[%s] Swimwear tespit edildi — product-to-model modunda çalışıyor", generation_id)
+                    logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
+                    _fashn_aspect = "2:3" if crop_type == "full_body" else "3:4"
+                    run_result = await fashn_service.run_product_to_model(
+                        product_image_url=garment_url_clean,
+                        model_image_url=_cloudinary_crop_3x4(model_image_url),
+                        prompt=base_prompt,
+                        resolution="1k",
+                        aspect_ratio=_fashn_aspect,
+                        num_images=1,
                     )
                     prediction_id = run_result.get("id")
                     if not prediction_id:
