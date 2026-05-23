@@ -31,6 +31,15 @@ type MannequinItem = { id: string; name: string; image_url: string };
 const normalizeUrl = (url: string) =>
   url.replace(/^https?:\/\/(localhost|127\.0\.0\.1):\d+/, "");
 
+/** Cloudinary URL'sine thumbnail dönüşümü ekler */
+const toThumb = (url: string) => {
+  const n = normalizeUrl(url);
+  if (n.includes("res.cloudinary.com")) {
+    return n.replace("/upload/", "/upload/w_200,q_auto,f_auto/");
+  }
+  return n;
+};
+
 export default function ModelSelector() {
   const {
     selectedModelId, setSelectedModelId,
@@ -39,33 +48,29 @@ export default function ModelSelector() {
     isBatchMode, batchModelIds, toggleBatchModel,
   } = useStudioStore();
 
-  // ── Model Assets state ──
-  const [models, setModels] = useState<ModelAsset[]>([]);
+  const [models, setModels]               = useState<ModelAsset[]>([]);
   const [loadingModels, setLoadingModels] = useState(true);
-  const [gender, setGender] = useState<string>("all");
-  const [bodyType, setBodyType] = useState<string>("all");
-  const [tag, setTag] = useState<string>("all");
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const PAGE_SIZE = 18;
+  const [gender, setGender]               = useState<string>("all");
+  const [bodyType, setBodyType]           = useState<string>("all");
+  const [tag, setTag]                     = useState<string>("all");
 
-  // ── Mannequins state ──
-  const [mannequins, setMannequins] = useState<MannequinItem[]>([]);
+  const [mannequins, setMannequins]               = useState<MannequinItem[]>([]);
   const [loadingMannequins, setLoadingMannequins] = useState(false);
 
+  /* ── Model assets: tümünü tek seferde yükle ── */
   useEffect(() => {
     if (fashnSource !== "model_asset") return;
     setLoadingModels(true);
-    const params: Record<string, string | number> = { page, page_size: PAGE_SIZE };
+    const params: Record<string, string | number> = { page: 1, page_size: 200 };
     if (gender !== "all") params.gender = gender;
     if (bodyType !== "all") params.body_type = bodyType;
     if (tag !== "all") params.tags = tag;
-    modelsApi.list(params as any).then((res) => {
-      setModels(res.items);
-      setTotal(res.total);
-    }).finally(() => setLoadingModels(false));
-  }, [fashnSource, gender, bodyType, tag, page]);
+    modelsApi.list(params as any)
+      .then((res) => setModels(res.items))
+      .finally(() => setLoadingModels(false));
+  }, [fashnSource, gender, bodyType, tag]);
 
+  /* ── Mannequins: ilk geçişte yükle ── */
   useEffect(() => {
     if (fashnSource !== "mannequin" || mannequins.length > 0) return;
     setLoadingMannequins(true);
@@ -77,105 +82,78 @@ export default function ModelSelector() {
     else setSelectedModelId(id === selectedModelId ? null : id);
   };
 
-  const handleSelectMannequin = (id: string) => {
-    setSelectedMannequinId(id === selectedMannequinId ? null : id);
-  };
-
   const isModelSelected = (id: string) =>
     isBatchMode ? batchModelIds.includes(id) : selectedModelId === id;
 
+  /* ── Skeleton grid ── */
+  const Skeleton = ({ count = 12 }: { count?: number }) => (
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="aspect-[2/3] rounded-xl bg-[#f0f0f0] animate-pulse" />
+      ))}
+    </div>
+  );
+
   return (
     <div className="space-y-3">
-      {/* Kaynak toggle */}
+
+      {/* ── Kaynak toggle ── */}
       <div className="flex gap-2">
-        <button
-          onClick={() => setFashnSource("model_asset")}
-          className={cn(
-            "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-            fashnSource === "model_asset"
-              ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
-              : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-          )}
-        >
-          Modeller
-        </button>
-        <button
-          onClick={() => setFashnSource("mannequin")}
-          className={cn(
-            "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
-            fashnSource === "mannequin"
-              ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
-              : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-          )}
-        >
-          AI Mankenler
-        </button>
+        {[
+          { value: "model_asset" as const, label: "Modeller" },
+          { value: "mannequin"  as const, label: "AI Mankenler" },
+        ].map((src) => (
+          <button
+            key={src.value}
+            onClick={() => setFashnSource(src.value)}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              fashnSource === src.value
+                ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
+            )}
+          >
+            {src.label}
+          </button>
+        ))}
       </div>
 
       {fashnSource === "model_asset" ? (
         <>
-          {/* Tag filtresi */}
+          {/* Filtreler */}
           <div className="flex gap-2 flex-wrap">
             {TAG_OPTIONS.map((t) => (
-              <button
-                key={t.value}
-                onClick={() => { setTag(t.value); setPage(1); }}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              <button key={t.value} onClick={() => setTag(t.value)}
+                className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                   tag === t.value
                     ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
                     : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-                )}
-              >
-                {t.label}
-              </button>
+                )}>{t.label}</button>
             ))}
           </div>
-
-          {/* Cinsiyet filtresi */}
           <div className="flex gap-2 flex-wrap">
             {GENDER_OPTIONS.map((g) => (
-              <button
-                key={g.value}
-                onClick={() => { setGender(g.value); setPage(1); }}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              <button key={g.value} onClick={() => setGender(g.value)}
+                className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                   gender === g.value
                     ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
                     : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
-                )}
-              >
-                {g.label}
-              </button>
+                )}>{g.label}</button>
             ))}
           </div>
-
-          {/* Beden filtresi */}
           <div className="flex gap-2 flex-wrap">
             {BODY_OPTIONS.map((b) => (
-              <button
-                key={b.value}
-                onClick={() => { setBodyType(b.value); setPage(1); }}
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              <button key={b.value} onClick={() => setBodyType(b.value)}
+                className={cn("px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                   bodyType === b.value
                     ? "bg-[#c9a96e] text-white border-[#c9a96e]"
                     : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#c9a96e] hover:text-[#c9a96e]"
-                )}
-              >
-                {b.label}
-              </button>
+                )}>{b.label}</button>
             ))}
           </div>
 
-          {/* Model grid */}
-          {loadingModels ? (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="aspect-[2/3] rounded-xl bg-[#f0f0f0] animate-pulse" />
-              ))}
-            </div>
-          ) : models.length === 0 ? (
+          {/* Grid — tüm modeller tek scroll */}
+          {loadingModels ? <Skeleton count={18} /> : models.length === 0 ? (
             <div className="py-12 text-center text-[#737373] text-sm">Model bulunamadı</div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
@@ -192,18 +170,13 @@ export default function ModelSelector() {
                         : "hover:ring-1 hover:ring-[#a3a3a3]"
                     )}
                   >
-                    {model.thumbnail_url || model.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={normalizeUrl(model.thumbnail_url || model.image_url)}
-                        alt={model.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 bg-[#f0f0f0] flex items-center justify-center text-[#a3a3a3] text-xs">
-                        {model.name[0]}
-                      </div>
-                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={toThumb(model.thumbnail_url || model.image_url)}
+                      alt={model.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      loading="lazy"
+                    />
                     {selected && (
                       <div className="absolute top-1.5 right-1.5 bg-[#1a1a1a] rounded-full p-0.5">
                         <Check className="w-3 h-3 text-white" />
@@ -214,39 +187,10 @@ export default function ModelSelector() {
               })}
             </div>
           )}
-
-          {/* Pagination */}
-          {total > PAGE_SIZE && (
-            <div className="flex justify-center items-center gap-3">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1.5 text-xs border border-[#e5e5e5] rounded-lg hover:border-[#1a1a1a] disabled:opacity-30 transition-colors"
-              >
-                Önceki
-              </button>
-              <span className="text-xs text-[#737373]">
-                {page} / {Math.ceil(total / PAGE_SIZE)}
-              </span>
-              <button
-                disabled={page >= Math.ceil(total / PAGE_SIZE)}
-                onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1.5 text-xs border border-[#e5e5e5] rounded-lg hover:border-[#1a1a1a] disabled:opacity-30 transition-colors"
-              >
-                Sonraki
-              </button>
-            </div>
-          )}
         </>
       ) : (
-        /* ── AI Mankenler grid ── */
-        loadingMannequins ? (
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-[2/3] rounded-xl bg-[#f0f0f0] animate-pulse" />
-            ))}
-          </div>
-        ) : mannequins.length === 0 ? (
+        /* ── AI Mankenler ── */
+        loadingMannequins ? <Skeleton count={8} /> : mannequins.length === 0 ? (
           <div className="py-12 text-center text-[#737373] text-sm">Manken bulunamadı</div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
@@ -255,7 +199,7 @@ export default function ModelSelector() {
               return (
                 <button
                   key={m.id}
-                  onClick={() => handleSelectMannequin(m.id)}
+                  onClick={() => setSelectedMannequinId(m.id === selectedMannequinId ? null : m.id)}
                   className={cn(
                     "relative aspect-[2/3] rounded-xl overflow-hidden transition-all",
                     selected
@@ -265,9 +209,10 @@ export default function ModelSelector() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={normalizeUrl(m.image_url)}
+                    src={toThumb(m.image_url)}
                     alt={m.name}
                     className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
                   />
                   {selected && (
                     <div className="absolute top-1.5 right-1.5 bg-[#1a1a1a] rounded-full p-0.5">
