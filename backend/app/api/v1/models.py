@@ -14,7 +14,7 @@ router = APIRouter(prefix="/models", tags=["models"])
 @router.get("", response_model=ModelAssetListResponse)
 async def list_models(
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(20, ge=1, le=500),
     gender: Gender | None = None,
     body_type: BodyType | None = None,
     skin_tone: SkinTone | None = None,
