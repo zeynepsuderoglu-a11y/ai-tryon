@@ -16,6 +16,7 @@ from app.models.user import User
 from app.models.generation import Generation, GenerationStatus
 from app.models.batch_job import BatchJob, BatchJobStatus
 from app.models.model_asset import ModelAsset
+from app.models.background import Background
 from app.schemas.tryon import (
     TryOnResponse, TryOnStatusResponse,
     BatchTryOnResponse, BatchJobStatusResponse
@@ -180,6 +181,26 @@ BACKGROUND_PROMPTS: dict[str, str] = {
     "concrete_loft":    "standing in an industrial loft space with raw exposed concrete walls, dark polished concrete floors, a tall arched steel-frame window overlooking a cobblestone Turkish street",
     "rose_studio":      "standing in a romantic boho studio room with textured dusty rose plaster walls, a white arched alcove doorway, light whitewashed wooden floors and a vase of dried pampas and lavender flowers",
     "arch_room":        "standing in a serene minimal room with soft off-white plaster walls, a tall white arched doorway, light whitewashed wooden floors and a vase of dried pampas and wildflowers",
+    # ── Sokak arka planları ──────────────────────────────────────────────────
+    "istanbul_istiklal":   "blurred İstiklal Avenue Istanbul street scene, historic European buildings, nostalgic red tram tracks, golden midday sunlight, shallow depth of field",
+    "paris_cobblestone":   "blurred Parisian cobblestone alley, Haussmann limestone buildings, flower-draped balconies, soft diffused French daylight, bokeh",
+    "soho_ny":             "blurred SoHo New York street, cast-iron architecture, golden-hour sunlight, urban editorial, shallow depth of field",
+    "milan_galleria":      "blurred Galleria Vittorio Emanuele II Milan, glass dome, marble mosaic floor, luxury boutique facades, warm golden light, bokeh",
+    "tokyo_shibuya_neon":  "blurred Tokyo night street, vibrant neon reflections on wet pavement, Shibuya editorial atmosphere, cinematic bokeh",
+    "london_notting_hill": "blurred Notting Hill London, pastel-painted Georgian terraced houses, flower stalls, soft British daylight, bokeh",
+    "beyoglu_gece":        "blurred Beyoğlu Istanbul night, Galata Tower silhouette, glistening wet cobblestones, warm street lanterns, atmospheric bokeh",
+    "barcelona_gothic":    "blurred Barcelona Gothic Quarter, medieval stone archways, pink bougainvillea vines, warm Mediterranean afternoon light, bokeh",
+    # ── Sahil arka planları ──────────────────────────────────────────────────
+    "alacati_sokak":       "blurred Alaçatı İzmir stone-paved alley, white and beige traditional houses, bougainvillea cascading over doorways, bright Aegean sunlight, bokeh",
+    "alacati_kafe":        "blurred Alaçatı open-air café terrace, rattan chairs, bougainvillea overhead, warm Aegean golden-hour light, bokeh",
+    "alacati_degirmen":    "blurred Alaçatı stone windmills, lavender field foreground, distant Aegean blue sea, soft hazy daylight",
+    "ege_sahil_promenad":  "blurred Aegean coastal promenade, white stone railing, turquoise sea, bougainvillea, warm Mediterranean light, bokeh",
+    "sahil_kasabasi_liman":"blurred authentic Aegean fishing harbour, colourful wooden boats, dockside cafés, soft golden morning light, bokeh",
+    "plaj_altin_saat":     "blurred Aegean beach at golden hour, fine white sand, turquoise water, beach umbrellas and sunbeds, warm sunset glow, bokeh",
+    "bodrum_beyaz":        "blurred Bodrum whitewashed cubic houses, cobalt blue shutters, castle silhouette, marina in distance, bright Aegean noon light",
+    "cesme_sahili":        "blurred Çeşme crystal-clear turquoise coastline, beach club, historic fortress, sailing boats, vivid Mediterranean light, bokeh",
+    "santorini_manzara":   "blurred Santorini Oia white Cycladic architecture, cobalt blue domes, caldera view, golden-hour warm light, bokeh",
+    "mavi_tekne_yolu":     "blurred Turkish blue cruise, turquoise cove, pine-covered hillsides, wooden gulet boat deck, clear Aegean water, warm afternoon light",
 }
 
 BODY_TYPE_PROMPTS: dict[str, str] = {
@@ -516,7 +537,13 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                             analysis.is_closed_front)
                 logger.info("[%s] Trend: %s (%s)", generation_id, trend["aesthetic"], trend["reason"])
 
-                background_desc = BACKGROUND_PROMPTS.get(background, BACKGROUND_PROMPTS["white_studio"])
+                background_desc = BACKGROUND_PROMPTS.get(background)
+                if background_desc is None:
+                    _bg_row = (await db.execute(
+                        select(Background).where(Background.key == background, Background.is_active == True)
+                    )).scalar_one_or_none()
+                    background_desc = (_bg_row.description if _bg_row and _bg_row.description
+                                       else BACKGROUND_PROMPTS["white_studio"])
 
                 # Çerçeve — tam boy veya yarım boy
                 crop_frame = (
@@ -559,7 +586,12 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
 
                 # Alt parça uzunluğu kilidi (one-pieces + bottoms)
                 if analysis.category in ("one-pieces", "bottoms"):
-                    if "short" in _ph or "shorts" in _gt or "hot pants" in _ph:
+                    _is_dress_type = any(k in _gt for k in ("dress", "gown", "sundress", "frock"))
+                    if ("mini" in _ph or "mid-thigh" in _ph) and _is_dress_type:
+                        _bottom_lock = "MINI dress — hemline STAYS AT MID-THIGH, do NOT lengthen the dress, keep exact short length"
+                    elif ("short" in _ph and _is_dress_type):
+                        _bottom_lock = "SHORT dress — hemline stays at mid-thigh, do NOT lengthen"
+                    elif "short" in _ph or "shorts" in _gt or "hot pants" in _ph:
                         _bottom_lock = "SHORT shorts ending at mid-thigh — NOT long pants"
                     elif any(k in _ph for k in ("palazzo", "wide-leg", "wide leg", "culotte")):
                         _bottom_lock = "WIDE-LEG palazzo pants — do NOT narrow or taper the leg"
