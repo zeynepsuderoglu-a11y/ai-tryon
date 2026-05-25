@@ -5,7 +5,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { adminApi } from "@/lib/api";
 import type { ModelAsset } from "@/types";
-import { Plus, Trash2, Eye, EyeOff, Upload, X, Link, Pencil } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Upload, X, Link, Pencil, Wand2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminModelsPage() {
@@ -40,6 +40,18 @@ export default function AdminModelsPage() {
   const [mannequinSaving, setMannequinSaving] = useState(false);
   const mannequinFileInputRef = useRef<HTMLInputElement>(null);
 
+  /* ── Model Preset State ── */
+  type PoseOption = { key: string; label: string };
+  type BgOption = { key: string; label: string; image_url: string };
+  const [presetPoses, setPresetPoses] = useState<PoseOption[]>([]);
+  const [presetBgs, setPresetBgs] = useState<BgOption[]>([]);
+  const [presetMannequinId, setPresetMannequinId] = useState<string>("");
+  const [presetBgKey, setPresetBgKey] = useState<string>("");
+  const [presetPoseKey, setPresetPoseKey] = useState<string>("confident_hip");
+  const [presetCropType, setPresetCropType] = useState<"full_body" | "half_body">("full_body");
+  const [presetGenerating, setPresetGenerating] = useState(false);
+  const [presetResult, setPresetResult] = useState<string | null>(null);
+
   const fetchModels = () => {
     setLoading(true);
     adminApi.models.list({ page: 1, page_size: 50, include_inactive: showInactive })
@@ -48,6 +60,14 @@ export default function AdminModelsPage() {
   };
 
   useEffect(() => { fetchModels(); }, [showInactive]);
+
+  // Preset verileri — tek seferlik yükleme
+  useEffect(() => {
+    adminApi.modelPresets.poses().then(setPresetPoses).catch(() => {});
+    adminApi.backgrounds.list().then((bgs) =>
+      setPresetBgs(bgs.filter((b) => b.is_active).map((b) => ({ key: b.key, label: b.label, image_url: b.image_url })))
+    ).catch(() => {});
+  }, []);
 
   const fetchMannequins = () => {
     setMannequinLoading(true);
@@ -285,6 +305,166 @@ export default function AdminModelsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* ── Model Preset Üretimi ── */}
+      <div className="mt-12 max-w-6xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Wand2 className="w-5 h-5 text-primary-400" />
+            Model Preset Oluştur
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">
+            Manken yüzü + arka plan → FASHN referans fotoğrafı. Üretilen görseli Model Galerisi'ne ekleyebilirsiniz.
+          </p>
+        </div>
+
+        <div className="glass rounded-2xl p-6 space-y-6">
+          {/* Satır 1 — Seçimler */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Manken */}
+            <div>
+              <label className="text-xs text-gray-400 block mb-1.5">Manken Yüzü *</label>
+              <select
+                value={presetMannequinId}
+                onChange={(e) => setPresetMannequinId(e.target.value)}
+                className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary-500"
+                style={{ color: "white" }}
+              >
+                <option value="">Seç...</option>
+                {mannequins.filter((m) => m.is_active).map((m) => (
+                  <option key={m.id} value={m.id}>{m.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Arka Plan */}
+            <div>
+              <label className="text-xs text-gray-400 block mb-1.5">Arka Plan *</label>
+              <select
+                value={presetBgKey}
+                onChange={(e) => setPresetBgKey(e.target.value)}
+                className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary-500"
+                style={{ color: "white" }}
+              >
+                <option value="">Seç...</option>
+                {presetBgs.map((bg) => (
+                  <option key={bg.key} value={bg.key}>{bg.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Poz */}
+            <div>
+              <label className="text-xs text-gray-400 block mb-1.5">Poz</label>
+              <select
+                value={presetPoseKey}
+                onChange={(e) => setPresetPoseKey(e.target.value)}
+                className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-primary-500"
+                style={{ color: "white" }}
+              >
+                {presetPoses.map((p) => (
+                  <option key={p.key} value={p.key}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Çerçeve */}
+            <div>
+              <label className="text-xs text-gray-400 block mb-1.5">Çerçeve</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[{ value: "full_body", label: "Tam Boy" }, { value: "half_body", label: "Yarım Boy" }].map((ct) => (
+                  <button
+                    key={ct.value}
+                    type="button"
+                    onClick={() => setPresetCropType(ct.value as "full_body" | "half_body")}
+                    className={cn(
+                      "py-2.5 rounded-lg text-xs border transition-colors",
+                      presetCropType === ct.value
+                        ? "bg-primary-600 border-primary-500 text-white"
+                        : "bg-gray-800 border-white/10 text-gray-300 hover:border-white/30"
+                    )}
+                  >
+                    {ct.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Oluştur butonu */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={async () => {
+                if (!presetMannequinId) { toast.error("Manken seçin"); return; }
+                if (!presetBgKey) { toast.error("Arka plan seçin"); return; }
+                setPresetGenerating(true);
+                setPresetResult(null);
+                try {
+                  const res = await adminApi.modelPresets.generate({
+                    mannequin_id: presetMannequinId,
+                    background_key: presetBgKey,
+                    pose_key: presetPoseKey,
+                    crop_type: presetCropType,
+                  });
+                  setPresetResult(res.image_url);
+                  toast.success("Preset oluşturuldu!");
+                } catch (err: any) {
+                  toast.error(err.response?.data?.detail || "Üretim başarısız");
+                } finally {
+                  setPresetGenerating(false);
+                }
+              }}
+              disabled={presetGenerating || !presetMannequinId || !presetBgKey}
+              className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Wand2 className="w-4 h-4" />
+              {presetGenerating ? "Oluşturuluyor..." : "Oluştur"}
+            </button>
+            {presetGenerating && (
+              <p className="text-xs text-gray-400 animate-pulse">Gemini görsel üretiyor, ~30-60 sn...</p>
+            )}
+          </div>
+
+          {/* Sonuç */}
+          {presetResult && (
+            <div className="border-t border-white/10 pt-6">
+              <p className="text-sm font-medium mb-3 text-green-400">Sonuç — Model Galerisi'ne eklemek için "Upload Model" butonunu kullanın (URL ile):</p>
+              <div className="flex gap-6 items-start flex-wrap">
+                <div className="relative w-48 aspect-[2/3] rounded-xl overflow-hidden bg-gray-800 flex-shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={presetResult} alt="Preset sonuç" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex flex-col gap-3 pt-2">
+                  <div className="bg-gray-800 rounded-lg p-3 max-w-sm">
+                    <p className="text-xs text-gray-400 mb-1">Cloudinary URL:</p>
+                    <p className="text-xs text-white break-all font-mono">{presetResult}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(presetResult); toast.success("URL kopyalandı"); }}
+                      className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      URL Kopyala
+                    </button>
+                    <a
+                      href={presetResult}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      <Download className="w-3 h-3" /> Tam Boy Görüntüle
+                    </a>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Bu URL'yi "Add Model → URL ile Ekle" alanına yapıştırın,<br />
+                    "Arka Plan İçeriyor" seçeneğini işaretleyin (yakında).
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mannequin Edit Modal */}

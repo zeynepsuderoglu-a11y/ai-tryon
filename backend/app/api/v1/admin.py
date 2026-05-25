@@ -1,6 +1,9 @@
 import uuid
+import logging
 from pathlib import Path
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, distinct, delete
@@ -458,6 +461,72 @@ async def admin_delete_mannequin(
         raise HTTPException(status_code=404, detail="Manken bulunamadı")
     await db.delete(mannequin)
     await db.commit()
+
+
+# ── Model Preset Üretimi ─────────────────────────────────────────────────────
+
+class ModelPresetGenerateRequest(BaseModel):
+    mannequin_id: str
+    background_key: str
+    pose_key: str = "confident_hip"
+    crop_type: str = "full_body"
+
+
+@router.post("/model-presets/generate")
+async def admin_generate_model_preset(
+    body: ModelPresetGenerateRequest,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Manken yüzü + arka plan → FASHN için model referans fotoğrafı üretir."""
+    from app.services.model_preset_service import model_preset_service, PRESET_POSES
+
+    # Manken yüzü
+    result = await db.execute(select(Mannequin).where(Mannequin.id == uuid.UUID(body.mannequin_id)))
+    mannequin = result.scalar_one_or_none()
+    if not mannequin:
+        raise HTTPException(status_code=404, detail="Manken bulunamadı")
+
+    # Arka plan açıklaması — önce DB'den bak
+    bg_row = (await db.execute(
+        select(Background).where(Background.key == body.background_key, Background.is_active == True)
+    )).scalar_one_or_none()
+
+    if bg_row and bg_row.description:
+        background_desc = bg_row.description
+    else:
+        # Statik fallback (tryon.py BACKGROUND_PROMPTS ile aynı değerler)
+        from app.api.v1.tryon import BACKGROUND_PROMPTS
+        background_desc = BACKGROUND_PROMPTS.get(body.background_key)
+        if not background_desc:
+            raise HTTPException(status_code=400, detail="Geçersiz arka plan anahtarı")
+
+    if body.pose_key not in PRESET_POSES:
+        raise HTTPException(status_code=400, detail="Geçersiz poz anahtarı")
+
+    try:
+        image_url = await model_preset_service.generate(
+            face_url=mannequin.image_url,
+            background_desc=background_desc,
+            pose_key=body.pose_key,
+            crop_type=body.crop_type,
+        )
+    except Exception as e:
+        logger.error("[model-preset] Üretim hatası: %s", e)
+        raise HTTPException(status_code=500, detail="Görsel üretimi başarısız oldu")
+
+    return {
+        "image_url": image_url,
+        "mannequin_name": mannequin.name,
+        "background_key": body.background_key,
+        "pose_key": body.pose_key,
+    }
+
+
+@router.get("/model-presets/poses")
+async def admin_list_preset_poses(admin: User = Depends(get_current_admin)):
+    from app.services.model_preset_service import PRESET_POSES
+    return [{"key": k, "label": v["label"]} for k, v in PRESET_POSES.items()]
 
 
 # ── Background CRUD ──────────────────────────────────────────────────────────

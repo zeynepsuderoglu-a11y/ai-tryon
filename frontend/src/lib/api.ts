@@ -397,6 +397,16 @@ export const adminApi = {
         `/admin/registrations/check-redis/${encodeURIComponent(email)}`
       ).then((r) => r.data),
   },
+
+  modelPresets: {
+    poses: () =>
+      api.get<{ key: string; label: string }[]>("/admin/model-presets/poses").then((r) => r.data),
+
+    generate: (data: { mannequin_id: string; background_key: string; pose_key: string; crop_type: string }) =>
+      api.post<{ image_url: string; mannequin_name: string; background_key: string; pose_key: string }>(
+        "/admin/model-presets/generate", data
+      ).then((r) => r.data),
+  },
 };
 
 export default api;
