@@ -646,12 +646,21 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     if is_face_only
                     else "preserve pose"
                 )
+                # is_face_only: arka plana uyumlu gerçekçi fotoğraf kalitesi
+                _lighting_note = (
+                    ", scene-consistent lighting that matches the background environment, "
+                    "natural directional shadows on ground beneath the model, "
+                    "no studio flash or artificial rim-light, "
+                    "professional fashion photography shot on 85mm lens, sharp focus on model"
+                    if is_face_only
+                    else ""
+                )
                 base_prompt = (
                     f"{closure_rule + ', ' if closure_rule else ''}"
                     f"{_locks + ', ' if _locks else ''}"
                     f"{outfit_completion}, {accessories_note}, "
                     f"single model only, {_pose_instruction}, {crop_frame}, {background_desc}, "
-                    f"photorealistic{detail_note}"
+                    f"photorealistic{_lighting_note}{detail_note}"
                 )
 
                 # ── Swimwear tespiti — desteklenmiyor ────────────────────────
