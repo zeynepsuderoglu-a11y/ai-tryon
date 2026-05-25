@@ -745,34 +745,37 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         output_urls = [await clean_output_image(u) for u in output_urls]
                         logger.info("[%s] product-to-model fallback tamamlandı", generation_id)
                 else:
-                    # ── Yüz fotoğrafı → Gemini (MannequinTryonService) ───────
-                    # FASHN product-to-model yerine Gemini — daha iyi fotoğraf kalitesi,
-                    # ışık tutarlılığı ve crop kontrolü
-                    logger.info("[%s] Yüz referansı — Gemini başlatılıyor (crop_type=%s)", generation_id, crop_type)
-                    from app.services.mannequin_tryon_service import MannequinTryonService as _MTS
-                    _mts = _MTS()
-                    _SLEEPWEAR_KW = (
-                        "sleepwear", "pajama", "nightgown", "robe", "lingerie",
-                        "nightdress", "pyjama", "gecelik", "sabahlık", "pijama",
+                    # ── Yüz fotoğrafı → direkt product-to-model ──────────────
+                    logger.info("[%s] Yüz referansı — product-to-model (crop_type=%s)", generation_id, crop_type)
+                    logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
+                    run_result = await fashn_service.run_product_to_model(
+                        product_image_url=garment_url_clean,
+                        model_image_url=_cloudinary_crop_3x4(model_image_url),
+                        prompt=base_prompt,
+                        resolution="1k",
+                        aspect_ratio="2:3",
+                        num_images=1,
                     )
-                    _is_sleepwear_flag = any(
-                        kw in (analysis.garment_type + " " + analysis.texture_prompt).lower()
-                        for kw in _SLEEPWEAR_KW
-                    )
-                    result_url = await _mts.run(
-                        face_url=model_image_url,
-                        garment_url=garment_url_clean,
-                        critical_detail=analysis.critical_detail or "",
-                        is_sleepwear=_is_sleepwear_flag,
-                        background_desc=background_desc,
-                        crop_type=crop_type,
-                        footwear=analysis.footwear or "",
-                        background_image_url=_bg_image_url,
-                        texture_prompt=analysis.texture_prompt or "",
-                        category=analysis.category,
-                    )
-                    output_urls = [result_url]
-                    logger.info("[%s] Gemini (face-only) tamamlandı", generation_id)
+                    prediction_id = run_result.get("id")
+                    if not prediction_id:
+                        raise RuntimeError("Görsel üretimi başlatılamadı")
+                    final = await fashn_service.poll_until_complete(prediction_id)
+                    raw_output = final.get("output", [])
+                    output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
+                    output_urls = output_urls[:1]
+                    if not output_urls:
+                        raise RuntimeError("Görsel çıktısı alınamadı")
+                    output_urls = [await split_composite_if_needed(u) for u in output_urls]
+                    output_urls = [await clean_output_image(u) for u in output_urls]
+                    logger.info("[%s] product-to-model (face-only) tamamlandı", generation_id)
+
+                    # ── Yarım boy kırpma — programatik (%65 üst) ─────────────
+                    if crop_type == "half_body":
+                        try:
+                            output_urls = [await _crop_tryon_output(u, 0.65) for u in output_urls]
+                            logger.info("[%s] Yarım boy kırpma uygulandı (0.65)", generation_id)
+                        except Exception as _crop_err:
+                            logger.warning("[%s] Yarım boy kırpma başarısız: %s", generation_id, _crop_err)
 
                 logger.info("[%s] FASHN tamamlandı, kullanıcıya gösterilecek", generation_id)
 
