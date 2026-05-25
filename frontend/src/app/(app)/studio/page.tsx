@@ -358,6 +358,10 @@ export default function StudioPage() {
   const [mannequinBackground, setMannequinBackground] = useState<string>("white_studio");
   const [mannequinCropType, setMannequinCropType] = useState<"full_body" | "half_body">("full_body");
 
+  /* ── Kıyafet sekmesi — model kaynağı ── */
+  const [kiyafetSource, setKiyafetSource] = useState<"model" | "manken">("model");
+  const [kiyafetMannequinId, setKiyafetMannequinId] = useState<string | null>(null);
+
   /* ── Mobil Sidebar ── */
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -387,6 +391,8 @@ export default function StudioPage() {
     ? !!garmentUrl && !!selectedModelId
     : isBatchMode
     ? !!garmentUrl && batchModelIds.length > 0
+    : kiyafetSource === "manken"
+    ? !!garmentUrl && !!kiyafetMannequinId
     : !!garmentUrl && !!selectedModelId;
 
   const requiredCredits = isVideo ? 5 : isGhost ? 1 : isBgReplace ? bgPhotos.length : isEyewear ? 1 : isMannequin ? 2 : isBatchMode ? batchModelIds.length * 2 : 2;
@@ -492,7 +498,9 @@ export default function StudioPage() {
       } else {
         const result = await tryonApi.run({
           garment_url: garmentUrl!,
-          model_asset_id: selectedModelId!,
+          ...(kiyafetSource === "manken"
+            ? { mannequin_id: kiyafetMannequinId! }
+            : { model_asset_id: selectedModelId! }),
           category: garmentCategory, body_type: bodyType, provider: "fashn", background, aesthetic,
           ...(garmentDetailUrls.length > 0 ? { garment_detail_urls: garmentDetailUrls } : {}),
         });
@@ -1209,8 +1217,68 @@ export default function StudioPage() {
                   <span className="text-xs text-[#737373]">{batchModelIds.length} seçildi</span>
                 )}
               </div>
-              <div className="p-5 pt-3">
-                <ModelSelector />
+
+              {/* Kıyafet sekmesinde kaynak toggle */}
+              {!isEyewear && !isNano && (
+                <div className="px-5 pb-2 flex gap-2">
+                  {(["model", "manken"] as const).map((src) => (
+                    <button
+                      key={src}
+                      onClick={() => { setKiyafetSource(src); setKiyafetMannequinId(null); }}
+                      className={cn(
+                        "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                        kiyafetSource === src
+                          ? "bg-[#1a1a1a] text-white border-[#1a1a1a]"
+                          : "bg-white text-[#737373] border-[#e5e5e5] hover:border-[#1a1a1a] hover:text-[#1a1a1a]"
+                      )}
+                    >
+                      {src === "model" ? "Model Galerisi" : "Mankenlerim"}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="p-5 pt-2">
+                {(!isEyewear && !isNano && kiyafetSource === "manken") ? (
+                  /* Manken grid */
+                  listsLoading ? (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="aspect-[2/3] rounded-xl bg-[#f0f0f0] animate-pulse" />
+                      ))}
+                    </div>
+                  ) : mannequinList.length === 0 ? (
+                    <p className="text-xs text-[#a3a3a3] py-4 text-center">Henüz manken eklenmemiş</p>
+                  ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                      {mannequinList.map((m) => (
+                        <button
+                          key={m.id}
+                          onClick={() => setKiyafetMannequinId(m.id === kiyafetMannequinId ? null : m.id)}
+                          className={cn(
+                            "relative aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all",
+                            kiyafetMannequinId === m.id
+                              ? "border-[#0f0f0f] ring-2 ring-[#0f0f0f]/20"
+                              : "border-[#e8e8e8] hover:border-[#a3a3a3]"
+                          )}
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={m.image_url} alt={m.name} className="w-full h-full object-cover object-top" />
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                            <p className="text-white text-[9px] font-medium text-center truncate">{m.name}</p>
+                          </div>
+                          {kiyafetMannequinId === m.id && (
+                            <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center">
+                              <Check className="w-2.5 h-2.5 text-white" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <ModelSelector />
+                )}
               </div>
             </div>
           )}
