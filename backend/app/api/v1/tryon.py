@@ -649,9 +649,12 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                 # is_face_only: arka plana uyumlu gerçekçi fotoğraf kalitesi
                 _lighting_note = (
                     ", scene-consistent lighting that matches the background environment, "
-                    "natural directional shadows on ground beneath the model, "
+                    "natural directional light and shadows matching the scene, "
+                    "soft natural shadow on ground beneath model feet, "
                     "no studio flash or artificial rim-light, "
-                    "professional fashion photography shot on 85mm lens, sharp focus on model"
+                    "shot on Sony A7R IV 85mm f/1.8 lens, tack-sharp focus on model, "
+                    "ultra-realistic skin texture, high-detail fabric rendering, "
+                    "fashion campaign quality, magazine editorial"
                     if is_face_only
                     else ""
                 )
@@ -740,15 +743,15 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         logger.info("[%s] product-to-model fallback tamamlandı", generation_id)
                 else:
                     # ── Yüz fotoğrafı → direkt product-to-model ──────────────
-                    logger.info("[%s] Yüz referansı — direkt product-to-model başlatılıyor", generation_id)
+                    logger.info("[%s] Yüz referansı — direkt product-to-model başlatılıyor (crop_type=%s)", generation_id, crop_type)
                     logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
-                    _fashn_aspect = "2:3" if crop_type == "full_body" else "3:4"
+                    # Her zaman 2:3 tam boy üret — yarım boy seçilmişse sonradan kırpılır
                     run_result = await fashn_service.run_product_to_model(
                         product_image_url=garment_url_clean,
                         model_image_url=_cloudinary_crop_3x4(model_image_url),
                         prompt=base_prompt,
                         resolution="1k",
-                        aspect_ratio=_fashn_aspect,
+                        aspect_ratio="2:3",
                         num_images=1,
                     )
                     prediction_id = run_result.get("id")
@@ -763,6 +766,14 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     output_urls = [await split_composite_if_needed(u) for u in output_urls]
                     output_urls = [await clean_output_image(u) for u in output_urls]
                     logger.info("[%s] product-to-model (face-only) tamamlandı", generation_id)
+
+                    # ── Yarım boy kırpma — programatik (%68 üst) ─────────────
+                    if crop_type == "half_body":
+                        try:
+                            output_urls = [await _crop_tryon_output(u, 0.68) for u in output_urls]
+                            logger.info("[%s] Yarım boy kırpma uygulandı (0.68)", generation_id)
+                        except Exception as _crop_err:
+                            logger.warning("[%s] Yarım boy kırpma başarısız, orijinal kullanılıyor: %s", generation_id, _crop_err)
 
                 logger.info("[%s] FASHN tamamlandı, kullanıcıya gösterilecek", generation_id)
 
