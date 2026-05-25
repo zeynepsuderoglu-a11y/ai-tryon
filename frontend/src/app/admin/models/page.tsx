@@ -5,7 +5,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { adminApi } from "@/lib/api";
 import type { ModelAsset } from "@/types";
-import { Plus, Trash2, Eye, EyeOff, Upload, X, Link, Pencil, Wand2, Download } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Upload, X, Link, Pencil, Wand2, Download, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ── Preset Sonuç Paneli — direkt kaydet, URL kopyalama yok ── */
