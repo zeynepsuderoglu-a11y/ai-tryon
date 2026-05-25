@@ -8,6 +8,129 @@ import type { ModelAsset } from "@/types";
 import { Plus, Trash2, Eye, EyeOff, Upload, X, Link, Pencil, Wand2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/* ── Preset Sonuç Paneli — direkt kaydet, URL kopyalama yok ── */
+function PresetResultPanel({
+  imageUrl,
+  defaultName,
+  cropType,
+  onSaved,
+}: {
+  imageUrl: string;
+  defaultName: string;
+  cropType: "full_body" | "half_body";
+  onSaved: () => void;
+}) {
+  const [name, setName] = useState(defaultName);
+  const [gender, setGender] = useState("female");
+  const [bodyType, setBodyType] = useState("average");
+  const [skinTone, setSkinTone] = useState("medium");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    if (!name.trim()) { return; }
+    setSaving(true);
+    try {
+      await adminApi.modelPresets.save({
+        image_url: imageUrl,
+        name: name.trim(),
+        gender,
+        body_type: bodyType,
+        skin_tone: skinTone,
+        crop_type: cropType,
+      });
+      setSaved(true);
+      onSaved();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Kaydetme başarısız");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="border-t border-white/10 pt-6">
+      <p className="text-sm font-medium mb-4 text-green-400">
+        {saved ? "✓ Model galerisine kaydedildi!" : "Sonuç — beğendiyseniz galerisine kaydedin:"}
+      </p>
+      <div className="flex gap-6 items-start flex-wrap">
+        {/* Görsel */}
+        <div className="relative w-44 aspect-[2/3] rounded-xl overflow-hidden bg-gray-800 flex-shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageUrl} alt="Preset" className="w-full h-full object-cover" />
+          {saved && (
+            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+              <Check className="w-10 h-10 text-green-400" />
+            </div>
+          )}
+        </div>
+
+        {/* Form */}
+        {!saved && (
+          <div className="flex flex-col gap-3 flex-1 min-w-[220px]">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Model Adı *</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full bg-gray-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-primary-500"
+                style={{ color: "white" }}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Cinsiyet</label>
+                <select value={gender} onChange={(e) => setGender(e.target.value)}
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs"
+                  style={{ color: "white" }}>
+                  <option value="female">Kadın</option>
+                  <option value="male">Erkek</option>
+                  <option value="unisex">Unisex</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Beden</label>
+                <select value={bodyType} onChange={(e) => setBodyType(e.target.value)}
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs"
+                  style={{ color: "white" }}>
+                  <option value="slim">İnce</option>
+                  <option value="average">Orta</option>
+                  <option value="plus_size">Büyük</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Ten</label>
+                <select value={skinTone} onChange={(e) => setSkinTone(e.target.value)}
+                  className="w-full bg-gray-800 border border-white/10 rounded-lg px-2 py-2 text-white text-xs"
+                  style={{ color: "white" }}>
+                  <option value="light">Açık</option>
+                  <option value="medium">Orta</option>
+                  <option value="dark">Koyu</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-1">
+              <a href={imageUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-xs transition-colors">
+                <Download className="w-3 h-3" /> Görüntüle
+              </a>
+              <button
+                onClick={handleSave}
+                disabled={saving || !name.trim()}
+                className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                <Check className="w-4 h-4" />
+                {saving ? "Kaydediliyor..." : "Model Galerisine Kaydet"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 export default function AdminModelsPage() {
   const [models, setModels] = useState<ModelAsset[]>([]);
   const [total, setTotal] = useState(0);
@@ -428,41 +551,16 @@ export default function AdminModelsPage() {
 
           {/* Sonuç */}
           {presetResult && (
-            <div className="border-t border-white/10 pt-6">
-              <p className="text-sm font-medium mb-3 text-green-400">Sonuç — Model Galerisi'ne eklemek için "Upload Model" butonunu kullanın (URL ile):</p>
-              <div className="flex gap-6 items-start flex-wrap">
-                <div className="relative w-48 aspect-[2/3] rounded-xl overflow-hidden bg-gray-800 flex-shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={presetResult} alt="Preset sonuç" className="w-full h-full object-cover" />
-                </div>
-                <div className="flex flex-col gap-3 pt-2">
-                  <div className="bg-gray-800 rounded-lg p-3 max-w-sm">
-                    <p className="text-xs text-gray-400 mb-1">Cloudinary URL:</p>
-                    <p className="text-xs text-white break-all font-mono">{presetResult}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(presetResult); toast.success("URL kopyalandı"); }}
-                      className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
-                    >
-                      URL Kopyala
-                    </button>
-                    <a
-                      href={presetResult}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
-                    >
-                      <Download className="w-3 h-3" /> Tam Boy Görüntüle
-                    </a>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Bu URL'yi "Add Model → URL ile Ekle" alanına yapıştırın,<br />
-                    "Arka Plan İçeriyor" seçeneğini işaretleyin (yakında).
-                  </p>
-                </div>
-              </div>
-            </div>
+            <PresetResultPanel
+              imageUrl={presetResult}
+              defaultName={
+                mannequins.find((m) => m.id === presetMannequinId)?.name
+                  ? `${mannequins.find((m) => m.id === presetMannequinId)!.name} — ${presetBgs.find((b) => b.key === presetBgKey)?.label ?? presetBgKey}`
+                  : "Preset Model"
+              }
+              cropType={presetCropType}
+              onSaved={() => { fetchModels(); toast.success("Model galeriye eklendi!"); }}
+            />
           )}
         </div>
       </div>

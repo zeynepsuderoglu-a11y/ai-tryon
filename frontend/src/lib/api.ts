@@ -406,6 +406,11 @@ export const adminApi = {
       api.post<{ image_url: string; mannequin_name: string; background_key: string; pose_key: string }>(
         "/admin/model-presets/generate", data
       ).then((r) => r.data),
+
+    save: (data: { image_url: string; name: string; gender: string; body_type: string; skin_tone: string; crop_type: string }) =>
+      api.post<{ id: string; name: string; image_url: string }>(
+        "/admin/model-presets/save", data
+      ).then((r) => r.data),
   },
 };
 

@@ -529,6 +529,39 @@ async def admin_list_preset_poses(admin: User = Depends(get_current_admin)):
     return [{"key": k, "label": v["label"]} for k, v in PRESET_POSES.items()]
 
 
+class ModelPresetSaveRequest(BaseModel):
+    image_url: str          # Cloudinary'deki hazır URL — yeniden upload yok
+    name: str
+    gender: str = "female"
+    body_type: str = "average"
+    skin_tone: str = "medium"
+    crop_type: str = "full_body"
+
+
+@router.post("/model-presets/save", response_model=ModelAssetOut, status_code=201)
+async def admin_save_model_preset(
+    body: ModelPresetSaveRequest,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Üretilmiş preset görselini direkt model_assets'e kaydeder — yeniden upload yok."""
+    model = ModelAsset(
+        name=body.name,
+        gender=Gender(body.gender),
+        body_type=BodyType(body.body_type),
+        skin_tone=SkinTone(body.skin_tone),
+        crop_type=CropType(body.crop_type),
+        image_url=body.image_url,
+        thumbnail_url=body.image_url,
+        tags="preset",
+    )
+    db.add(model)
+    await db.flush()
+    await db.commit()
+    await db.refresh(model)
+    return model
+
+
 # ── Background CRUD ──────────────────────────────────────────────────────────
 
 @router.get("/backgrounds")

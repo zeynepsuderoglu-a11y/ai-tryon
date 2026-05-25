@@ -17,42 +17,84 @@ from app.services.cloudinary_service import cloudinary_service
 logger = logging.getLogger(__name__)
 
 
-# ── Poz tanımları — Türkiye pazarı ──────────────────────────────────────────
+# ── Poz tanımları — Türkiye pazarı, anatomik hassas ─────────────────────────
 PRESET_POSES: dict[str, dict] = {
-    "confident_hip": {
-        "label": "Güvenli Duruş",
+    "power_stance": {
+        "label": "Güç Duruşu",
         "desc": (
-            "confident standing pose, weight shifted to left leg, right hand lightly on hip, "
-            "left arm relaxed at side, body at slight 3/4 angle toward camera, "
-            "chin slightly lifted, natural warm expression — "
-            "classic Turkish fashion editorial, approachable and stylish"
+            "EXACT BODY POSITION: "
+            "Standing fully upright with commanding authority. "
+            "Right foot planted forward and slightly to the right, pointing at 2 o'clock. "
+            "Left foot back and to the left, creating a wide powerful base. "
+            "RIGHT HAND: placed firmly on right hip, elbow pointing sharply outward to the right — "
+            "this creates a bold, strong geometric line. "
+            "LEFT ARM: straight, hanging close at the side, fingers relaxed and together. "
+            "TORSO: chest fully open, shoulders pulled back and down — absolutely no hunching. "
+            "Body faces camera at a very slight 10-degree angle, barely any turn. "
+            "HEAD: perfectly level, chin parallel to the floor — not tilted up or down. "
+            "GAZE: eyes looking DIRECTLY and intensely into the camera lens. "
+            "EXPRESSION: strong, composed, determined — lips naturally closed, jaw set with confidence. "
+            "This is a high-impact power pose — magazine cover energy, commanding and aspirational."
         ),
     },
-    "editorial_arms": {
-        "label": "Editöryal Duruş",
+    "dynamic_stride": {
+        "label": "Dinamik Yürüyüş",
         "desc": (
-            "elegant editorial standing pose, feet shoulder-width apart, "
-            "both arms relaxed slightly away from body, one elbow slightly bent, "
-            "face turned 3/4 toward camera, poised sophisticated commercial pose — "
-            "high-end Turkish women's fashion editorial"
+            "EXACT BODY POSITION: "
+            "Caught confidently mid-stride, walking directly toward the camera. "
+            "LEFT FOOT: planted firmly forward, heel down, toe pointing at 12 o'clock. "
+            "RIGHT FOOT: behind and to the right, only the ball of the foot touching the ground, "
+            "creating a natural push-off motion. "
+            "LEFT ARM: swinging slightly forward and across the body. "
+            "RIGHT ARM: swinging back behind the hip, relaxed and natural. "
+            "TORSO: slight natural rotation from the hips due to the stride — dynamic energy. "
+            "Clothing and hair showing subtle natural movement from the walking motion. "
+            "HEAD: level, chin parallel to ground, slight forward lean from the stride energy. "
+            "GAZE: eyes locked directly on the camera with a powerful, purposeful expression. "
+            "EXPRESSION: confident smize — intensity in the eyes, lips naturally relaxed. "
+            "This is a dynamic editorial walk — runway energy translated to e-commerce, "
+            "full body in frame from head to feet."
         ),
     },
-    "natural_walk": {
-        "label": "Doğal Yürüyüş",
+    "elegant_hip": {
+        "label": "Zarif Kalça",
         "desc": (
-            "natural confident mid-stride walking pose toward camera, "
-            "left foot forward, natural arm movement, looking directly at camera "
-            "with relaxed confident expression, dynamic yet elegant — "
-            "Turkish fashion week editorial energy"
+            "EXACT BODY POSITION: "
+            "Classic high-fashion S-curve silhouette. "
+            "ALL BODY WEIGHT on the right leg — right hip pushed out noticeably to the right, "
+            "creating a strong, elegant S-shape along the body. "
+            "LEFT LEG: completely relaxed, knee slightly bent, left foot pointed slightly to the left. "
+            "RIGHT HAND: resting lightly on the right hip with the wrist bent gracefully, "
+            "elbow pointing gently outward and slightly backward. "
+            "LEFT ARM: straight, hanging naturally at the side, very slightly away from the body, "
+            "fingers long and relaxed. "
+            "TORSO: body turned at a 30-degree angle to the right of the camera. "
+            "HEAD: turned to face the camera directly from the angled body position. "
+            "GAZE: eyes looking straight into the camera, warm but powerful. "
+            "EXPRESSION: sophisticated and alluring — a knowing, confident expression "
+            "with naturally parted lips or composed neutral smile. "
+            "This pose creates maximum garment silhouette visibility — "
+            "perfect for showing dress flow, waistlines, and fabric drape."
         ),
     },
-    "relaxed_cross": {
-        "label": "Rahat Çapraz",
+    "editorial_touch": {
+        "label": "Editöryal Dokunuş",
         "desc": (
-            "relaxed fashion pose, ankles lightly crossed, both hands loosely "
-            "clasped in front at hip level, slight body tilt, "
-            "warm approachable expression looking directly at camera — "
-            "casual elegant Turkish e-commerce editorial"
+            "EXACT BODY POSITION: "
+            "Standing elegantly upright with a sophisticated editorial gesture. "
+            "Feet together or very slightly apart, body facing the camera at a 20-degree angle. "
+            "RIGHT HAND: gracefully raised to touch the right side of the neck or collar area, "
+            "fingers long and elegant, wrist slightly bent — "
+            "this creates a beautiful leading line from hand to face. "
+            "LEFT ARM: hanging straight down at the side, slightly away from the body, "
+            "fingers naturally relaxed and long. "
+            "TORSO: chest open, posture impeccable — long neck, elongated spine. "
+            "HEAD: slightly tilted down at a 10-degree angle, creating a subtle downward gaze "
+            "that still connects with the camera — introspective yet powerful. "
+            "GAZE: eyes looking slightly upward toward the camera from the tilted head position, "
+            "creating a smouldering, editorial gaze. "
+            "EXPRESSION: sophisticated, mysterious, high-fashion — composed neutral lips. "
+            "This is a luxury editorial pose — Vogue-level fashion photography energy."
         ),
     },
 }
@@ -73,31 +115,33 @@ def _build_preset_prompt(background_desc: str, pose_key: str, crop_type: str = "
 
     return f"""IMAGE 1: Fashion model face reference.
 
-Generate a professional Turkish e-commerce fashion model photo.
+Generate a STUNNING, HIGH-IMPACT professional Turkish fashion e-commerce photo.
+This image will be used to sell clothing — it must be visually arresting and aspirational.
 
-FACE RULE — CRITICAL: Reproduce the face from IMAGE 1 exactly. Same skin tone, facial features, eye shape, nose, lips, and facial structure. Do NOT alter, idealize, or replace the face.
+FACE — CRITICAL: Reproduce the face from IMAGE 1 faithfully. Same skin tone, bone structure, eye shape, nose, lips. Do NOT alter or idealize the face.
 
-POSE: {pose_desc}
+{pose_desc}
 
-OUTFIT (neutral placeholder — will be replaced by the product garment):
-- Simple plain white fitted crew-neck t-shirt or light cream fitted blouse — no patterns, no logos, no prints
-- Slim straight dark charcoal or navy trousers — clean, minimal, no distinctive details
-- Simple white or nude low-heel shoes or minimal ballet flats
-- No accessories, no jewelry, no belt
-- The outfit must be completely forgettable and neutral — it is NOT the subject
+OUTFIT (placeholder — simple and minimal, it will be digitally replaced):
+Choose ONE of these neutral placeholder options that best suits the pose:
+Option A: Fitted plain white/cream blouse + slim straight dark navy trousers + minimal nude heels
+Option B: Simple fitted light beige blazer (open) + cream fitted top underneath + dark slim trousers + white sneakers
+Option C: Clean plain white fitted dress (midi length, no pattern, no details) + minimal nude or white heels
+Choose whichever looks most natural and elegant for the pose. Colors: white, cream, beige, navy, charcoal ONLY. NO patterns, NO logos, NO textures, NO accessories.
 
 {crop_line}
 
 BACKGROUND: {background_desc}
 
-LIGHTING & STYLE:
-- Soft, even, flattering studio or natural light — no harsh shadows, no overexposed areas
-- Commercial Turkish fashion photography — sophisticated, modern, welcoming
-- Photorealistic, high detail, sharp focus on face and overall figure
-- The image must feel like a real professional fashion photo shoot
-- Türkiye pazarı estetiği: zarif, sıcak, güvenilir, satışa odaklı
+PHOTOGRAPHY STYLE — THIS IS CRITICAL:
+- Professional high-end fashion photography — the kind seen in Vogue Türkiye or Elle Türkiye
+- Cinematic, editorial quality — NOT a basic catalog photo
+- Soft, directional, flattering light — slight shadow on one side of the face for depth and drama
+- Rich, detailed, sharp image — the model should look like a real human being, not AI-generated
+- The overall image should make a viewer STOP SCROLLING — aspirational, powerful, beautiful
+- Türkiye pazarı: sophisticated, modern, warm — NOT cold or clinical
 
-OUTPUT: One photorealistic professional fashion photo. No text, no watermarks, no logos."""
+OUTPUT: One perfect, photorealistic, high-impact professional fashion photo."""
 
 
 def _run_sync(face_bytes: bytes, face_mime: str, prompt: str) -> bytes:
