@@ -1240,42 +1240,83 @@ export default function StudioPage() {
 
               <div className="p-5 pt-2">
                 {(!isEyewear && !isNano && kiyafetSource === "manken") ? (
-                  /* Manken grid */
-                  listsLoading ? (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="aspect-[2/3] rounded-xl bg-[#f0f0f0] animate-pulse" />
-                      ))}
-                    </div>
-                  ) : mannequinList.length === 0 ? (
-                    <p className="text-xs text-[#a3a3a3] py-4 text-center">Henüz manken eklenmemiş</p>
-                  ) : (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                      {mannequinList.map((m) => (
-                        <button
-                          key={m.id}
-                          onClick={() => setKiyafetMannequinId(m.id === kiyafetMannequinId ? null : m.id)}
-                          className={cn(
-                            "relative aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all",
-                            kiyafetMannequinId === m.id
-                              ? "border-[#0f0f0f] ring-2 ring-[#0f0f0f]/20"
-                              : "border-[#e8e8e8] hover:border-[#a3a3a3]"
-                          )}
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={m.image_url} alt={m.name} className="w-full h-full object-cover object-top" />
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
-                            <p className="text-white text-[9px] font-medium text-center truncate">{m.name}</p>
-                          </div>
-                          {kiyafetMannequinId === m.id && (
-                            <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center">
-                              <Check className="w-2.5 h-2.5 text-white" />
+                  /* Manken grid + Arka Plan seçici */
+                  <>
+                    {listsLoading ? (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i} className="aspect-[2/3] rounded-xl bg-[#f0f0f0] animate-pulse" />
+                        ))}
+                      </div>
+                    ) : mannequinList.length === 0 ? (
+                      <p className="text-xs text-[#a3a3a3] py-4 text-center">Henüz manken eklenmemiş</p>
+                    ) : (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                        {mannequinList.map((m) => (
+                          <button
+                            key={m.id}
+                            onClick={() => setKiyafetMannequinId(m.id === kiyafetMannequinId ? null : m.id)}
+                            className={cn(
+                              "relative aspect-[2/3] rounded-xl overflow-hidden border-2 transition-all",
+                              kiyafetMannequinId === m.id
+                                ? "border-[#0f0f0f] ring-2 ring-[#0f0f0f]/20"
+                                : "border-[#e8e8e8] hover:border-[#a3a3a3]"
+                            )}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={m.image_url} alt={m.name} className="w-full h-full object-cover object-top" />
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-1.5">
+                              <p className="text-white text-[9px] font-medium text-center truncate">{m.name}</p>
                             </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )
+                            {kiyafetMannequinId === m.id && (
+                              <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#0f0f0f] flex items-center justify-center">
+                                <Check className="w-2.5 h-2.5 text-white" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Arka Plan — manken seçilince hemen altında */}
+                    {backgroundsList.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-[#f0f0f0]">
+                        <p className="text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Arka Plan</p>
+                        <div className="flex gap-2.5 overflow-x-auto pb-1.5">
+                          {backgroundsList.map((bg) => (
+                            <button
+                              key={bg.key}
+                              onClick={() => setBackground(bg.key)}
+                              className="flex-shrink-0 flex flex-col items-center gap-1.5"
+                              title={bg.label}
+                            >
+                              <div className={cn(
+                                "w-14 h-14 rounded-xl overflow-hidden transition-all",
+                                background === bg.key
+                                  ? "ring-2 ring-[#0f0f0f] ring-offset-2"
+                                  : "hover:ring-1 hover:ring-[#a3a3a3] ring-offset-1"
+                              )}>
+                                {bg.image_url ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={thumbUrl(bg.image_url)} alt={bg.label} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full bg-[#f5f5f5] flex items-center justify-center">
+                                    <ImageIcon className="w-4 h-4 text-[#a3a3a3]" />
+                                  </div>
+                                )}
+                              </div>
+                              <span className={cn(
+                                "text-[9px] text-center leading-tight max-w-[56px] truncate",
+                                background === bg.key ? "text-[#0f0f0f] font-semibold" : "text-[#a3a3a3]"
+                              )}>
+                                {bg.label}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <ModelSelector />
                 )}
@@ -1348,7 +1389,8 @@ export default function StudioPage() {
                   </div>
                 </div>
 
-                {/* Arka Plan */}
+                {/* Arka Plan — Mankenlerim modunda BÖLÜM 2'de gösterilir */}
+                {kiyafetSource !== "manken" && (
                 <div>
                   <label className="block text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Arka Plan</label>
                   <div className="grid grid-cols-5 gap-2">
@@ -1376,6 +1418,7 @@ export default function StudioPage() {
                     ))}
                   </div>
                 </div>
+                )}
 
                 {/* Manken Tipi — Nano modda gösterilmez */}
                 {!isNano && (
