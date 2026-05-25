@@ -108,6 +108,7 @@ export const tryonApi = {
     background?: string;
     quality?: string;
     aesthetic?: string;
+    crop_type?: string;
     garment_detail_urls?: string[];
   }) => {
     const form = new FormData();

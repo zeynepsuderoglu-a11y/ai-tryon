@@ -841,6 +841,7 @@ async def run_tryon(
     provider: str = Form("fashn"),
     background: str = Form("white_studio"),
     aesthetic: str = Form("auto"),
+    crop_type: str = Form("full_body"),
     garment_detail_urls: str = Form(""),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -874,6 +875,7 @@ async def run_tryon(
             raise HTTPException(status_code=404, detail="Mannequin not found")
         effective_model_image_url = model_image_url if model_image_url else mannequin.image_url
         is_face_only = True  # Manken yüz fotoğrafı — run_tryon atlanır
+        effective_crop_type = crop_type  # kullanıcının seçimi geçerli
 
     # Krediyi düş
     await credit_service.deduct_credits(

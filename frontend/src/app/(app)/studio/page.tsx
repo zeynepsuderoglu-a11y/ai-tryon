@@ -361,6 +361,7 @@ export default function StudioPage() {
   /* ── Kıyafet sekmesi — model kaynağı ── */
   const [kiyafetSource, setKiyafetSource] = useState<"model" | "manken">("model");
   const [kiyafetMannequinId, setKiyafetMannequinId] = useState<string | null>(null);
+  const [kiyafetCropType, setKiyafetCropType] = useState<"full_body" | "half_body">("full_body");
 
   /* ── Mobil Sidebar ── */
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -502,6 +503,7 @@ export default function StudioPage() {
             ? { mannequin_id: kiyafetMannequinId! }
             : { model_asset_id: selectedModelId! }),
           category: garmentCategory, body_type: bodyType, provider: "fashn", background, aesthetic,
+          crop_type: kiyafetSource === "manken" ? kiyafetCropType : undefined,
           ...(garmentDetailUrls.length > 0 ? { garment_detail_urls: garmentDetailUrls } : {}),
         });
         setGenerationId(result.generation_id);
@@ -1277,6 +1279,31 @@ export default function StudioPage() {
                         ))}
                       </div>
                     )}
+
+                    {/* Çerçeve — Tam Boy / Yarım Boy */}
+                    <div className="mt-4 pt-4 border-t border-[#f0f0f0]">
+                      <p className="text-xs font-medium text-[#737373] uppercase tracking-wider mb-3">Çerçeve</p>
+                      <div className="flex gap-2">
+                        {([
+                          { value: "full_body",  label: "Tam Boy",   desc: "Baş → ayak" },
+                          { value: "half_body",  label: "Yarım Boy", desc: "Baş → diz" },
+                        ] as const).map((c) => (
+                          <button
+                            key={c.value}
+                            onClick={() => setKiyafetCropType(c.value)}
+                            className={cn(
+                              "flex-1 flex flex-col items-center gap-0.5 py-2.5 px-2 rounded-xl border text-center transition-all",
+                              kiyafetCropType === c.value
+                                ? "border-[#0f0f0f] bg-[#0f0f0f] text-white"
+                                : "border-[#e8e8e8] text-[#737373] hover:border-[#0f0f0f] hover:text-[#0f0f0f]"
+                            )}
+                          >
+                            <span className="text-xs font-semibold">{c.label}</span>
+                            <span className={cn("text-[9px]", kiyafetCropType === c.value ? "text-white/60" : "text-[#c0c0c0]")}>{c.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
                     {/* Arka Plan — manken seçilince hemen altında */}
                     {backgroundsList.length > 0 && (
