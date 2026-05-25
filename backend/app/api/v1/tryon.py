@@ -471,7 +471,8 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                                    body_type: str = "standard", provider: str = "fashn",
                                    background: str = "white_studio", quality: str = "high",
                                    aesthetic: str = "auto", crop_type: str = "full_body",
-                                   garment_detail_urls: list[str] | None = None):
+                                   garment_detail_urls: list[str] | None = None,
+                                   is_face_only: bool = False):
     """FASHN.ai ile try-on işlemi yap, sonucu kaydet."""
     from app.core.database import AsyncSessionLocal
     async with AsyncSessionLocal() as db:
@@ -640,11 +641,16 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     detail_note = f", {analysis.critical_detail}"
                     logger.info("[%s] critical_detail eklendi: %s", generation_id, analysis.critical_detail)
 
+                _pose_instruction = (
+                    "generate a confident elegant fashion editorial pose"
+                    if is_face_only
+                    else "preserve pose"
+                )
                 base_prompt = (
                     f"{closure_rule + ', ' if closure_rule else ''}"
                     f"{_locks + ', ' if _locks else ''}"
                     f"{outfit_completion}, {accessories_note}, "
-                    f"single model only, preserve pose, {crop_frame}, {background_desc}, "
+                    f"single model only, {_pose_instruction}, {crop_frame}, {background_desc}, "
                     f"photorealistic{detail_note}"
                 )
 
@@ -667,40 +673,66 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                     logger.info("[%s] Etiket temizlendi, temiz URL kullanılıyor", generation_id)
 
                 # ── Primary: FASHN tryon-v1.6 (gerçek sanal giydirme) ────────
-                logger.info("[%s] FASHN tryon-v1.6 başlatılıyor — category=%s", generation_id, analysis.category)
+                # is_face_only=True ise run_tryon atlanır — direkt product-to-model
+                if not is_face_only:
+                    logger.info("[%s] FASHN tryon-v1.6 başlatılıyor — category=%s", generation_id, analysis.category)
+                    try:
+                        run_result = await fashn_service.run_tryon(
+                            model_image_url=_cloudinary_crop_3x4(model_image_url),
+                            garment_image_url=garment_url_clean,
+                            category=analysis.category,
+                            mode="quality",
+                            moderation_level="permissive",
+                            segmentation_free=True,
+                        )
+                        prediction_id = run_result.get("id")
+                        if not prediction_id:
+                            raise RuntimeError("Görsel üretimi başlatılamadı")
 
-                try:
-                    run_result = await fashn_service.run_tryon(
-                        model_image_url=_cloudinary_crop_3x4(model_image_url),
-                        garment_image_url=garment_url_clean,
-                        category=analysis.category,
-                        mode="quality",
-                        moderation_level="permissive",
-                        segmentation_free=True,
-                    )
-                    prediction_id = run_result.get("id")
-                    if not prediction_id:
-                        raise RuntimeError("Görsel üretimi başlatılamadı")
+                        final = await fashn_service.poll_until_complete(prediction_id)
+                        raw_output = final.get("output", [])
+                        output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
+                        output_urls = output_urls[:1]
 
-                    final = await fashn_service.poll_until_complete(prediction_id)
-                    raw_output = final.get("output", [])
-                    output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
-                    output_urls = output_urls[:1]
+                        if not output_urls:
+                            raise RuntimeError("Görsel çıktısı alınamadı")
 
-                    if not output_urls:
-                        raise RuntimeError("Görsel çıktısı alınamadı")
+                        logger.info("[%s] FASHN tryon-v1.6 tamamlandı", generation_id)
+                        output_urls = [await split_composite_if_needed(u) for u in output_urls]
+                        output_urls = [await clean_output_image(u) for u in output_urls]
 
-                    logger.info("[%s] FASHN tryon-v1.6 tamamlandı", generation_id)
-                    output_urls = [await split_composite_if_needed(u) for u in output_urls]
-                    output_urls = [await clean_output_image(u) for u in output_urls]
-
-                except Exception as fashn_err:
-                    # ── Fallback: product-to-model ────────────────────────────
-                    logger.warning(
-                        "[%s] tryon-v1.6 başarısız (%s) — product-to-model fallback",
-                        generation_id, fashn_err
-                    )
-                    logger.info("[%s] Fallback prompt[:200]: %s", generation_id, base_prompt[:200])
+                    except Exception as fashn_err:
+                        # ── Fallback: product-to-model ────────────────────────────
+                        logger.warning(
+                            "[%s] tryon-v1.6 başarısız (%s) — product-to-model fallback",
+                            generation_id, fashn_err
+                        )
+                        logger.info("[%s] Fallback prompt[:200]: %s", generation_id, base_prompt[:200])
+                        _fashn_aspect = "2:3" if crop_type == "full_body" else "3:4"
+                        run_result = await fashn_service.run_product_to_model(
+                            product_image_url=garment_url_clean,
+                            model_image_url=_cloudinary_crop_3x4(model_image_url),
+                            prompt=base_prompt,
+                            resolution="1k",
+                            aspect_ratio=_fashn_aspect,
+                            num_images=1,
+                        )
+                        prediction_id = run_result.get("id")
+                        if not prediction_id:
+                            raise RuntimeError("Görsel üretimi başlatılamadı")
+                        final = await fashn_service.poll_until_complete(prediction_id)
+                        raw_output = final.get("output", [])
+                        output_urls = [raw_output] if isinstance(raw_output, str) else list(raw_output)
+                        output_urls = output_urls[:1]
+                        if not output_urls:
+                            raise RuntimeError("Görsel çıktısı alınamadı")
+                        output_urls = [await split_composite_if_needed(u) for u in output_urls]
+                        output_urls = [await clean_output_image(u) for u in output_urls]
+                        logger.info("[%s] product-to-model fallback tamamlandı", generation_id)
+                else:
+                    # ── Yüz fotoğrafı → direkt product-to-model ──────────────
+                    logger.info("[%s] Yüz referansı — direkt product-to-model başlatılıyor", generation_id)
+                    logger.info("[%s] Prompt[:200]: %s", generation_id, base_prompt[:200])
                     _fashn_aspect = "2:3" if crop_type == "full_body" else "3:4"
                     run_result = await fashn_service.run_product_to_model(
                         product_image_url=garment_url_clean,
@@ -721,7 +753,7 @@ async def process_tryon_background(generation_id: uuid.UUID, model_image_url: st
                         raise RuntimeError("Görsel çıktısı alınamadı")
                     output_urls = [await split_composite_if_needed(u) for u in output_urls]
                     output_urls = [await clean_output_image(u) for u in output_urls]
-                    logger.info("[%s] product-to-model fallback tamamlandı", generation_id)
+                    logger.info("[%s] product-to-model (face-only) tamamlandı", generation_id)
 
                 logger.info("[%s] FASHN tamamlandı, kullanıcıya gösterilecek", generation_id)
 
@@ -813,6 +845,7 @@ async def run_tryon(
 
     effective_crop_type = "full_body"
 
+    is_face_only = False
     if model_asset_id is not None:
         model_result = await db.execute(
             select(ModelAsset).where(ModelAsset.id == model_asset_id, ModelAsset.is_active == True)
@@ -831,6 +864,7 @@ async def run_tryon(
         if not mannequin:
             raise HTTPException(status_code=404, detail="Mannequin not found")
         effective_model_image_url = model_image_url if model_image_url else mannequin.image_url
+        is_face_only = True  # Manken yüz fotoğrafı — run_tryon atlanır
 
     # Krediyi düş
     await credit_service.deduct_credits(
@@ -863,7 +897,7 @@ async def run_tryon(
         process_tryon_background,
         generation.id, effective_model_image_url, garment_url, "tops", "front", body_type, provider,
         background, "high", aesthetic, effective_crop_type,
-        _detail_urls,
+        _detail_urls, is_face_only,
     )
 
     return TryOnResponse(generation_id=generation.id, status=generation.status)
