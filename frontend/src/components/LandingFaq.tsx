@@ -55,13 +55,13 @@ export default function LandingFaq() {
 
         {/* Badge */}
         <div className="flex justify-center mb-5">
-          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
+          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#3B82F6", borderColor: "rgba(59,130,246,0.3)", background: "rgba(59,130,246,0.1)" }}>
             FAQ
           </span>
         </div>
 
         <h2 className="text-4xl sm:text-5xl font-bold text-center text-white mb-3 tracking-tight">
-          Sıkça Sorulan <span style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Sorular</span>
+          Sıkça Sorulan <span style={{ color: "#93C5FD" }}>Sorular</span>
         </h2>
         <p className="text-center text-[#9ca3af] mb-10">Cevabını bulamadığınız sorular için bizimle iletişime geçebilirsiniz</p>
 
@@ -85,7 +85,7 @@ export default function LandingFaq() {
               className="px-4 py-2 rounded-full text-sm font-medium transition-all"
               style={
                 cat === c
-                  ? { background: "linear-gradient(135deg, #C9A84C, #8B6914)", color: "#ffffff" }
+                  ? { background: "linear-gradient(135deg, #3B82F6, #1D4ED8)", color: "#ffffff" }
                   : { background: "rgba(255,255,255,0.05)", color: "#9ca3af", border: "1px solid rgba(255,255,255,0.1)" }
               }
             >
@@ -110,7 +110,7 @@ export default function LandingFaq() {
                 className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <HelpCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#C9A84C" }} />
+                  <HelpCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#3B82F6" }} />
                   <span className="text-sm font-medium text-white">{faq.q}</span>
                 </div>
                 <ChevronDown
@@ -133,7 +133,7 @@ export default function LandingFaq() {
           <Link
             href="/iletisim"
             className="inline-flex items-center px-8 py-3.5 rounded-full text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            style={{ background: "linear-gradient(135deg, #C9A84C 0%, #8B6914 100%)" }}
+            style={{ background: "#FFFFFF", color: "#070D1A" }}
           >
             Destek Ekibimize Ulaşın
           </Link>

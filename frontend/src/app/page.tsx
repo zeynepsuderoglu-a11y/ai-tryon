@@ -75,7 +75,7 @@ const STATS = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen text-white" style={{ background: "#080808" }}>
+    <div className="min-h-screen text-white" style={{ background: "#070D1A" }}>
 
       <LandingNav activePage="home" />
 
@@ -83,19 +83,19 @@ export default function LandingPage() {
       <section className="relative min-h-screen flex flex-col items-center justify-center pt-16 pb-16 px-6 overflow-hidden">
         {/* Background glow */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-15 blur-[120px]" style={{ background: "radial-gradient(circle, #C9A84C 0%, #8B6914 60%, transparent 100%)" }} />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full opacity-15 blur-[120px]" style={{ background: "radial-gradient(circle, #3B82F6 0%, #1D4ED8 60%, transparent 100%)" }} />
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center z-10">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-sm" style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.3)", color: "#D4AF37" }}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-sm" style={{ background: "rgba(59,130,246,0.12)", border: "1px solid rgba(59,130,246,0.3)", color: "#3B82F6" }}>
             <Sparkles className="w-3.5 h-3.5" />
             Yapay Zeka Destekli E-Ticaret Çözümü
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-4 leading-tight">
             Katalog Çekimi Olmadan<br />
-            <span style={{ background: "linear-gradient(135deg, #F0D060 0%, #D4AF37 50%, #C9A84C 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span style={{ color: "#93C5FD" }}>
               Profesyonel Görseller
             </span>
           </h1>
@@ -110,8 +110,8 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-4 mb-14">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-              style={{ background: "linear-gradient(135deg, #C9A84C 0%, #8B6914 100%)" }}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+              style={{ background: "#FFFFFF", color: "#070D1A" }}
             >
               Ücretsiz Başla <ArrowRight className="w-4 h-4" />
             </Link>
@@ -149,12 +149,12 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
 
           <div className="flex justify-center mb-5">
-            <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
+            <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#3B82F6", borderColor: "rgba(59,130,246,0.3)", background: "rgba(59,130,246,0.1)" }}>
               AI-powered Solutions
             </span>
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-center text-white mb-3 tracking-tight">
-            Kapsamlı <span style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>AI Çözümleri</span>
+            Kapsamlı <span style={{ color: "#93C5FD" }}>AI Çözümleri</span>
           </h2>
           <p className="text-center text-[#9ca3af] mb-14 max-w-xl mx-auto">E-ticaret görsel ihtiyaçlarınız için yapay zeka destekli tüm çözümlerimiz tek çatı altında</p>
 
@@ -172,13 +172,13 @@ export default function LandingPage() {
                 </div>
                 <div className="mt-3">
                   <p className="text-xs font-medium mb-0.5" style={{ color: "#9ca3af" }}>
-                    {s.title} <span className="mx-1 opacity-40">/</span> <span style={{ color: "#D4AF37" }}>{s.tag}</span>
+                    {s.title} <span className="mx-1 opacity-40">/</span> <span style={{ color: "#3B82F6" }}>{s.tag}</span>
                   </p>
                   <p className="text-[13px] text-[#9ca3af] leading-relaxed mb-4">{s.desc}</p>
                   <ul className="space-y-1.5">
                     {s.features.map((f) => (
                       <li key={f} className="flex items-center gap-2 text-xs text-[#6b7280]">
-                        <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: "#C9A84C" }} />
+                        <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: "#3B82F6" }} />
                         {f}
                       </li>
                     ))}
@@ -191,8 +191,8 @@ export default function LandingPage() {
           <div className="flex justify-center">
             <Link
               href="/register"
-              className="px-8 py-3.5 rounded-full text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-              style={{ background: "linear-gradient(135deg, #C9A84C 0%, #8B6914 100%)" }}
+              className="px-8 py-3.5 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity"
+              style={{ background: "#FFFFFF", color: "#070D1A" }}
             >
               Tüm Hizmetleri Keşfet
             </Link>
@@ -221,7 +221,7 @@ export default function LandingPage() {
       {/* ── CTA ─────────────────────────────────────────────────────── */}
       <section className="py-24 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full opacity-10 blur-[100px]" style={{ background: "radial-gradient(circle, #C9A84C 0%, #8B6914 100%)" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] rounded-full opacity-10 blur-[100px]" style={{ background: "radial-gradient(circle, #3B82F6 0%, #1D4ED8 100%)" }} />
         </div>
         <div className="relative max-w-2xl mx-auto">
           <h2 className="text-4xl sm:text-6xl font-bold text-white mb-5 tracking-tight">

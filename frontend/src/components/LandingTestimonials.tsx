@@ -11,7 +11,7 @@ const TESTIMONIALS = [
     badge: "%80 hız artışı",
     stars: 5,
     text: "Ghost manken özelliği inanılmaz! Daha önce Photoshop'ta saatlerce uğraştığım işlemleri artık tek tıkla yapıyorum. İşimi %80 hızlandırdım.",
-    color: "#D4AF37",
+    color: "#3B82F6",
     bg: "from-yellow-600 to-amber-800",
   },
   {
@@ -22,7 +22,7 @@ const TESTIMONIALS = [
     badge: "Maliyet tasarrufu",
     stars: 5,
     text: "Katalog çekimi için aylık binlerce lira harcıyorduk. StudyoiMA sayesinde bu maliyeti sıfırladık. Görsel kalitesi gerçekten etkileyici.",
-    color: "#F0D060",
+    color: "#93C5FD",
     bg: "from-amber-500 to-yellow-700",
   },
   {
@@ -33,7 +33,7 @@ const TESTIMONIALS = [
     badge: "10x daha hızlı",
     stars: 5,
     text: "Gözlük sanal deneme özelliği müşterilerimizin satın alma kararını çok kolaylaştırdı. Dönüşüm oranımız %40 arttı.",
-    color: "#C9A84C",
+    color: "#3B82F6",
     bg: "from-yellow-700 to-amber-900",
   },
 ];
@@ -48,13 +48,13 @@ export default function LandingTestimonials() {
 
         {/* Badge */}
         <div className="flex justify-center mb-5">
-          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
+          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#3B82F6", borderColor: "rgba(59,130,246,0.3)", background: "rgba(59,130,246,0.1)" }}>
             Customer Love
           </span>
         </div>
 
         <h2 className="text-4xl sm:text-5xl font-bold text-center text-white mb-3 tracking-tight">
-          Müşterilerimiz <span style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Ne Diyor?</span>
+          Müşterilerimiz <span style={{ color: "#93C5FD" }}>Ne Diyor?</span>
         </h2>
         <p className="text-center text-[#9ca3af] mb-14">Binlerce e-ticaret işletmesi StudyoiMA&apos;yı tercih ediyor</p>
 
@@ -64,7 +64,7 @@ export default function LandingTestimonials() {
           <div className="flex items-start gap-4 mb-6">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
-              style={{ background: `linear-gradient(135deg, ${t.color}, #B8952A)` }}
+              style={{ background: `linear-gradient(135deg, ${t.color}, #2563EB)` }}
             >
               {t.initials}
             </div>
@@ -100,7 +100,7 @@ export default function LandingTestimonials() {
                 style={{
                   width: i === idx ? "28px" : "8px",
                   height: "8px",
-                  background: i === idx ? "linear-gradient(135deg, #C9A84C, #8B6914)" : "rgba(255,255,255,0.2)",
+                  background: i === idx ? "linear-gradient(135deg, #3B82F6, #1D4ED8)" : "rgba(255,255,255,0.2)",
                 }}
               />
             ))}

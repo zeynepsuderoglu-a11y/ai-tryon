@@ -45,7 +45,7 @@ const PLANS = [
   },
   {
     icon: <Crown className="w-5 h-5 text-white" />,
-    iconBg: "linear-gradient(135deg, #C9A84C, #8B6914)",
+    iconBg: "linear-gradient(135deg, #3B82F6, #1D4ED8)",
     name: "Pro",
     desc: "Büyüyen e-ticaret işletmeleri için",
     price: 1350,
@@ -112,13 +112,13 @@ export default function LandingPricing() {
 
         {/* Badge */}
         <div className="flex justify-center mb-5">
-          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
+          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#3B82F6", borderColor: "rgba(59,130,246,0.3)", background: "rgba(59,130,246,0.1)" }}>
             Transparent Pricing
           </span>
         </div>
 
         <h2 className="text-4xl sm:text-5xl font-bold text-center text-white mb-3 tracking-tight">
-          Esnek <span style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Fiyatlandırma</span>
+          Esnek <span style={{ color: "#93C5FD" }}>Fiyatlandırma</span>
         </h2>
         <p className="text-center text-[#9ca3af] mb-14">İhtiyacınıza uygun plan seçin. Kredi kartı gerekmez, istediğiniz zaman iptal edin.</p>
 
@@ -130,13 +130,13 @@ export default function LandingPricing() {
               className="relative rounded-2xl p-5 flex flex-col"
               style={
                 plan.popular
-                  ? { background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(236,72,153,0.1))", border: "1px solid rgba(201,168,76,0.5)" }
+                  ? { background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(236,72,153,0.1))", border: "1px solid rgba(59,130,246,0.4)" }
                   : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }
               }
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="text-[10px] font-bold px-3 py-1 rounded-full text-white whitespace-nowrap" style={{ background: "linear-gradient(135deg, #C9A84C, #8B6914)" }}>
+                  <span className="text-[10px] font-bold px-3 py-1 rounded-full text-white whitespace-nowrap" style={{ background: "linear-gradient(135deg, #3B82F6, #1D4ED8)" }}>
                     En Popüler
                   </span>
                 </div>
@@ -162,7 +162,7 @@ export default function LandingPricing() {
                 )}
                 {plan.credits && (
                   <div className="mt-2 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ background: plan.popular ? "#D4AF37" : "#6b7280" }} />
+                    <span className="w-2 h-2 rounded-full" style={{ background: plan.popular ? "#3B82F6" : "#6b7280" }} />
                     <span className="text-xs text-[#9ca3af]">{plan.credits} Kredi</span>
                   </div>
                 )}
@@ -187,7 +187,7 @@ export default function LandingPricing() {
                 className="w-full text-center py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90"
                 style={
                   plan.popular
-                    ? { background: "linear-gradient(135deg, #C9A84C, #8B6914)", color: "#ffffff" }
+                    ? { background: "#FFFFFF", color: "#070D1A" }
                     : { background: "rgba(255,255,255,0.08)", color: "#d1d5db", border: "1px solid rgba(255,255,255,0.1)" }
                 }
               >

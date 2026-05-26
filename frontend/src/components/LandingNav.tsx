@@ -34,7 +34,7 @@ export default function LandingNav({ activePage = "home" }: LandingNavProps) {
           ))}
           <Link
             href="/iletisim"
-            className={`text-sm transition-colors ${activePage === "iletisim" ? "text-[#D4AF37]" : "text-[#9ca3af] hover:text-white"}`}
+            className={`text-sm transition-colors ${activePage === "iletisim" ? "text-[#3B82F6]" : "text-[#9ca3af] hover:text-white"}`}
           >
             İletişim
           </Link>
@@ -47,7 +47,7 @@ export default function LandingNav({ activePage = "home" }: LandingNavProps) {
           <Link
             href="/register"
             className="text-sm font-medium px-5 py-2 rounded-full text-white hover:opacity-90 transition-opacity"
-            style={{ background: "linear-gradient(135deg, #C9A84C 0%, #8B6914 100%)" }}
+            style={{ background: "#FFFFFF", color: "#070D1A" }}
           >
             Ücretsiz Başla
           </Link>
