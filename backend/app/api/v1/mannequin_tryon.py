@@ -132,6 +132,7 @@ async def _process_background(
                 background_image_url=background_image_url,
                 texture_prompt=analysis.texture_prompt,
                 category=analysis.category,
+                photo_type=analysis.photo_type,
             )
             logger.info("[mannequin-tryon/%s] İlk üretim tamamlandı: %s", generation_id, output_url)
 
@@ -153,6 +154,7 @@ async def _process_background(
                     texture_prompt=analysis.texture_prompt,
                     category=analysis.category,
                     extra_instruction=quality["retry_emphasis"],
+                    photo_type=analysis.photo_type,
                 )
                 logger.info("[mannequin-tryon/%s] Retry tamamlandı: %s", generation_id, output_url)
             logger.info("[mannequin-tryon/%s] Tamamlandı: %s", generation_id, output_url)

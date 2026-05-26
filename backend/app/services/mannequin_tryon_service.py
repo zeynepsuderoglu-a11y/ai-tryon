@@ -33,7 +33,7 @@ _MANNEQUIN_POSE_BY_CATEGORY = {
 _MANNEQUIN_POSE_DEFAULT = "natural confident pose, slight 3/4 angle, relaxed elegant stance"
 
 
-def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False, texture_prompt: str = "", category: str = "one-pieces") -> str:
+def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str, crop_type: str = "full_body", footwear: str = "", has_bg_image: bool = False, texture_prompt: str = "", category: str = "one-pieces", photo_type: str = "auto") -> str:
     detail_block = ""
     if texture_prompt:
         detail_block += f"GARMENT TEXTURE & MATERIAL: {texture_prompt}\n\n"
@@ -60,7 +60,19 @@ def _build_prompt(critical_detail: str, is_sleepwear: bool, background_desc: str
 
     pose = _MANNEQUIN_POSE_BY_CATEGORY.get(category, _MANNEQUIN_POSE_DEFAULT)
 
+    flat_lay_note = ""
+    if photo_type == "flat-lay":
+        flat_lay_note = (
+            "FLAT-LAY ORIENTATION: IMAGE 2 is a flat-lay photo (garment lying face-up on a surface). "
+            "In a flat-lay, the RIGHT side of the image = the WEARER'S LEFT side, and the LEFT side of the image = the WEARER'S RIGHT side. "
+            "Apply this mirror-correction when placing logos, pockets, and details: "
+            "if the logo appears on the RIGHT of the flat-lay image, place it on the model's LEFT chest; "
+            "if the logo appears on the LEFT of the flat-lay image, place it on the model's RIGHT chest.\n\n"
+        )
+
     return f"""{image_refs}
+
+{flat_lay_note}
 
 {detail_block}Produce a professional e-commerce fashion photo of the model from IMAGE 1 wearing the garment from IMAGE 2.
 Copy the garment from IMAGE 2 exactly as it is — same color, fabric, pattern, neckline, sleeve length, every button, every trim detail. Do not change, add, or remove anything.{footwear_line}
@@ -68,7 +80,7 @@ SILHOUETTE IS CRITICAL: preserve the exact shape, volume, drape, and proportions
 TEXTURE & PATTERN IS CRITICAL: reproduce ALL surface decoration exactly — embroidery, embossed patterns, prints, jacquard, lace, stitching details. Do NOT simplify, smooth over, or omit any texture or pattern visible in IMAGE 2.
 COLOR ACCURACY IS CRITICAL: reproduce the exact color from IMAGE 2 with the same hue, saturation, and depth — do NOT lighten, brighten, desaturate, or shift the color in any way.
 LOGO/PRINT ACCURACY IS CRITICAL: if any logo, brand mark, or graphic print exists on IMAGE 2, reproduce it at the exact same position, size, and orientation — do NOT move, resize, mirror, or omit any logo.
-FIDELITY RULES — do NOT violate: do NOT add sleeve stripes or ribbed cuffs not in IMAGE 2; do NOT add buttons beyond the exact count in IMAGE 2; do NOT add side slits or hem cuts not in IMAGE 2; if piping is curved/wavy, do NOT straighten it.
+FIDELITY RULES — do NOT violate: do NOT add sleeve stripes or ribbed cuffs not in IMAGE 2; do NOT add buttons beyond the exact count in IMAGE 2; do NOT add side slits or hem cuts not in IMAGE 2; if piping is curved/wavy, do NOT straighten it; do NOT add chest pockets, breast pockets, or any pockets that are NOT clearly visible in IMAGE 2.
 The model's exposed skin (face, neck, hands, arms) must remain its exact natural tone — no color cast, tint, or bleed from the garment color onto skin.
 {crop_line}
 {bg_line}
@@ -145,6 +157,7 @@ class MannequinTryonService:
         texture_prompt: str = "",
         category: str = "one-pieces",
         extra_instruction: str = "",
+        photo_type: str = "auto",
     ) -> str:
         # Yüz fotoğrafını URL'den indir
         async with httpx.AsyncClient(timeout=30) as client:
@@ -189,6 +202,7 @@ class MannequinTryonService:
             has_bg_image=bg_bytes is not None,
             texture_prompt=texture_prompt,
             category=category,
+            photo_type=photo_type,
         )
         if extra_instruction:
             prompt = prompt + f"\n\nCORRECTION REQUIRED: {extra_instruction}"
