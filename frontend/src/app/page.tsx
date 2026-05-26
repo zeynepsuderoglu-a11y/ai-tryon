@@ -8,6 +8,7 @@ import LandingHowItWorks from "@/components/LandingHowItWorks";
 import LandingTestimonials from "@/components/LandingTestimonials";
 import LandingPricing from "@/components/LandingPricing";
 import LandingFaq from "@/components/LandingFaq";
+import LandingBeforeAfter from "@/components/LandingBeforeAfter";
 
 export const metadata: Metadata = {
   title: "StudyoİMA AI — Kıyafet, Ghost Manken, Gözlük, Arka Plan & Video Üretimi",
@@ -139,6 +140,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Önce / Sonra Slider ─────────────────────────────────────── */}
+      <LandingBeforeAfter />
 
       {/* ── Hizmetler ───────────────────────────────────────────────── */}
       <section id="hizmetler" className="py-24 px-6" style={{ background: "rgba(255,255,255,0.02)" }}>
