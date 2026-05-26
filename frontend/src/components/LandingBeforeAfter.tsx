@@ -42,13 +42,13 @@ export default function LandingBeforeAfter() {
         {/* Başlık */}
         <div className="flex justify-center mb-5">
           <span className="text-xs font-medium px-4 py-1.5 rounded-full border"
-            style={{ color: "#c084fc", borderColor: "rgba(192,132,252,0.3)", background: "rgba(192,132,252,0.08)" }}>
+            style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
             Önce & Sonra
           </span>
         </div>
         <h2 className="text-4xl sm:text-5xl font-bold text-center text-white mb-3 tracking-tight">
           Farkı{" "}
-          <span style={{ background: "linear-gradient(135deg, #f0abfc, #c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          <span style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
             Kendiniz Görün
           </span>
         </h2>
@@ -79,7 +79,7 @@ export default function LandingBeforeAfter() {
           <div className="max-w-3xl mx-auto">
             <div className="flex justify-center mb-5">
               <span className="text-xs font-medium px-4 py-1.5 rounded-full border"
-                style={{ color: "#c084fc", borderColor: "rgba(192,132,252,0.3)", background: "rgba(192,132,252,0.08)" }}>
+                style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
                 Tanıtım Videosu
               </span>
             </div>

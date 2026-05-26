@@ -11,7 +11,7 @@ export default function LandingNav({ activePage = "home" }: LandingNavProps) {
   return (
     <nav
       className="fixed top-0 w-full z-50 border-b"
-      style={{ background: "rgba(8,8,16,0.85)", backdropFilter: "blur(16px)", borderColor: "rgba(255,255,255,0.08)" }}
+      style={{ background: "rgba(8,8,8,0.9)", backdropFilter: "blur(16px)", borderColor: "rgba(255,255,255,0.08)" }}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
         <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
@@ -34,7 +34,7 @@ export default function LandingNav({ activePage = "home" }: LandingNavProps) {
           ))}
           <Link
             href="/iletisim"
-            className={`text-sm transition-colors ${activePage === "iletisim" ? "text-[#c084fc]" : "text-[#9ca3af] hover:text-white"}`}
+            className={`text-sm transition-colors ${activePage === "iletisim" ? "text-[#D4AF37]" : "text-[#9ca3af] hover:text-white"}`}
           >
             İletişim
           </Link>
@@ -47,7 +47,7 @@ export default function LandingNav({ activePage = "home" }: LandingNavProps) {
           <Link
             href="/register"
             className="text-sm font-medium px-5 py-2 rounded-full text-white hover:opacity-90 transition-opacity"
-            style={{ background: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)" }}
+            style={{ background: "linear-gradient(135deg, #C9A84C 0%, #8B6914 100%)" }}
           >
             Ücretsiz Başla
           </Link>

@@ -54,13 +54,13 @@ export default function LandingHowItWorks() {
 
         {/* Badge */}
         <div className="flex justify-center mb-5">
-          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#c084fc", borderColor: "rgba(192,132,252,0.3)", background: "rgba(192,132,252,0.08)" }}>
+          <span className="text-xs font-medium px-4 py-1.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "rgba(212,175,55,0.3)", background: "rgba(212,175,55,0.08)" }}>
             Simple Process
           </span>
         </div>
 
         <h2 className="text-4xl sm:text-5xl font-bold text-center text-white mb-3 tracking-tight">
-          Nasıl <span style={{ background: "linear-gradient(135deg, #f0abfc, #c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Çalışır?</span>
+          Nasıl <span style={{ background: "linear-gradient(135deg, #F0D060, #D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Çalışır?</span>
         </h2>
         <p className="text-center text-[#9ca3af] text-base mb-10">Sadece 4 basit adımda profesyonel görseller oluşturun</p>
 
@@ -73,7 +73,7 @@ export default function LandingHowItWorks() {
               className="px-4 py-2 rounded-full text-sm font-medium transition-all"
               style={
                 active === tab.id
-                  ? { background: "linear-gradient(135deg, #a855f7, #ec4899)", color: "#ffffff" }
+                  ? { background: "linear-gradient(135deg, #C9A84C, #8B6914)", color: "#ffffff" }
                   : { background: "rgba(255,255,255,0.05)", color: "#9ca3af", border: "1px solid rgba(255,255,255,0.1)" }
               }
             >
@@ -92,13 +92,13 @@ export default function LandingHowItWorks() {
               style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
             >
               <div className="flex flex-col items-center gap-2 flex-shrink-0">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #B8952A, #8B6914)" }}>
                   {step.icon}
                 </div>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-xs font-bold" style={{ color: "#a855f7" }}>{step.num}</span>
+                  <span className="text-xs font-bold" style={{ color: "#C9A84C" }}>{step.num}</span>
                   <h4 className="text-sm font-semibold text-white">{step.title}</h4>
                 </div>
                 <p className="text-xs text-[#6b7280] leading-relaxed">{step.desc}</p>
@@ -111,7 +111,7 @@ export default function LandingHowItWorks() {
           <Link
             href="/register"
             className="px-8 py-3.5 rounded-full text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            style={{ background: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)" }}
+            style={{ background: "linear-gradient(135deg, #C9A84C 0%, #8B6914 100%)" }}
           >
             Şimdi Dene — Ücretsiz 5 Kredi
           </Link>
